@@ -1,17 +1,18 @@
+// src/components/CourseCard.jsx
 import React from "react";
-import { users } from "../data";
+import { users } from "../data/mockdata.jsx";
 
 function CourseCard({ course }) {
-  
-  // find instructor from users list
-  const instructor = users.find(
-    (user) => user.id === course.instructorId
-  );
+  const instructor = users.find(user => user.id === course.instructorId);
 
   return (
-    <div className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition relative">
+    <div className="bg-white rounded-xl shadow-md hover:shadow-lg transition relative overflow-hidden">
+      {/* Difficulty / Highlight badge */}
+      <span className="absolute top-4 left-4 bg-[#90CAF9] text-[#1976D2] text-xs px-2 py-1 rounded">
+        {course.difficulty}
+      </span>
 
-      {/* Highlight badge */}
+      {/* Updated badge for high rating */}
       {course.rating > 4.7 && (
         <span className="absolute top-4 right-4 bg-[#FEF3C7] text-xs px-2 py-1 rounded">
           Updated
@@ -22,34 +23,35 @@ function CourseCard({ course }) {
       <img
         src={course.image}
         alt={course.title}
-        className="w-full h-40 object-cover rounded-lg mb-4"
+        className="w-full h-44 object-cover"
       />
 
-      {/* Course Title */}
-      <h3 className="text-xl font-semibold mb-2">
-        {course.title}
-      </h3>
+      {/* Card Content */}
+      <div className="p-5 flex flex-col justify-between h-[220px]">
+        {/* Title */}
+        <h3 className="text-xl font-semibold mb-1 line-clamp-2">{course.title}</h3>
 
-      {/* Instructor */}
-      <p className="text-sm text-gray-600 mb-1">
-        Instructor: {instructor ? instructor.name : "Unknown"}
-      </p>
+        {/* Instructor */}
+        <p className="text-sm text-gray-600 mb-2">
+          {instructor ? instructor.name : "Unknown"}
+        </p>
 
-      {/* Difficulty Badge */}
-      <span className="inline-block bg-[#90CAF9] text-[#1976D2] text-xs px-2 py-1 rounded mb-3">
-        {course.difficulty}
-      </span>
+        {/* Short Description */}
+        <p className="text-sm text-gray-500 mb-3 line-clamp-3">
+          {course.shortDescription}
+        </p>
 
-      {/* Description */}
-      <p className="text-sm text-gray-600 mb-4">
-        {course.shortDescription}
-      </p>
+        {/* Rating and Students */}
+        <div className="flex items-center justify-between text-sm text-gray-600 mb-3">
+          <span>⭐ {course.rating}</span>
+          <span>👥 {course.studentsCount}</span>
+        </div>
 
-      {/* Button */}
-      <button className="px-4 py-2 rounded-lg bg-[#1976D2] text-white hover:opacity-90 transition">
-        View Details
-      </button>
-
+        {/* View Details Button */}
+        <button className="mt-auto w-full py-2 bg-[#1976D2] text-white rounded-lg hover:opacity-90 transition">
+          View Details
+        </button>
+      </div>
     </div>
   );
 }
