@@ -73,6 +73,93 @@ export const users = [
 		progress: {},
 	},
 ];
+// Lessons 
+export const lessons = [ 
+	{ 
+	    id: 'l1', 
+		title: 'Introduction to JavaScript', 
+		content: 'Learn the basics of JavaScript, including syntax and variables.', 
+		duration: 30, // minutes 
+		videoUrl: 'https://www.youtube.com/watch?v=W6NZfCO5SIk', 
+	}, 
+	{ 
+		id: 'l2', 
+		title: 'Advanced Functions', 
+		content: 'Explore higher-order functions and closures in JavaScript.', 
+		duration: 45, 
+		videoUrl: 'https://www.youtube.com/watch?v=8hWl6bG2RkY', 
+	}, 
+	{ 
+		id: 'l3', 
+		title: 'React Basics', 
+		content: 'Get started with React components and state management.', 
+		duration: 40, 
+		videoUrl: 'https://www.youtube.com/watch?v=Ke90Tje7VS0', 
+	}, 
+	{ 
+		id: 'l4', 
+		title: 'CSS Flexbox', 
+		content: 'Master layout techniques using CSS Flexbox.', 
+		duration: 35, 
+		videoUrl: 'https://www.youtube.com/watch?v=JJSoEo8JSnc', 
+	}, 
+	{ 
+		id: 'l5', 
+		title: 'Node.js Introduction', 
+		content: 'Learn the basics of Node.js and server-side JavaScript.', 
+		duration: 50, 
+		videoUrl: 'https://www.youtube.com/watch?v=TlB_eWDSMt4', 
+	}, 
+	{ 
+		id: 'l6', 
+		title: 'React Hooks Deep Dive', 
+		content: 'Understand React hooks and their advanced usage.', 
+		duration: 55, 
+		videoUrl: 'https://www.youtube.com/watch?v=dpw9EHD9LbA', 
+	}, 
+	{ 
+		id: 'l7', 
+		title: 'Basic Arithmetic', 
+		content: 'Learn addition, subtraction, multiplication, and division.', 
+		duration: 25, 
+		videoUrl: 'https://www.youtube.com/watch?v=1Fq3VZc2w2w', 
+	}, 
+	{ 
+		id: 'l8', title: 'Introduction to Algebra', 
+		content: 'Understand variables, equations, and simple algebraic expressions.', 
+		duration: 30, 
+		videoUrl: 'https://www.youtube.com/watch?v=QwT6tA5tHnY', 
+	}, 
+	{ 
+		id: 'l9', 
+		title: 'Basic Geometry', 
+		content: 'Explore shapes, area, and perimeter.', 
+		duration: 20, 
+		videoUrl: 'https://www.youtube.com/watch?v=QJY5b3W1t5I', 
+	}, 
+	{ 
+		id: 'l10', 
+		title: 'English Grammar Fundamentals', 
+		content: 'Learn about nouns, verbs, adjectives, and sentence structure.', 
+		duration: 30, 
+		videoUrl: 'https://www.youtube.com/watch?v=FQ4Fz8rP2jY', 
+	}, 
+	{ 
+		id: 'l11', 
+		title: 'Vocabulary Building', 
+		content: 'Expand your English vocabulary with common words and phrases.', 
+		duration: 20, 
+		videoUrl: 'https://www.youtube.com/watch?v=JkQq8rQkBqY', 
+	}, 
+	{ 
+		id: 'l12', 
+		title: 'Conversational English', 
+		content: 'Practice basic English conversations for everyday situations.', 
+		duration: 35, 
+		videoUrl: 'https://www.youtube.com/watch?v=3k9h1gk8QW8', 
+	}, 
+
+]; 
 //Courses
 export const courses = [
   {
