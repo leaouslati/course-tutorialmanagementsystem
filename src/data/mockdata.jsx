@@ -73,6 +73,111 @@ export const users = [
 		progress: {},
 	},
 ];
+//Courses
+export const courses = [
+  {
+    id: 'c1',
+    title: 'Complete JavaScript Course',
+    shortDescription: 'A comprehensive guide to JavaScript.',
+    description:
+      'Master JavaScript from basics to advanced concepts. Includes ES6, async programming, and more.',
+    instructorId: 'u2',
+    category: 'Programming',
+    difficulty: 'Beginner',
+    image:
+      'https://images.unsplash.com/photo-1519389950473-47c0e7f9c2b2?auto=format&fit=crop&w=400&q=80',
+    duration: 75, // minutes
+    rating: 4.7,
+    studentsCount: 120,
+    modules: ['m1', 'm3'],
+    createdAt: '2024-11-01',
+  },
+  {
+    id: 'c2',
+    title: 'React for Beginners',
+    shortDescription: 'Start building apps with React.',
+    description:
+      'Learn how to build web apps using React. Covers components, state, and hooks.',
+    instructorId: 'u5',
+    category: 'Web Development',
+    difficulty: 'Intermediate',
+    image:
+      'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=400&q=80',
+    duration: 95,
+    rating: 4.5,
+    studentsCount: 80,
+    modules: ['m2'],
+    createdAt: '2025-01-15',
+  },
+  {
+    id: 'c3',
+    title: 'CSS Layouts Mastery',
+    shortDescription: 'Become a CSS layout expert.',
+    description:
+      'Master modern CSS layout techniques including Flexbox and Grid.',
+    instructorId: 'u5',
+    category: 'Design',
+    difficulty: 'Advanced',
+    image:
+      'https://images.unsplash.com/photo-1503676382389-8bfa0eee3c8e?auto=format&fit=crop&w=400&q=80',
+    duration: 60,
+    rating: 4.8,
+    studentsCount: 60,
+    modules: ['m3'],
+    createdAt: '2025-03-10',
+  },
+  {
+    id: 'c4',
+    title: 'Node.js Essentials',
+    shortDescription: 'Learn Node.js for backend development.',
+    description:
+      'Get started with Node.js, Express, and building REST APIs.',
+    instructorId: 'u2',
+    category: 'Programming',
+    difficulty: 'Beginner',
+    image:
+      'https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=400&q=80',
+    duration: 70,
+    rating: 4.6,
+    studentsCount: 90,
+    modules: ['m4'],
+    createdAt: '2025-06-20',
+  },
+  {
+    id: 'c5',
+    title: 'Math 1: Foundations',
+    shortDescription: 'Essential math concepts for beginners.',
+    description:
+      'Learn arithmetic, algebra, and basic geometry. Perfect for students starting their math journey.',
+    instructorId: 'u5',
+    category: 'Mathematics',
+    difficulty: 'Beginner',
+    image:
+      'https://images.unsplash.com/photo-1503676382389-8bfa0eee3c8e?auto=format&fit=crop&w=400&q=80',
+    duration: 60,
+    rating: 4.9,
+    studentsCount: 150,
+    modules: ['m5'],
+    createdAt: '2025-07-10',
+  },
+  {
+    id: 'c6',
+    title: 'English Language Basics',
+    shortDescription: 'Build your English skills from scratch.',
+    description:
+      'Covers grammar, vocabulary, and conversational English for beginners.',
+    instructorId: 'u2',
+    category: 'Language',
+    difficulty: 'Beginner',
+    image:
+      'https://images.unsplash.com/photo-1465101046530-73398c7c7f94?auto=format&fit=crop&w=400&q=80',
+    duration: 55,
+    rating: 4.4,
+    studentsCount: 110,
+    modules: ['m6'],
+    createdAt: '2025-08-01',
+  },
+];
 //Modules 
  export const modules = [ { id: 'm1', title: 'JavaScript Fundamentals', order: 1, lessons: ['l1', 'l2'], }, { id: 'm2', title: 'React Introduction', order: 2, lessons: ['l3', 'l6'], }, { id: 'm3', title: 'CSS Mastery', order: 3, lessons: ['l4'], }, { id: 'm4', title: 'Node.js Basics', order: 4, lessons: ['l5'], }, { id: 'm5', title: 'Math Foundations', order: 5, lessons: ['l7', 'l8', 'l9'], }, 
  { id: 'm6', title: 'English Basics', order: 6, lessons: ['l10', 'l11', 'l12'], }, ];
