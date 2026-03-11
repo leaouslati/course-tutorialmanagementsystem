@@ -178,3 +178,6 @@ export const courses = [
     createdAt: '2025-08-01',
   },
 ];
+//Modules 
+ export const modules = [ { id: 'm1', title: 'JavaScript Fundamentals', order: 1, lessons: ['l1', 'l2'], }, { id: 'm2', title: 'React Introduction', order: 2, lessons: ['l3', 'l6'], }, { id: 'm3', title: 'CSS Mastery', order: 3, lessons: ['l4'], }, { id: 'm4', title: 'Node.js Basics', order: 4, lessons: ['l5'], }, { id: 'm5', title: 'Math Foundations', order: 5, lessons: ['l7', 'l8', 'l9'], }, 
+ { id: 'm6', title: 'English Basics', order: 6, lessons: ['l10', 'l11', 'l12'], }, ];
