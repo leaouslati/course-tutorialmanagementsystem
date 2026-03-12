@@ -1,59 +1,99 @@
 // src/components/CourseCard.jsx
 import React from "react";
-import { users } from "../data/mockdata.jsx";
+import { users } from "../data/mockdata";
 
 function CourseCard({ course }) {
-  const instructor = users.find(user => user.id === course.instructorId);
+
+  // find instructor using instructorId
+  const instructor = users.find(
+    (user) => user.id === course.instructorId
+  );
 
   return (
-    <div className="bg-white rounded-xl shadow-md hover:shadow-lg transition relative overflow-hidden">
-      {/* Difficulty / Highlight badge */}
-      <span className="absolute top-4 left-4 bg-[#90CAF9] text-[#1976D2] text-xs px-2 py-1 rounded">
-        {course.difficulty}
-      </span>
-
-      {/* Updated badge for high rating */}
-      {course.rating > 4.7 && (
-        <span className="absolute top-4 right-4 bg-[#FEF3C7] text-xs px-2 py-1 rounded">
-          Updated
-        </span>
-      )}
-
+    <div style={styles.card}>
+      
       {/* Course Image */}
       <img
         src={course.image}
         alt={course.title}
-        className="w-full h-44 object-cover"
+        style={styles.image}
       />
 
-      {/* Card Content */}
-      <div className="p-5 flex flex-col justify-between h-[220px]">
+      <div style={styles.content}>
+        
         {/* Title */}
-        <h3 className="text-xl font-semibold mb-1 line-clamp-2">{course.title}</h3>
+        <h3 style={styles.title}>{course.title}</h3>
 
         {/* Instructor */}
-        <p className="text-sm text-gray-600 mb-2">
-          {instructor ? instructor.name : "Unknown"}
+        <p style={styles.instructor}>
+          Instructor: {instructor ? instructor.name : "Unknown"}
         </p>
 
-        {/* Short Description */}
-        <p className="text-sm text-gray-500 mb-3 line-clamp-3">
+        {/* Description */}
+        <p style={styles.description}>
           {course.shortDescription}
         </p>
 
-        {/* Rating and Students */}
-        <div className="flex items-center justify-between text-sm text-gray-600 mb-3">
-          <span>⭐ {course.rating}</span>
-          <span>👥 {course.studentsCount}</span>
+        {/* Extra Info */}
+        <div style={styles.info}>
+          <span>{course.category}</span>
+          <span>{course.difficulty}</span>
         </div>
 
-        {/* View Details Button */}
-        <button className="mt-auto w-full py-2 bg-[#1976D2] text-white rounded-lg hover:opacity-90 transition">
-          View Details
-        </button>
+        <div style={styles.info}>
+          <span>⏱ {course.duration} min</span>
+          <span>⭐ {course.rating}</span>
+          <span>👨‍🎓 {course.studentsCount}</span>
+        </div>
+
       </div>
     </div>
   );
 }
 
 export default CourseCard;
+
+
+const styles = {
+  card: {
+    width: "280px",
+    backgroundColor: "#fff",
+    borderRadius: "10px",
+    overflow: "hidden",
+    boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
+    transition: "0.3s",
+  },
+
+  image: {
+    width: "100%",
+    height: "160px",
+    objectFit: "cover",
+  },
+
+  content: {
+    padding: "15px",
+  },
+
+  title: {
+    margin: "0 0 5px 0",
+  },
+
+  instructor: {
+    fontSize: "14px",
+    color: "#666",
+    marginBottom: "8px",
+  },
+
+  description: {
+    fontSize: "14px",
+    marginBottom: "10px",
+  },
+
+  info: {
+    display: "flex",
+    justifyContent: "space-between",
+    fontSize: "13px",
+    color: "#444",
+    marginTop: "5px",
+  },
+};
