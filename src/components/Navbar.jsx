@@ -18,7 +18,7 @@ export default function Navbar({ darkMode, toggleTheme, isLoggedIn = false }) {
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 md:px-6">
         <NavLink
           to="/"
-          className="flex items-center gap-2 text-2xl font-bold text-blue-600 transition hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+          className="flex items-center gap-2 text-2xl font-bold text-[#1976D2] transition hover:text-[#1565C0]"
         >
           <span className="hidden sm:inline">📚</span>
           <span>CourseHub</span>
@@ -32,8 +32,8 @@ export default function Navbar({ darkMode, toggleTheme, isLoggedIn = false }) {
               className={({ isActive }) =>
                 `font-medium transition duration-200 ${
                   isActive
-                    ? "border-b-2 border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400"
-                    : "text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400"
+                    ? "border-b-2 border-[#1976D2] text-[#1976D2]"
+                    : "text-gray-700 hover:text-[#1976D2]"
                 }`
               }
             >
@@ -48,8 +48,8 @@ export default function Navbar({ darkMode, toggleTheme, isLoggedIn = false }) {
             className={({ isActive }) =>
               `rounded-lg px-5 py-2 font-semibold transition duration-200 ${
                 isActive
-                  ? "bg-blue-600 text-white shadow-md"
-                  : "border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white dark:border-blue-400 dark:text-blue-400 dark:hover:bg-blue-500 dark:hover:text-white"
+                  ? "bg-[#1976D2] text-white shadow-md"
+                  : "border-2 border-[#1976D2] text-[#1976D2] hover:bg-[#1976D2] hover:text-white"
               }`
             }
           >
@@ -68,7 +68,7 @@ export default function Navbar({ darkMode, toggleTheme, isLoggedIn = false }) {
         <div className="flex items-center gap-3 md:hidden">
           <button
             onClick={toggleTheme}
-            className="rounded-lg border border-gray-300 px-3 py-2 text-gray-700 transition duration-200 dark:border-gray-600 dark:text-gray-300"
+            className="rounded-lg border border-gray-300 px-3 py-2 text-[#1976D2] transition duration-200"
             aria-label="Toggle dark mode"
           >
             {darkMode ? "☀️" : "🌙"}
@@ -76,7 +76,7 @@ export default function Navbar({ darkMode, toggleTheme, isLoggedIn = false }) {
 
           <button
             onClick={() => setMenuOpen(!menuOpen)}
-            className="rounded-lg border border-gray-300 px-3 py-2 text-gray-700 transition duration-200 dark:border-gray-600 dark:text-gray-300"
+            className="rounded-lg border border-[#1976D2] px-3 py-2 text-[#1976D2] transition duration-200"
             aria-label="Toggle menu"
             aria-expanded={menuOpen}
           >
@@ -86,7 +86,7 @@ export default function Navbar({ darkMode, toggleTheme, isLoggedIn = false }) {
       </div>
 
       {menuOpen && (
-        <div className="border-t border-gray-200 bg-gray-50 px-4 py-4 md:hidden dark:border-gray-700 dark:bg-gray-800">
+        <div className="border-t border-gray-200 bg-gray-50 px-4 py-4 md:hidden">
           <div className="flex flex-col gap-3">
             {navLinks.map((link) => (
               <NavLink
@@ -96,8 +96,8 @@ export default function Navbar({ darkMode, toggleTheme, isLoggedIn = false }) {
                 className={({ isActive }) =>
                   `rounded-lg px-4 py-2 font-medium transition duration-200 ${
                     isActive
-                      ? "bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300"
-                      : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+                      ? "bg-[#90CAF9] text-[#1976D2]"
+                      : "text-gray-700 hover:bg-[#90CAF9] hover:text-[#1976D2]"
                   }`
                 }
               >
@@ -108,7 +108,7 @@ export default function Navbar({ darkMode, toggleTheme, isLoggedIn = false }) {
             <NavLink
               to={isLoggedIn ? "/logout" : "/login"}
               onClick={closeMenu}
-              className="rounded-lg border-2 border-blue-600 bg-blue-600 px-4 py-2 text-center font-semibold text-white transition duration-200 hover:bg-blue-700 dark:border-blue-400 dark:bg-blue-500 dark:hover:bg-blue-600"
+              className="rounded-lg border-2 border-[#1976D2] bg-[#1976D2] px-4 py-2 text-center font-semibold text-white transition duration-200 hover:bg-[#1565C0]"
             >
               {isLoggedIn ? "Logout" : "Login"}
             </NavLink>
