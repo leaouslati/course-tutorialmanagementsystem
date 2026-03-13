@@ -1,5 +1,5 @@
 import React from "react";
-import { users } from "../data";
+import { users } from "../data/mockdata.js";
 
 function CourseCard({ course }) {
   
@@ -8,50 +8,87 @@ function CourseCard({ course }) {
     (user) => user.id === course.instructorId
   );
 
+  // Badge logic
+const isNew = new Date() - new Date(course.createdAt) < 1000 * 60 * 60 * 24 * 90; // 90 days
+  const isAdvanced = course.difficulty === "Advanced";
+
+  //colors
+  const difficultyColors = {
+  Beginner: "bg-green-100 text-green-800",
+  Intermediate: "bg-yellow-100 text-yellow-800",
+  Advanced: "bg-red-100 text-red-800",
+};
+
   return (
-    <div className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition relative">
+        <div className="bg-gray-100 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col relative max-w-md mx-auto overflow-hidden">
+          {/* Course Image & Badges */}
+          <div className="relative h-40 bg-gray-200">
+            <img
+              src={course.image}
+              alt={course.title}
+              className="w-full h-full object-cover rounded-t-xl"
+            />
+            {/* New Badge */}
+            {isNew && (
+              <span className="absolute top-3 left-3 bg-green-100 text-green-800 text-xs px-3 py-1 rounded-full font-semibold shadow">
+                New
+              </span>
+            )}
+            {/* Updated Badge */}
+            {course.rating > 4.7 && (
+              <span className="absolute top-3 right-3 bg-yellow-100 text-yellow-800 text-xs px-3 py-1 rounded-full font-semibold shadow">
+                Updated
+              </span>
+            )}
+          </div>
 
-      {/* Highlight badge */}
-      {course.rating > 4.7 && (
-        <span className="absolute top-4 right-4 bg-[#FEF3C7] text-xs px-2 py-1 rounded">
-          Updated
-        </span>
-      )}
+          {/* Card Content */}
+          <div className="p-6 flex flex-col flex-1">
+            {/* Difficulty Badge */}
+            <span
+              className={`inline-block px-3 py-1 rounded-full mb-3 text-xs font-semibold ${difficultyColors[course.difficulty]}`}
+            >
+              {course.difficulty}
+            </span>
 
-      {/* Course Image */}
-      <img
-        src={course.image}
-        alt={course.title}
-        className="w-full h-40 object-cover rounded-lg mb-4"
-      />
-
-      {/* Course Title */}
-      <h3 className="text-xl font-semibold mb-2">
-        {course.title}
-      </h3>
+            {/* Course Title */}
+            <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">
+              {course.title}
+            </h3>
 
       {/* Instructor */}
-      <p className="text-sm text-gray-600 mb-1">
-        Instructor: {instructor ? instructor.name : "Unknown"}
+      <p className="text-sm text-gray-500 mb-2 font-medium">
+        {instructor ? instructor.name : "Unknown"}
       </p>
 
-      {/* Difficulty Badge */}
-      <span className="inline-block bg-[#90CAF9] text-[#1976D2] text-xs px-2 py-1 rounded mb-3">
-        {course.difficulty}
-      </span>
 
-      {/* Description */}
-      <p className="text-sm text-gray-600 mb-4">
-        {course.shortDescription}
-      </p>
+            {/* Description */}
+            <p className="text-sm text-gray-600 mb-4 line-clamp-2">
+              {course.shortDescription}
+            </p>
 
-      {/* Button */}
-      <button className="px-4 py-2 rounded-lg bg-[#1976D2] text-white hover:opacity-90 transition">
-        View Details
-      </button>
+      <div className="flex items-center gap-4 mb-4 text-sm text-gray-600">
 
-    </div>
-  );
+  <div className="flex items-center gap-1">
+    <span>⭐</span>
+    <span>{course.rating}</span>
+  </div>
+
+  <div className="flex items-center gap-1">
+    <span>👥</span>
+    <span>{course.studentsCount}</span>
+  </div>
+
+</div>
+
+            {/* Button */}
+            <button className="w-full py-2 rounded-lg bg-[#1976D2] text-white font-semibold text-center hover:bg-blue-700 transition-colors shadow">
+              View Details
+            </button>
+          </div>
+        </div>
+      );
+
 }
 
 export default CourseCard;
