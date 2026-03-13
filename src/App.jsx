@@ -7,7 +7,7 @@ import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
 import Profile from "./pages/Profile.jsx";
 import ManageCourses from "./pages/ManageCourses.jsx";
-
+import './index.css';
 
 function App() {
   return (
