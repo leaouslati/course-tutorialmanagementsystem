@@ -20,7 +20,7 @@ const isNew = new Date() - new Date(course.createdAt) < 1000 * 60 * 60 * 24 * 90
 };
 
   return (
-<div className="bg-white-100 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col relative max-w-xl w-full mx-auto overflow-hidden">
+<div className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col relative max-w-xl w-full mx-auto overflow-hidden">
           {/* Course Image & Badges */}
           <div className="relative h-40 bg-gray-200">
             <img
@@ -84,12 +84,14 @@ const isNew = new Date() - new Date(course.createdAt) < 1000 * 60 * 60 * 24 * 90
 </div>
 
             {/* Button */}
-            <button
-              className="w-full py-2 rounded-lg text-white font-semibold text-center transition-colors shadow"
-              style={{ backgroundColor: '#1976D2' }}
-            >
-              View Details
-            </button>
+          <button
+       className="w-full py-2 rounded-lg text-white font-semibold text-center shadow transition duration-300 hover:scale-105 hover:shadow-lg"
+      style={{ backgroundColor: '#1976D2' }}
+      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#0094c5")} // lightblue
+      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#1976D2')}
+    >
+        View Details
+        </button>
           </div>
         </div>
       );
