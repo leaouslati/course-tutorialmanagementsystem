@@ -229,7 +229,7 @@ export const courses = [
     rating: 4.6,
     studentsCount: 90,
     modules: ['m4'],
-    createdAt: '2025-06-20',
+    createdAt: '2026-02-20',
   },
   {
     id: 'c5',

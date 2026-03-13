@@ -3,11 +3,11 @@ import { courses } from "../data/mockdata";
 import CourseCard from "../components/CourseCard";
 
 function Courses() {
-  const course = courses[1]; // take the second course
-
   return (
-    <div style={{ display: "flex", gap: "20px", flexWrap: "wrap" }}>
-      <CourseCard key={course.id} course={course} />
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 justify-items-center px-4 py-8">
+      {courses.map(course => (
+        <CourseCard key={course.id} course={course} />
+      ))}
     </div>
   );
 }

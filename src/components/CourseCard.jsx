@@ -20,7 +20,7 @@ const isNew = new Date() - new Date(course.createdAt) < 1000 * 60 * 60 * 24 * 90
 };
 
   return (
-        <div className="bg-gray-100 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col relative max-w-md mx-auto overflow-hidden">
+<div className="bg-gray-100 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col relative max-w-xl w-full mx-auto overflow-hidden">
           {/* Course Image & Badges */}
           <div className="relative h-40 bg-gray-200">
             <img
@@ -45,11 +45,13 @@ const isNew = new Date() - new Date(course.createdAt) < 1000 * 60 * 60 * 24 * 90
           {/* Card Content */}
           <div className="p-6 flex flex-col flex-1">
             {/* Difficulty Badge */}
-            <span
-              className={`inline-block px-3 py-1 rounded-full mb-3 text-xs font-semibold ${difficultyColors[course.difficulty]}`}
-            >
-              {course.difficulty}
-            </span>
+            <div className="flex items-start w-auto mb-3">
+              <span
+                className={`inline-block px-2 py-0.5 rounded-full text-xs font-semibold ${difficultyColors[course.difficulty]}`}
+              >
+                {course.difficulty}
+              </span>
+            </div>
 
             {/* Course Title */}
             <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">
