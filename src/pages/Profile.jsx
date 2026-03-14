@@ -1,24 +1,19 @@
 import { Link } from "react-router-dom";
-import { users, courses } from "../data/mockdata.js";
 
-function Profile() {
-  const currentUser = users[0];
-
+function Profile({ currentUser, courses = [], users = [] }) {
   if (!currentUser) {
     return (
-      <div className="w-full min-h-screen bg-[#F4F8FD] px-4 py-10">
-        <div className="mx-auto max-w-md rounded-xl bg-white p-6 shadow-md text-center mt-10">
-          <h1 className="text-3xl sm:text-4xl font-bold mb-3 text-gray-900">
-            Profile Page
-          </h1>
+      <div className="min-h-screen bg-[#F4F8FD] flex items-center justify-center px-4 py-8">
+        <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-md text-center">
+          <h1 className="text-4xl font-bold mb-3 text-gray-900">Profile Page</h1>
           <p className="text-gray-600 mb-5">
-            No user data found at the moment.
+            Please login first to access your account.
           </p>
           <Link
-            to="/courses"
-            className="inline-block rounded-lg bg-[#1976D2] px-5 py-2.5 text-white font-medium transition hover:bg-[#1565C0]"
+            to="/login"
+            className="inline-block rounded-lg bg-[#1976D2] px-4 py-2 text-white transition hover:bg-[#1565C0]"
           >
-            Browse Courses
+            Go to Login
           </Link>
         </div>
       </div>
@@ -95,29 +90,26 @@ function Profile() {
   );
 
   return (
-    <div className="w-full min-h-screen bg-[#F4F8FD] px-4 py-8 sm:px-6 lg:px-8">
-      <div className="mx-auto w-full max-w-7xl">
-        <div className="mb-8 sm:mb-10">
-          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900">
-            My Profile
-          </h1>
-          <p className="mt-2 text-sm sm:text-base text-gray-600">
-            View your account details and course progress.
+    <div className="min-h-screen bg-[#F4F8FD] py-8 px-4">
+      <div className="mx-auto max-w-7xl">
+        <div className="mb-10">
+          <h1 className="text-4xl font-bold text-gray-900">Profile</h1>
+          <p className="mt-2 text-gray-600">
+            View your account information and course progress.
           </p>
         </div>
 
-        <div className="mb-8 sm:mb-10 rounded-xl bg-white p-5 sm:p-6 shadow-md">
+        <div className="mb-10 rounded-xl bg-white p-6 shadow-md">
           <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-            <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+            <div className="flex items-center gap-4">
               <div className="flex h-20 w-20 items-center justify-center rounded-full bg-[#1976D2] text-3xl font-bold text-white">
                 {currentUser.name?.charAt(0)?.toUpperCase() || "U"}
               </div>
-
               <div>
                 <h2 className="text-2xl font-semibold text-gray-900">
                   {currentUser.name}
                 </h2>
-                <p className="text-gray-600 break-all">{currentUser.email}</p>
+                <p className="text-gray-600">{currentUser.email}</p>
                 <span className="mt-2 inline-block rounded-full bg-[#FEF3C7] px-3 py-1 text-sm font-medium text-gray-800 capitalize">
                   {currentUser.role}
                 </span>
@@ -126,35 +118,35 @@ function Profile() {
 
             <Link
               to={isInstructor ? "/manage-courses" : "/courses"}
-              className="inline-block rounded-lg border border-[#1976D2] px-4 py-2 text-center text-[#1976D2] font-medium transition hover:bg-[#E3F2FD]"
+              className="rounded-lg border border-[#1976D2] px-4 py-2 text-[#1976D2] transition hover:bg-[#E3F2FD]"
             >
-              {isInstructor ? "Manage Courses" : "Explore Courses"}
+              {isInstructor ? "Open Course Manager" : "Explore Courses"}
             </Link>
           </div>
         </div>
 
-        <div className="mb-8 sm:mb-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 sm:gap-6">
+        <div className="mb-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {isInstructor ? (
             <>
-              <div className="rounded-xl bg-white p-5 sm:p-6 shadow-md">
+              <div className="rounded-xl bg-white p-6 shadow-md">
                 <p className="text-sm text-gray-500">Created Courses</p>
                 <h3 className="mt-2 text-3xl font-bold text-gray-900">
                   {createdCount}
                 </h3>
               </div>
-              <div className="rounded-xl bg-white p-5 sm:p-6 shadow-md">
+              <div className="rounded-xl bg-white p-6 shadow-md">
                 <p className="text-sm text-gray-500">Total Modules</p>
                 <h3 className="mt-2 text-3xl font-bold text-gray-900">
                   {totalModules}
                 </h3>
               </div>
-              <div className="rounded-xl bg-white p-5 sm:p-6 shadow-md">
+              <div className="rounded-xl bg-white p-6 shadow-md">
                 <p className="text-sm text-gray-500">Total Lessons</p>
                 <h3 className="mt-2 text-3xl font-bold text-gray-900">
                   {totalLessons}
                 </h3>
               </div>
-              <div className="rounded-xl bg-white p-5 sm:p-6 shadow-md">
+              <div className="rounded-xl bg-white p-6 shadow-md">
                 <p className="text-sm text-gray-500">Role</p>
                 <h3 className="mt-2 text-3xl font-bold text-gray-900 capitalize">
                   {currentUser.role}
@@ -163,25 +155,25 @@ function Profile() {
             </>
           ) : (
             <>
-              <div className="rounded-xl bg-white p-5 sm:p-6 shadow-md">
+              <div className="rounded-xl bg-white p-6 shadow-md">
                 <p className="text-sm text-gray-500">Enrolled Courses</p>
                 <h3 className="mt-2 text-3xl font-bold text-gray-900">
                   {enrolledCount}
                 </h3>
               </div>
-              <div className="rounded-xl bg-white p-5 sm:p-6 shadow-md">
+              <div className="rounded-xl bg-white p-6 shadow-md">
                 <p className="text-sm text-gray-500">Finished Courses</p>
                 <h3 className="mt-2 text-3xl font-bold text-gray-900">
                   {finishedCourses}
                 </h3>
               </div>
-              <div className="rounded-xl bg-white p-5 sm:p-6 shadow-md">
+              <div className="rounded-xl bg-white p-6 shadow-md">
                 <p className="text-sm text-gray-500">Average Progress</p>
                 <h3 className="mt-2 text-3xl font-bold text-[#22C55E]">
                   {averageProgress}%
                 </h3>
               </div>
-              <div className="rounded-xl bg-white p-5 sm:p-6 shadow-md">
+              <div className="rounded-xl bg-white p-6 shadow-md">
                 <p className="text-sm text-gray-500">Role</p>
                 <h3 className="mt-2 text-3xl font-bold text-gray-900 capitalize">
                   {currentUser.role}
@@ -191,12 +183,12 @@ function Profile() {
           )}
         </div>
 
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-          <div className="rounded-xl bg-white p-5 sm:p-6 shadow-md">
-            <h2 className="mb-4 text-2xl font-semibold text-gray-900">
+        <div className="grid gap-6 lg:grid-cols-3">
+          <div className="rounded-xl bg-white p-6 shadow-md">
+            <h2 className="mb-3 text-2xl font-semibold text-gray-900">
               Account Information
             </h2>
-            <div className="space-y-3 text-gray-700">
+            <div className="space-y-2 text-gray-700">
               <p>
                 <span className="font-semibold">Name:</span> {currentUser.name}
               </p>
@@ -214,8 +206,8 @@ function Profile() {
             </div>
           </div>
 
-          <div className="rounded-xl bg-white p-5 sm:p-6 shadow-md lg:col-span-2">
-            <h2 className="mb-4 text-2xl font-semibold text-gray-900">
+          <div className="lg:col-span-2 rounded-xl bg-white p-6 shadow-md">
+            <h2 className="mb-3 text-2xl font-semibold text-gray-900">
               {isInstructor ? "Instructor Summary" : "Course Progress"}
             </h2>
             <p className="mb-4 text-gray-600">
@@ -223,7 +215,7 @@ function Profile() {
                 ? `You have added ${createdCount} courses so far.`
                 : `You have completed ${finishedCourses} courses so far.`}
             </p>
-            <div className="h-3 w-full overflow-hidden rounded-full bg-gray-200">
+            <div className="h-3 w-full rounded-full bg-gray-200">
               <div
                 className="h-full rounded-full bg-[#22C55E]"
                 style={{
@@ -238,8 +230,8 @@ function Profile() {
           </div>
         </div>
 
-        <div className="mt-8 sm:mt-10">
-          <h2 className="mb-5 text-2xl font-semibold text-gray-900">
+        <div className="mt-10">
+          <h2 className="mb-4 text-2xl font-semibold text-gray-900">
             {isInstructor ? "My Created Courses" : "My Enrolled Courses"}
           </h2>
 
@@ -252,13 +244,13 @@ function Profile() {
               </p>
               <Link
                 to={isInstructor ? "/manage-courses" : "/courses"}
-                className="inline-block rounded-lg bg-[#1976D2] px-4 py-2 text-white font-medium transition hover:bg-[#1565C0]"
+                className="inline-block rounded-lg bg-[#1976D2] px-4 py-2 text-white transition hover:bg-[#1565C0]"
               >
                 {isInstructor ? "Add New Course" : "Explore Courses"}
               </Link>
             </div>
           ) : (
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
+            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
               {displayedCourses.map((course) => (
                 <div
                   key={course.id}
@@ -267,10 +259,10 @@ function Profile() {
                   <img
                     src={course.image}
                     alt={course.title}
-                    className="mb-4 h-44 w-full rounded-lg object-cover"
+                    className="mb-4 h-40 w-full rounded-lg object-cover"
                   />
 
-                  <h3 className="mb-2 text-xl font-semibold text-gray-900 line-clamp-2">
+                  <h3 className="mb-2 text-xl font-semibold text-gray-900">
                     {course.title}
                   </h3>
 
@@ -288,12 +280,12 @@ function Profile() {
                   </p>
 
                   {!isInstructor && (
-                    <div className="mb-4">
+                    <div className="mb-3">
                       <div className="mb-1 flex items-center justify-between text-sm text-gray-600">
                         <span>Progress</span>
                         <span>{calculateProgress(course)}%</span>
                       </div>
-                      <div className="h-2.5 w-full overflow-hidden rounded-full bg-gray-200">
+                      <div className="h-2.5 w-full rounded-full bg-gray-200">
                         <div
                           className="h-full rounded-full bg-[#22C55E]"
                           style={{ width: `${calculateProgress(course)}%` }}
@@ -304,14 +296,18 @@ function Profile() {
 
                   <div className="flex flex-wrap gap-2">
                     <Link
-                      to="/courses"
+                      to={
+                        isInstructor
+                          ? `/manage-courses/${course.id}`
+                          : `/courses/${course.id}`
+                      }
                       className="rounded-lg bg-[#1976D2] px-3 py-2 text-sm font-medium text-white transition hover:bg-[#1565C0]"
                     >
-                      {isInstructor ? "Manage" : "Continue"}
+                      {isInstructor ? "Open Course" : "Continue"}
                     </Link>
 
                     <Link
-                      to="/courses"
+                      to={`/courses/${course.id}`}
                       className="rounded-lg border border-[#1976D2] px-3 py-2 text-sm font-medium text-[#1976D2] transition hover:bg-[#E3F2FD]"
                     >
                       Details
