@@ -1,3 +1,4 @@
+
 import React from "react";
 import { courses } from "../data/mockdata";
 import CourseCard from "../components/CourseCard";
@@ -22,8 +23,8 @@ function Courses({ isLoggedIn }) {
           ))}
         </div>
       </div>
+
     </div>
   );
 }
-
 export default Courses;
