@@ -173,7 +173,7 @@ export const courses = [
     category: 'Programming',
     difficulty: 'Beginner',
     image:
-      'https://images.unsplash.com/photo-1519389950473-47c0e7f9c2b2?auto=format&fit=crop&w=400&q=80',
+      'https://images.pexels.com/photos/270557/pexels-photo-270557.jpeg',
     duration: 75, // minutes
     rating: 4.7,
     studentsCount: 120,
@@ -207,7 +207,7 @@ export const courses = [
     category: 'Design',
     difficulty: 'Advanced',
     image:
-      'https://images.unsplash.com/photo-1503676382389-8bfa0eee3c8e?auto=format&fit=crop&w=400&q=80',
+      'https://images.pexels.com/photos/12081657/pexels-photo-12081657.jpeg',
     duration: 60,
     rating: 4.8,
     studentsCount: 60,
@@ -241,7 +241,7 @@ export const courses = [
     category: 'Mathematics',
     difficulty: 'Beginner',
     image:
-      'https://images.unsplash.com/photo-1503676382389-8bfa0eee3c8e?auto=format&fit=crop&w=400&q=80',
+      'https://images.pexels.com/photos/4494641/pexels-photo-4494641.jpeg',
     duration: 60,
     rating: 4.9,
     studentsCount: 150,
@@ -258,7 +258,7 @@ export const courses = [
     category: 'Language',
     difficulty: 'Beginner',
     image:
-      'https://images.unsplash.com/photo-1465101046530-73398c7c7f94?auto=format&fit=crop&w=400&q=80',
+      'https://images.pexels.com/photos/159581/dictionary-reference-book-learning-meaning-159581.jpeg',
     duration: 55,
     rating: 4.4,
     studentsCount: 110,
