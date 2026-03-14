@@ -5,7 +5,7 @@ import Courses from "./pages/Courses.jsx";
 // import Home from "./pages/Home.jsx";
 // import Login from "./pages/Login.jsx";
 // import Register from "./pages/Register.jsx";
-// import Profile from "./pages/Profile.jsx";
+ import Profile from "./pages/Profile.jsx";
 // import ManageCourses from "./pages/ManageCourses.jsx";
 // import './index.css';
 
@@ -14,11 +14,12 @@ function App() {
     <Routes>
       {/* <Route path="/" element={<Home />} /> */}
       <Route path="/courses" element={<Courses />} />
+      <Route path="/profile" element={<Profile />} />
       {/* <Route path="/courses/:id" element={<CourseDetails />} />
       <Route path="/enrollments" element={<Enrollments />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
-      <Route path="/profile" element={<Profile />} />
+     
       <Route path="/manage-courses" element={<ManageCourses />} /> */}
     </Routes>
   )
