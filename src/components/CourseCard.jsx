@@ -16,7 +16,7 @@ function CourseCard({ course }) {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col overflow-hidden hover:-translate-y-1 transition-transform">
+    <div className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col overflow-hidden hover:-translate-y-1 transition-transform h-full min-h-[420px]">
       {/* Course Image & Badges */}
       <div className="relative h-40 bg-gray-200">
         <img
