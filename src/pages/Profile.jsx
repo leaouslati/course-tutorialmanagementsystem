@@ -1,324 +1,275 @@
-﻿import { Link } from "react-router-dom";
+﻿import { Link, useNavigate } from "react-router-dom";
+import Navbar from "../components/Navbar.jsx";
 
 function Profile({ currentUser, courses = [], users = [] }) {
+  const navigate = useNavigate();
+
   if (!currentUser) {
     return (
-      <div className="min-h-screen bg-[#F4F8FD] flex items-center justify-center px-4 py-8">
-        <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-md text-center">
-          <h1 className="text-4xl font-bold mb-3 text-gray-900">Profile Page</h1>
-          <p className="text-gray-600 mb-5">
-            Please login first to access your account.
-          </p>
-          <Link
-            to="/login"
-            className="inline-block rounded-lg bg-[#1976D2] px-4 py-2 text-white transition hover:bg-[#1565C0]"
+      <main className="min-h-screen bg-[#F4F8FD] flex items-center justify-center px-3 py-8">
+        <section className="w-full max-w-lg rounded-2xl bg-white p-5 sm:p-6 shadow-lg border border-slate-200">
+          <div className="text-center">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#1976D2]">Profile</p>
+            <h1 className="mt-2 text-3xl font-bold text-slate-900">Please log in first</h1>
+            <p className="mt-2 text-sm leading-relaxed text-slate-600">You need to sign in to view your dashboard, progress cards, and course details.</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => navigate("/login")}
+            className="mt-5 w-full rounded-lg bg-[#1976D2] px-4 py-2.5 text-sm font-semibold uppercase tracking-wide text-white transition hover:bg-[#1565C0] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1976D2] focus-visible:ring-offset-2"
           >
             Go to Login
-          </Link>
-        </div>
-      </div>
+          </button>
+        </section>
+      </main>
     );
   }
 
   const isInstructor = currentUser.role === "instructor";
 
-  const myEnrolledCourses = courses.filter((course) =>
-    currentUser.enrolledCourses?.includes(course.id)
-  );
+  const enrolledCourses = Array.isArray(currentUser.enrolledCourses)
+    ? courses.filter((course) => currentUser.enrolledCourses.includes(course.id))
+    : [];
 
-  const myCreatedCourses = courses.filter(
-    (course) => course.instructorId === currentUser.id
-  );
+  const createdCourses = courses.filter((course) => course.instructorId === currentUser.id);
+  const displayedCourses = isInstructor ? createdCourses : enrolledCourses;
 
-  const displayedCourses = isInstructor ? myCreatedCourses : myEnrolledCourses;
+  const getInstructorName = (id) => users.find((user) => user.id === id)?.name ?? "Unknown Instructor";
 
-  const findInstructorName = (id) => {
-    const instructor = users.find((user) => user.id === id);
-    return instructor ? instructor.name : "Unknown Instructor";
-  };
+  const countCourseLessons = (course) =>
+    Array.isArray(course.modules)
+      ? course.modules.reduce(
+          (acc, module) => acc + (Array.isArray(module.lessons) ? module.lessons.length : 0),
+          0
+        )
+      : 0;
 
-  const countLessons = (course) => {
-    if (!course.modules) return 0;
-    return course.modules.reduce(
-      (sum, module) => sum + (module.lessons ? module.lessons.length : 0),
-      0
-    );
-  };
-
-  const calculateProgress = (course) => {
-    if (!course.modules || !currentUser.progress) return 0;
-
+  const computeProgress = (course) => {
+    if (!Array.isArray(course.modules) || !currentUser.progress) return 0;
     let total = 0;
     let done = 0;
 
     course.modules.forEach((module) => {
-      module.lessons?.forEach((lesson) => {
-        total += 1;
-        if (currentUser.progress[lesson.id]) done += 1;
-      });
+      Array.isArray(module.lessons) &&
+        module.lessons.forEach((lesson) => {
+          total += 1;
+          if (currentUser.progress[lesson.id]) done += 1;
+        });
     });
 
-    if (total === 0) return 0;
-    return Math.round((done / total) * 100);
+    return total === 0 ? 0 : Math.round((done / total) * 100);
   };
 
-  const enrolledCount = myEnrolledCourses.length;
-  const createdCount = myCreatedCourses.length;
-
-  const finishedCourses = myEnrolledCourses.filter(
-    (course) => calculateProgress(course) === 100
-  ).length;
-
+  const enrolledCount = enrolledCourses.length;
+  const createdCount = createdCourses.length;
+  const finishedCourses = enrolledCourses.filter((course) => computeProgress(course) === 100).length;
   const averageProgress =
-    myEnrolledCourses.length > 0
+    enrolledCourses.length > 0
       ? Math.round(
-          myEnrolledCourses.reduce(
-            (sum, course) => sum + calculateProgress(course),
-            0
-          ) / myEnrolledCourses.length
+          enrolledCourses.reduce((sum, course) => sum + computeProgress(course), 0) / enrolledCourses.length
         )
       : 0;
+  const totalModules = createdCourses.reduce((acc, course) => acc + (Array.isArray(course.modules) ? course.modules.length : 0), 0);
+  const totalLessons = createdCourses.reduce((acc, course) => acc + countCourseLessons(course), 0);
 
-  const totalModules = myCreatedCourses.reduce(
-    (sum, course) => sum + (course.modules ? course.modules.length : 0),
-    0
-  );
+  const summaryCards = isInstructor
+    ? [
+        { label: "Created Courses", value: createdCount },
+        { label: "Total Modules", value: totalModules },
+        { label: "Total Lessons", value: totalLessons },
+        { label: "Role", value: currentUser.role },
+      ]
+    : [
+        { label: "Enrolled Courses", value: enrolledCount },
+        { label: "Finished Courses", value: finishedCourses },
+        { label: "Average Progress", value: `${averageProgress}%`, extraClass: "text-[#16A34A]" },
+        { label: "Role", value: currentUser.role },
+      ];
 
-  const totalLessons = myCreatedCourses.reduce(
-    (sum, course) => sum + countLessons(course),
-    0
-  );
+  const progressValue = isInstructor ? Math.min(createdCount * 18, 100) : averageProgress;
 
   return (
-    <div className="min-h-screen bg-[#F4F8FD] py-8 px-4">
-      <div className="mx-auto max-w-7xl">
-        <div className="mb-10">
-          <h1 className="text-4xl font-bold text-gray-900">Profile</h1>
-          <p className="mt-2 text-gray-600">
-            View your account information and course progress.
-          </p>
-        </div>
-
-        <div className="mb-10 rounded-xl bg-white p-6 shadow-md">
-          <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-            <div className="flex items-center gap-4">
-              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-[#1976D2] text-3xl font-bold text-white">
-                {currentUser.name?.charAt(0)?.toUpperCase() || "U"}
-              </div>
-              <div>
-                <h2 className="text-2xl font-semibold text-gray-900">
-                  {currentUser.name}
-                </h2>
-                <p className="text-gray-600">{currentUser.email}</p>
-                <span className="mt-2 inline-block rounded-full bg-[#FEF3C7] px-3 py-1 text-sm font-medium text-gray-800 capitalize">
-                  {currentUser.role}
-                </span>
-              </div>
+    <div className="min-h-screen bg-[#F4F8FD] text-slate-800">
+      <Navbar isLoggedIn={Boolean(currentUser)} />
+      <main className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+        <section className="mb-6 rounded-2xl bg-white p-4 sm:p-5 shadow-md border border-slate-200">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#1976D2]">Dashboard</p>
+              <h1 className="mt-1 text-2xl font-bold text-slate-900 sm:text-3xl">My Profile</h1>
+              <p className="mt-1 text-sm text-slate-600">Track your learning, progress, and course activity.</p>
             </div>
-
             <Link
               to={isInstructor ? "/manage-courses" : "/courses"}
-              className="rounded-lg border border-[#1976D2] px-4 py-2 text-[#1976D2] transition hover:bg-[#E3F2FD]"
+              className="inline-flex w-full items-center justify-center rounded-lg bg-[#1976D2] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#1565C0] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1976D2] focus-visible:ring-offset-2 sm:w-auto"
             >
-              {isInstructor ? "Open Course Manager" : "Explore Courses"}
+              {isInstructor ? "Manage Courses" : "Browse Courses"}
             </Link>
           </div>
-        </div>
+        </section>
 
-        <div className="mb-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {isInstructor ? (
-            <>
-              <div className="rounded-xl bg-white p-6 shadow-md">
-                <p className="text-sm text-gray-500">Created Courses</p>
-                <h3 className="mt-2 text-3xl font-bold text-gray-900">
-                  {createdCount}
-                </h3>
+        <section className="mb-6 grid grid-cols-1 gap-4 lg:grid-cols-[1.35fr_1fr]">
+          <article className="rounded-2xl bg-white p-4 sm:p-5 shadow-md border border-slate-200">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-center gap-3">
+                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#1976D2] text-2xl font-bold text-white">
+                  {currentUser.name?.charAt(0)?.toUpperCase() ?? "U"}
+                </div>
+                <div>
+                  <p className="text-base font-semibold text-slate-900">{currentUser.name}</p>
+                  <p className="text-sm text-slate-600">{currentUser.email}</p>
+                  <span className="mt-1 inline-flex rounded-full bg-[#FEF3C7] px-2.5 py-1 text-xs font-medium text-slate-700 capitalize">
+                    {currentUser.role}
+                  </span>
+                </div>
               </div>
-              <div className="rounded-xl bg-white p-6 shadow-md">
-                <p className="text-sm text-gray-500">Total Modules</p>
-                <h3 className="mt-2 text-3xl font-bold text-gray-900">
-                  {totalModules}
-                </h3>
+              <div className="flex flex-wrap items-center gap-2">
+                <Link
+                  to="/profile"
+                  className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:border-[#1976D2] hover:text-[#1976D2]"
+                >
+                  View Profile
+                </Link>
+                <Link
+                  to={isInstructor ? "/manage-courses" : "/courses"}
+                  className="rounded-lg bg-[#1976D2] px-3 py-1.5 text-xs font-medium text-white hover:bg-[#1565C0]"
+                >
+                  {isInstructor ? "Manage" : "Explore"}
+                </Link>
               </div>
-              <div className="rounded-xl bg-white p-6 shadow-md">
-                <p className="text-sm text-gray-500">Total Lessons</p>
-                <h3 className="mt-2 text-3xl font-bold text-gray-900">
-                  {totalLessons}
-                </h3>
-              </div>
-              <div className="rounded-xl bg-white p-6 shadow-md">
-                <p className="text-sm text-gray-500">Role</p>
-                <h3 className="mt-2 text-3xl font-bold text-gray-900 capitalize">
-                  {currentUser.role}
-                </h3>
-              </div>
-            </>
-          ) : (
-            <>
-              <div className="rounded-xl bg-white p-6 shadow-md">
-                <p className="text-sm text-gray-500">Enrolled Courses</p>
-                <h3 className="mt-2 text-3xl font-bold text-gray-900">
-                  {enrolledCount}
-                </h3>
-              </div>
-              <div className="rounded-xl bg-white p-6 shadow-md">
-                <p className="text-sm text-gray-500">Finished Courses</p>
-                <h3 className="mt-2 text-3xl font-bold text-gray-900">
-                  {finishedCourses}
-                </h3>
-              </div>
-              <div className="rounded-xl bg-white p-6 shadow-md">
-                <p className="text-sm text-gray-500">Average Progress</p>
-                <h3 className="mt-2 text-3xl font-bold text-[#22C55E]">
-                  {averageProgress}%
-                </h3>
-              </div>
-              <div className="rounded-xl bg-white p-6 shadow-md">
-                <p className="text-sm text-gray-500">Role</p>
-                <h3 className="mt-2 text-3xl font-bold text-gray-900 capitalize">
-                  {currentUser.role}
-                </h3>
-              </div>
-            </>
-          )}
-        </div>
-
-        <div className="grid gap-6 lg:grid-cols-3">
-          <div className="rounded-xl bg-white p-6 shadow-md">
-            <h2 className="mb-3 text-2xl font-semibold text-gray-900">
-              Account Information
-            </h2>
-            <div className="space-y-2 text-gray-700">
-              <p>
-                <span className="font-semibold">Name:</span> {currentUser.name}
-              </p>
-              <p>
-                <span className="font-semibold">Email:</span> {currentUser.email}
-              </p>
-              <p>
-                <span className="font-semibold">Role:</span>{" "}
-                <span className="capitalize">{currentUser.role}</span>
-              </p>
-              <p>
-                <span className="font-semibold">Courses:</span>{" "}
-                {isInstructor ? createdCount : enrolledCount}
-              </p>
             </div>
-          </div>
+          </article>
 
-          <div className="lg:col-span-2 rounded-xl bg-white p-6 shadow-md">
-            <h2 className="mb-3 text-2xl font-semibold text-gray-900">
-              {isInstructor ? "Instructor Summary" : "Course Progress"}
-            </h2>
-            <p className="mb-4 text-gray-600">
-              {isInstructor
-                ? `You have added ${createdCount} courses so far.`
-                : `You have completed ${finishedCourses} courses so far.`}
-            </p>
-            <div className="h-3 w-full rounded-full bg-gray-200">
+          <article className="rounded-2xl bg-white p-4 sm:p-5 shadow-md border border-slate-200">
+            <div className="mb-3 flex items-center justify-between">
+              <p className="text-sm font-semibold text-slate-500">Overall Progress</p>
+              <p className="text-xs font-medium text-slate-600">{progressValue}%</p>
+            </div>
+            <div className="h-2.5 w-full overflow-hidden rounded-full bg-slate-200">
               <div
                 className="h-full rounded-full bg-[#22C55E]"
-                style={{
-                  width: `${
-                    isInstructor
-                      ? Math.min(createdCount * 20, 100)
-                      : averageProgress
-                  }%`,
-                }}
+                role="progressbar"
+                aria-valuemin="0"
+                aria-valuemax="100"
+                aria-valuenow={progressValue}
+                style={{ width: `${progressValue}%` }}
               />
             </div>
-          </div>
-        </div>
+          </article>
+        </section>
 
-        <div className="mt-10">
-          <h2 className="mb-4 text-2xl font-semibold text-gray-900">
-            {isInstructor ? "My Created Courses" : "My Enrolled Courses"}
-          </h2>
+        <section className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          {summaryCards.map((card) => (
+            <article
+              key={card.label}
+              className="rounded-xl bg-white p-4 shadow-sm border border-slate-200"
+            >
+              <p className="text-xs font-medium uppercase tracking-[0.15em] text-slate-500">{card.label}</p>
+              <p className={`mt-2 text-2xl font-bold ${card.extraClass ?? "text-slate-900"}`}>{card.value}</p>
+            </article>
+          ))}
+        </section>
+
+        <section className="mb-6 grid grid-cols-1 gap-4 lg:grid-cols-[1.1fr_1fr]">
+          <article className="rounded-2xl bg-white p-4 sm:p-5 shadow-md border border-slate-200">
+            <h2 className="text-lg font-semibold text-slate-900">Account Information</h2>
+            <dl className="mt-3 grid gap-2 text-sm text-slate-700">
+              <div className="flex flex-wrap gap-2"><dt className="font-semibold">Name:</dt><dd>{currentUser.name}</dd></div>
+              <div className="flex flex-wrap gap-2"><dt className="font-semibold">Email:</dt><dd>{currentUser.email}</dd></div>
+              <div className="flex flex-wrap gap-2"><dt className="font-semibold">Role:</dt><dd className="capitalize">{currentUser.role}</dd></div>
+            </dl>
+          </article>
+
+          <article className="rounded-2xl bg-white p-4 sm:p-5 shadow-md border border-slate-200">
+            <h2 className="text-lg font-semibold text-slate-900">{isInstructor ? "Instructor Summary" : "Learning Summary"}</h2>
+            <p className="mt-2 text-sm text-slate-600">
+              {isInstructor
+                ? `You created ${createdCount} ${createdCount === 1 ? "course" : "courses"}.`
+                : `You completed ${finishedCourses} ${finishedCourses === 1 ? "course" : "courses"}.`}
+            </p>
+            <div className="mt-3 h-2.5 w-full rounded-full bg-slate-200">
+              <div
+                className="h-full rounded-full bg-[#22C55E]"
+                style={{ width: `${Math.max(0, Math.min(progressValue, 100))}%` }}
+                role="progressbar"
+                aria-valuemin="0"
+                aria-valuemax="100"
+                aria-valuenow={Math.max(0, Math.min(progressValue, 100))}
+              />
+            </div>
+          </article>
+        </section>
+
+        <section className="rounded-2xl bg-white p-4 sm:p-5 shadow-md border border-slate-200">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h2 className="text-xl font-semibold text-slate-900">{isInstructor ? "My Created Courses" : "My Enrolled Courses"}</h2>
+              <p className="text-sm text-slate-600">{isInstructor ? "Courses you created" : "Courses you are currently enrolled in"}</p>
+            </div>
+            <Link
+              to={isInstructor ? "/manage-courses" : "/courses"}
+              className="rounded-md bg-[#1976D2] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#1565C0]"
+            >
+              {isInstructor ? "Create Course" : "Browse Courses"}
+            </Link>
+          </div>
 
           {displayedCourses.length === 0 ? (
-            <div className="rounded-xl bg-white p-6 shadow-md text-center">
-              <p className="mb-4 text-gray-600">
-                {isInstructor
-                  ? "You have not created any courses yet."
-                  : "You are not enrolled in any courses yet."}
-              </p>
-              <Link
-                to={isInstructor ? "/manage-courses" : "/courses"}
-                className="inline-block rounded-lg bg-[#1976D2] px-4 py-2 text-white transition hover:bg-[#1565C0]"
-              >
-                {isInstructor ? "Add New Course" : "Explore Courses"}
-              </Link>
+            <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-4 text-center text-slate-600">
+              {isInstructor
+                ? "No courses created yet. Start by adding your first course."
+                : "No current enrollments. Explore courses to begin learning."}
             </div>
           ) : (
-            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-              {displayedCourses.map((course) => (
-                <div
-                  key={course.id}
-                  className="rounded-xl bg-white p-5 shadow-md transition hover:shadow-lg"
-                >
-                  <img
-                    src={course.image}
-                    alt={course.title}
-                    className="mb-4 h-40 w-full rounded-lg object-cover"
-                  />
-
-                  <h3 className="mb-2 text-xl font-semibold text-gray-900">
-                    {course.title}
-                  </h3>
-
-                  <p className="mb-1 text-sm text-gray-600">
-                    Instructor: {findInstructorName(course.instructorId)}
-                  </p>
-
-                  <p className="mb-1 text-sm text-gray-600">
-                    Category: {course.category || "General"}
-                  </p>
-
-                  <p className="mb-3 text-sm text-gray-600">
-                    {course.modules ? course.modules.length : 0} Modules •{" "}
-                    {countLessons(course)} Lessons
-                  </p>
-
-                  {!isInstructor && (
-                    <div className="mb-3">
-                      <div className="mb-1 flex items-center justify-between text-sm text-gray-600">
-                        <span>Progress</span>
-                        <span>{calculateProgress(course)}%</span>
-                      </div>
-                      <div className="h-2.5 w-full rounded-full bg-gray-200">
-                        <div
-                          className="h-full rounded-full bg-[#22C55E]"
-                          style={{ width: `${calculateProgress(course)}%` }}
-                        />
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              {displayedCourses.map((course) => {
+                const progress = computeProgress(course);
+                const lessons = countCourseLessons(course);
+                return (
+                  <article key={course.id} className="rounded-xl border border-slate-200 bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+                    <img
+                      src={course.image}
+                      alt={`${course.title} cover`}
+                      className="h-36 w-full rounded-lg object-cover"
+                    />
+                    <div className="mt-3 space-y-2">
+                      <h3 className="text-base font-semibold text-slate-900">{course.title}</h3>
+                      <p className="text-xs text-slate-500">Instructor: {getInstructorName(course.instructorId)}</p>
+                      <p className="text-xs text-slate-500">Category: {course.category || "General"}</p>
+                      <p className="text-xs text-slate-500">{Array.isArray(course.modules) ? course.modules.length : 0} modules · {lessons} lessons</p>
+                      {!isInstructor && (
+                        <div>
+                          <div className="mb-1 flex items-center justify-between text-xs text-slate-600">
+                            <span>Progress</span>
+                            <span>{progress}%</span>
+                          </div>
+                          <div className="h-2 rounded-full bg-slate-200">
+                            <div className="h-full rounded-full bg-[#22C55E]" style={{ width: `${progress}%` }} />
+                          </div>
+                        </div>
+                      )}
+                      <div className="flex flex-wrap gap-2 pt-2">
+                        <Link
+                          to={isInstructor ? `/manage-courses/${course.id}` : `/courses/${course.id}`}
+                          className="rounded-md bg-[#1976D2] px-2 py-1.5 text-xs font-medium text-white hover:bg-[#1565C0]"
+                        >
+                          {isInstructor ? "Open" : "Continue"}
+                        </Link>
+                        <Link
+                          to={`/courses/${course.id}`}
+                          className="rounded-md border border-[#1976D2] px-2 py-1.5 text-xs font-medium text-[#1976D2] hover:bg-[#E3F2FD]"
+                        >
+                          Details
+                        </Link>
                       </div>
                     </div>
-                  )}
-
-                  <div className="flex flex-wrap gap-2">
-                    <Link
-                      to={
-                        isInstructor
-                          ? `/manage-courses/${course.id}`
-                          : `/courses/${course.id}`
-                      }
-                      className="rounded-lg bg-[#1976D2] px-3 py-2 text-sm font-medium text-white transition hover:bg-[#1565C0]"
-                    >
-                      {isInstructor ? "Open Course" : "Continue"}
-                    </Link>
-
-                    <Link
-                      to={`/courses/${course.id}`}
-                      className="rounded-lg border border-[#1976D2] px-3 py-2 text-sm font-medium text-[#1976D2] transition hover:bg-[#E3F2FD]"
-                    >
-                      Details
-                    </Link>
-                  </div>
-                </div>
-              ))}
+                  </article>
+                );
+              })}
             </div>
           )}
-        </div>
-      </div>
+        </section>
+      </main>
     </div>
   );
 }
