@@ -1,124 +1,151 @@
 import React, { useState, useEffect } from "react";
-import { useNavigator } from "../hooks/useNavigator";
-import { useAuth } from "../hooks/useAuth";
 
 const ManageCourses = () => {
-  const { navigate } = useNavigator();
-  const { user } = useAuth();
-
-  const description = "Admin page to manage courses";
-  const duration = "N/A";
-  const category = "Admin";
-
   const [title, setTitle] = useState("");
   const [courses, setCourses] = useState([]);
+  const [editingId, setEditingId] = useState(null);
 
-  // Redirect non-admins to login
+  const description = "Admin managed course";
+  const duration = "N/A";
+  const category = "General";
+
+  // Load saved courses when the page opens
   useEffect(() => {
-    if (!user || user.role !== "admin") {
-      navigate("/login");
+    const savedCourses = localStorage.getItem("courses");
+    if (savedCourses) {
+      setCourses(JSON.parse(savedCourses));
     }
-  }, [user, navigate]);
-
-  // Load courses from localStorage
-  useEffect(() => {
-    const saved = localStorage.getItem("courses");
-    if (saved) setCourses(JSON.parse(saved));
   }, []);
 
-  // Save courses to localStorage whenever they change
+  // Save courses whenever they change
   useEffect(() => {
     localStorage.setItem("courses", JSON.stringify(courses));
   }, [courses]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!title) return alert("Course title cannot be empty");
 
-    const newCourse = {
-      id: Date.now(),
-      title,
-      description,
-      duration,
-      category,
-    };
+    if (!title.trim()) {
+      alert("Please enter a course title.");
+      return;
+    }
 
-    setCourses([...courses, newCourse]);
-    setTitle(""); // clear input
-    console.log("Added course:", newCourse);
-  };
+    if (editingId) {
+      // Update existing course
+      const updatedCourses = courses.map((course) =>
+        course.id === editingId
+          ? { ...course, title: title.trim() }
+          : course
+      );
 
-  const handleDelete = (id) => {
-    setCourses(courses.filter((c) => c.id !== id));
+      setCourses(updatedCourses);
+      setEditingId(null);
+    } else {
+      // Add new course
+      const newCourse = {
+        id: Date.now(),
+        title: title.trim(),
+        description,
+        duration,
+        category,
+      };
+
+      setCourses([...courses, newCourse]);
+    }
+
+    setTitle("");
   };
 
   const handleEdit = (course) => {
-    const newTitle = prompt("Enter new course title:", course.title);
-    if (newTitle) {
-      setCourses(
-        courses.map((c) => (c.id === course.id ? { ...c, title: newTitle } : c))
-      );
-    }
+    setTitle(course.title);
+    setEditingId(course.id);
   };
 
-  if (!user || user.role !== "admin") return null;
+  const handleDelete = (id) => {
+    const filteredCourses = courses.filter((course) => course.id !== id);
+    setCourses(filteredCourses);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setTitle("");
+  };
 
   return (
-    <div className="p-4">
-      <h1 className="text-xl font-bold mb-4">Manage Courses</h1>
+    <div className="p-6 max-w-3xl mx-auto">
+      <h1 className="text-2xl font-bold mb-6 text-center">
+        Manage Courses
+      </h1>
 
-      {/* Add Course Form */}
-      <form onSubmit={handleSubmit} className="mb-4 flex gap-2">
+      {/* Add / Edit Form */}
+      <form
+        onSubmit={handleSubmit}
+        className="flex gap-2 mb-6"
+      >
         <input
           type="text"
+          placeholder="Enter course title..."
           value={title}
-          placeholder="Course Title"
           onChange={(e) => setTitle(e.target.value)}
-          className="border p-2 rounded flex-1"
+          className="flex-1 border p-2 rounded"
         />
+
         <button
           type="submit"
-          className="px-3 py-1 bg-blue-500 text-white rounded"
+          className="px-4 py-2 bg-blue-600 text-white rounded"
         >
-          Add Course
+          {editingId ? "Update" : "Add"}
         </button>
+
+        {editingId && (
+          <button
+            type="button"
+            onClick={handleCancelEdit}
+            className="px-4 py-2 bg-gray-400 text-white rounded"
+          >
+            Cancel
+          </button>
+        )}
       </form>
 
-      {/* Current Courses List */}
-      <div className="mt-4">
-        <h2 className="font-bold mb-2">Current Courses:</h2>
-        {courses.length === 0 ? (
-          <p>No courses available.</p>
-        ) : (
-          <ul className="list-disc pl-5">
-            {courses.map((course) => (
-              <li
-                key={course.id}
-                className="flex justify-between items-center mb-1"
-              >
-                <span>
-                  {course.title} — {course.description} ({course.duration}) [
-                  {course.category}]
-                </span>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => handleEdit(course)}
-                    className="px-2 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDelete(course.id)}
-                    className="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600"
-                  >
-                    Delete
-                  </button>
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
+      {/* Course List */}
+      {courses.length === 0 ? (
+        <p className="text-center text-gray-500">
+          No courses added yet.
+        </p>
+      ) : (
+        <ul className="space-y-3">
+          {courses.map((course) => (
+            <li
+              key={course.id}
+              className="flex justify-between items-center p-3 border rounded shadow-sm"
+            >
+              <div>
+                <p className="font-semibold">{course.title}</p>
+                <p className="text-sm text-gray-500">
+                  {course.description} • {course.duration} • {course.category}
+                </p>
+              </div>
+
+              <div className="flex gap-2">
+                <button
+                  onClick={() => handleEdit(course)}
+                  className="px-3 py-1 bg-yellow-500 text-white rounded"
+                >
+                  Edit
+                </button>
+
+                <button
+                  onClick={() => handleDelete(course.id)}
+                  className="px-3 py-1 bg-red-500 text-white rounded"
+                >
+                  Delete
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 };
