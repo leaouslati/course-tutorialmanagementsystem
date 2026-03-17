@@ -1,5 +1,6 @@
 import React from "react";
 import { users } from "../data/mockdata.js";
+import { Clock } from 'lucide-react';
 
 function CourseCard({ course }) {
   // find instructor from users list
@@ -67,12 +68,16 @@ function CourseCard({ course }) {
         {/* Rating & Students */}
         <div className="flex items-center gap-4 mb-4 text-sm text-gray-600">
           <div className="flex items-center gap-1">
-            <span>⭐</span>
-            <span>{course.rating}</span>
+            <Clock className="w-4 h-4 text-blue-500" />
+            <span>{course.duration} min</span>
           </div>
           <div className="flex items-center gap-1">
             <span>👥</span>
             <span>{course.studentsCount}</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <span>⭐</span>
+            <span>{course.rating}</span>
           </div>
         </div>
 
