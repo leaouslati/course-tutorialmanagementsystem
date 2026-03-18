@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import Navbar from "../components/Navbar";
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -21,7 +22,7 @@ const Register = () => {
       alert("Please fill in all fields.");
       return;
     }
-    
+
     localStorage.setItem("user", JSON.stringify(formData));
 
     alert("Registered successfully!");
@@ -29,44 +30,66 @@ const Register = () => {
   };
 
   return (
-    <div className="p-6 max-w-md mx-auto">
-      <h1 className="text-2xl font-bold mb-6 text-center">Register</h1>
+    <div className="min-h-screen bg-gradient-to-b from-[#0D47A1] via-[#1565C0] to-[#1976D2] flex flex-col">
+      <Navbar />
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <input
-          type="text"
-          name="name"
-          placeholder="Full Name"
-          value={formData.name}
-          onChange={handleChange}
-          className="border p-2 rounded"
-        />
+      <main className="flex flex-1 items-center justify-center px-4 py-16">
+        <div className="w-full max-w-md rounded-3xl bg-white shadow-xl p-8">
+          <h1 className="text-3xl font-bold mb-6 text-center text-[#1976D2]">
+            Create your account
+          </h1>
 
-        <input
-          type="email"
-          name="email"
-          placeholder="Email"
-          value={formData.email}
-          onChange={handleChange}
-          className="border p-2 rounded"
-        />
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            <input
+              type="text"
+              name="name"
+              placeholder="Full Name"
+              value={formData.name}
+              onChange={handleChange}
+              className="border border-[#1976D2] bg-white text-gray-900 placeholder-gray-400 px-4 py-3 rounded-lg focus:border-[#1976D2] focus:outline-none focus:ring-2 focus:ring-[#1976D2]/40"
+            />
 
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          value={formData.password}
-          onChange={handleChange}
-          className="border p-2 rounded"
-        />
+            <input
+              type="email" 
+              name="email"
+              placeholder="Email"
+              value={formData.email}
+              onChange={handleChange}
+              className="border border-[#1976D2] bg-white text-gray-900 placeholder-gray-400 px-4 py-3 rounded-lg focus:border-[#1976D2] focus:outline-none focus:ring-2 focus:ring-[#1976D2]/40"
+            />
 
-        <button
-          type="submit"
-          className="bg-blue-600 text-white py-2 rounded"
-        >
-          Register
-        </button>
-      </form>
+            <input
+              type="password"
+              name="password"
+              placeholder="Password"
+              value={formData.password}
+              onChange={handleChange}
+              className="border border-[#1976D2] bg-white text-gray-900 placeholder-gray-400 px-4 py-3 rounded-lg focus:border-[#1976D2] focus:outline-none focus:ring-2 focus:ring-[#1976D2]/40"
+            />
+
+            <button
+              type="submit"
+              className="mt-2 rounded-lg bg-[#1976D2] px-5 py-3 text-white font-semibold shadow-sm transition hover:bg-[#0D47A1]"
+            >
+              Register
+            </button>
+          </form>
+
+          <p className="text-center text-sm mt-6">
+            Already have an account?{" "}
+            <a
+              href="/login"
+              className="font-medium text-[#1976D2] hover:text-[#1976D2]"
+            >
+              Log in
+            </a>
+          </p>
+        </div>
+      </main>
+
+      <footer className="bg-blue-600 text-white py-6 text-center">
+        <p className="text-sm">© {new Date().getFullYear()} CourseHub. Learn anytime, anywhere.</p>
+      </footer>
     </div>
   );
 };
