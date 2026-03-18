@@ -69,7 +69,14 @@ const Register = () => {
 
             <button
               type="submit"
-              className="mt-2 rounded-lg bg-[#1976D2] px-5 py-3 text-white font-semibold shadow-sm transition hover:bg-[#0D47A1]"
+              className="mt-2 px-5 py-3 rounded-lg text-white font-semibold text-center shadow transition-colors duration-300 hover:shadow-lg border-none focus:outline-none focus-visible:outline-none focus:ring-0"
+              style={{ backgroundColor: "#1976D2" }}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.backgroundColor = "#0094c5")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.backgroundColor = "#1976D2")
+              }
             >
               Register
             </button>
