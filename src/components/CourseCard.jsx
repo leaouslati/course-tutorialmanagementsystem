@@ -1,6 +1,7 @@
 import React from "react";
 import { users } from "../data/mockdata.js";
 import { Clock } from 'lucide-react';
+import { Link } from "react-router-dom";
 
 function CourseCard({ course }) {
 const instructor = users.find((user) => user.id === course.instructorId);
@@ -78,6 +79,7 @@ const difficultyColors = {
 
        
         <div className="mt-auto">
+          <Link to={`/courses/${course.id}`}>
           <button
   className="w-full py-2 rounded-lg text-white font-semibold text-center shadow transition-colors duration-300 hover:shadow-lg border-none focus:outline-none focus-visible:outline-none focus:ring-0"
             style={{ backgroundColor: "#1976D2" }}
@@ -90,6 +92,7 @@ const difficultyColors = {
           >
             View Details
           </button>
+          </Link>
         </div>
       </div>
     </div>
