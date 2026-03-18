@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar.jsx";
-import { courses, users } from "../data/mockdata.js";
+import { courses, users, modules } from "../data/mockdata.js";
 
 function Enrollments() {
   const currentUser = users[0];
@@ -13,34 +13,23 @@ function Enrollments() {
   const getInstructorName = (id) =>
     users.find((user) => user.id === id)?.name || "Unknown Instructor";
 
-  const countLessons = (course) =>
-    Array.isArray(course.modules)
-      ? course.modules.reduce(
-          (total, module) =>
-            total + (Array.isArray(module.lessons) ? module.lessons.length : 0),
-          0
-        )
-      : 0;
+  const countLessons = (course) => {
+    if (!Array.isArray(course.modules)) return 0;
+
+    const matchedModules = modules.filter((module) =>
+      course.modules.includes(module.id)
+    );
+
+    return matchedModules.reduce(
+      (total, module) =>
+        total + (Array.isArray(module.lessons) ? module.lessons.length : 0),
+      0
+    );
+  };
 
   const computeProgress = (course) => {
-    if (!currentUser?.progress || !Array.isArray(course.modules)) return 0;
-
-    let totalLessons = 0;
-    let completedLessons = 0;
-
-    course.modules.forEach((module) => {
-      if (Array.isArray(module.lessons)) {
-        module.lessons.forEach((lesson) => {
-          totalLessons += 1;
-          if (currentUser.progress[lesson.id]) {
-            completedLessons += 1;
-          }
-        });
-      }
-    });
-
-    if (totalLessons === 0) return 0;
-    return Math.round((completedLessons / totalLessons) * 100);
+    if (!currentUser?.progress) return 0;
+    return currentUser.progress[course.id] ?? 0;
   };
 
   const getStatus = (progress) => {
