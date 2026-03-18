@@ -1,9 +1,9 @@
+import React from "react";
 import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar.jsx";
+import { BookOpen, CheckCircle, BarChart3, Layers } from "lucide-react";
 
 function Enrollments({ currentUser, courses = [], users = [] }) {
-  const isInstructor = currentUser?.role === "instructor";
-
   const enrolledCourses =
     currentUser && Array.isArray(currentUser.enrolledCourses)
       ? courses.filter((course) => currentUser.enrolledCourses.includes(course.id))
@@ -65,169 +65,148 @@ function Enrollments({ currentUser, courses = [], users = [] }) {
     return (
       <div className="min-h-screen bg-[#F4F8FD]">
         <Navbar isLoggedIn={false} />
-        <main className="mx-auto flex min-h-[calc(100vh-80px)] max-w-7xl items-center justify-center px-4 py-8">
-          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-md border border-slate-200 text-center">
-            <h1 className="text-3xl font-bold text-slate-900">My Enrollments</h1>
-            <p className="mt-3 text-slate-600">
+        <div className="flex min-h-[calc(100vh-80px)] items-center justify-center px-4 py-8">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-lg text-center">
+            <h1 className="text-3xl font-bold text-gray-900 mb-3">My Enrollments</h1>
+            <p className="text-gray-600 mb-5">
               Please log in first to view your enrolled courses.
             </p>
             <Link
               to="/login"
-              className="mt-5 inline-block rounded-xl bg-[#1976D2] px-4 py-2.5 text-white font-semibold hover:bg-[#1565C0] transition"
+              className="inline-block text-[#0D47A1] font-semibold hover:text-[#1976D2] transition"
             >
               Go to Login
             </Link>
           </div>
-        </main>
-      </div>
-    );
-  }
-
-  if (isInstructor) {
-    return (
-      <div className="min-h-screen bg-[#F4F8FD]">
-        <Navbar isLoggedIn={true} />
-        <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-          <div className="rounded-2xl bg-white p-6 shadow-md border border-slate-200 text-center">
-            <h1 className="text-4xl font-bold text-slate-900">My Enrollments</h1>
-            <p className="mt-3 text-slate-600">
-              This page is for student enrollments. As an instructor, you can manage your courses instead.
-            </p>
-            <Link
-              to="/manage-courses"
-              className="mt-5 inline-block rounded-xl bg-[#1976D2] px-4 py-2.5 text-white font-semibold hover:bg-[#1565C0] transition"
-            >
-              Go to Manage Courses
-            </Link>
-          </div>
-        </main>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#F4F8FD] text-slate-800">
+    <div className="min-h-screen bg-[#F4F8FD]">
       <Navbar isLoggedIn={true} />
 
-      <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-        <section className="mb-6 rounded-2xl bg-white p-5 shadow-md border border-slate-200 sm:p-6">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#1976D2]">
-            Student View
-          </p>
-          <h1 className="mt-1 text-3xl font-bold text-slate-900 sm:text-4xl">
-            My Enrollments
-          </h1>
-          <p className="mt-2 text-sm text-slate-600 sm:text-base">
-            Track your enrolled courses, progress, and continue learning from where you stopped.
-          </p>
-        </section>
+      <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <h1 className="text-4xl font-bold text-gray-900 mb-3 text-left">
+          My Enrollments
+        </h1>
+        <p className="text-xl text-gray-600 mb-8 text-left font-semibold">
+          Keep learning and track your progress.
+        </p>
 
-        <section className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          <article className="rounded-xl bg-white p-4 shadow-sm border border-slate-200">
-            <p className="text-xs font-medium uppercase tracking-[0.15em] text-slate-500">
-              Enrolled Courses
-            </p>
-            <p className="mt-2 text-2xl font-bold text-slate-900">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-10">
+          <div className="bg-white rounded-xl shadow-md p-5">
+            <div className="flex items-center gap-3 mb-3">
+              <BookOpen className="w-6 h-6 text-[#1976D2]" />
+              <p className="text-sm font-medium text-gray-500">Enrolled Courses</p>
+            </div>
+            <h2 className="text-3xl font-bold text-gray-900">
               {enrolledCourses.length}
-            </p>
-          </article>
+            </h2>
+          </div>
 
-          <article className="rounded-xl bg-white p-4 shadow-sm border border-slate-200">
-            <p className="text-xs font-medium uppercase tracking-[0.15em] text-slate-500">
-              Completed Courses
-            </p>
-            <p className="mt-2 text-2xl font-bold text-slate-900">
+          <div className="bg-white rounded-xl shadow-md p-5">
+            <div className="flex items-center gap-3 mb-3">
+              <CheckCircle className="w-6 h-6 text-[#22C55E]" />
+              <p className="text-sm font-medium text-gray-500">Completed Courses</p>
+            </div>
+            <h2 className="text-3xl font-bold text-gray-900">
               {completedCourses}
-            </p>
-          </article>
+            </h2>
+          </div>
 
-          <article className="rounded-xl bg-white p-4 shadow-sm border border-slate-200">
-            <p className="text-xs font-medium uppercase tracking-[0.15em] text-slate-500">
-              Average Progress
-            </p>
-            <p className="mt-2 text-2xl font-bold text-[#22C55E]">
+          <div className="bg-white rounded-xl shadow-md p-5">
+            <div className="flex items-center gap-3 mb-3">
+              <BarChart3 className="w-6 h-6 text-yellow-500" />
+              <p className="text-sm font-medium text-gray-500">Average Progress</p>
+            </div>
+            <h2 className="text-3xl font-bold text-[#22C55E]">
               {averageProgress}%
-            </p>
-          </article>
+            </h2>
+          </div>
 
-          <article className="rounded-xl bg-white p-4 shadow-sm border border-slate-200">
-            <p className="text-xs font-medium uppercase tracking-[0.15em] text-slate-500">
-              Total Lessons
-            </p>
-            <p className="mt-2 text-2xl font-bold text-slate-900">
+          <div className="bg-white rounded-xl shadow-md p-5">
+            <div className="flex items-center gap-3 mb-3">
+              <Layers className="w-6 h-6 text-[#1976D2]" />
+              <p className="text-sm font-medium text-gray-500">Total Lessons</p>
+            </div>
+            <h2 className="text-3xl font-bold text-gray-900">
               {totalLessons}
-            </p>
-          </article>
-        </section>
+            </h2>
+          </div>
+        </div>
 
         {enrolledCourses.length === 0 ? (
-          <section className="rounded-2xl bg-white p-6 shadow-md border border-slate-200 text-center">
-            <h2 className="text-2xl font-semibold text-slate-900">
+          <div className="bg-white rounded-xl shadow-md p-8 text-center">
+            <h2 className="text-2xl font-semibold text-gray-900 mb-3">
               No Enrollments Yet
             </h2>
-            <p className="mt-2 text-slate-600">
-              You are not enrolled in any course yet. Start exploring courses and begin your learning journey.
+            <p className="text-gray-600 mb-5">
+              You are not enrolled in any courses yet. Start exploring courses and begin learning.
             </p>
             <Link
               to="/courses"
-              className="mt-5 inline-block rounded-xl bg-[#1976D2] px-4 py-2.5 text-white font-semibold hover:bg-[#1565C0] transition"
+              className="inline-block py-2 px-6 rounded-lg text-white font-semibold shadow transition-colors duration-300 hover:shadow-lg"
+              style={{ backgroundColor: "#1976D2" }}
             >
               Browse Courses
             </Link>
-          </section>
+          </div>
         ) : (
-          <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
             {enrolledCourses.map((course) => {
               const progress = calculateProgress(course);
-              const totalCourseLessons = countLessons(course);
+              const lessons = countLessons(course);
 
               return (
-                <article
+                <div
                   key={course.id}
-                  className="rounded-2xl bg-white p-4 shadow-md border border-slate-200 transition hover:-translate-y-0.5 hover:shadow-lg"
+                  className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col overflow-hidden hover:-translate-y-1 transition-transform h-full"
                 >
-                  <img
-                    src={course.image}
-                    alt={course.title}
-                    className="h-44 w-full rounded-xl object-cover"
-                  />
+                  <div className="relative h-44 bg-gray-200">
+                    <img
+                      src={course.image}
+                      alt={`Cover image for ${course.title}`}
+                      className="w-full h-full object-cover rounded-t-xl"
+                    />
+                    <span
+                      className={`absolute top-3 right-3 text-xs px-3 py-1 rounded-full font-semibold shadow ${
+                        progress === 100
+                          ? "bg-green-100 text-green-800"
+                          : "bg-yellow-100 text-yellow-800"
+                      }`}
+                    >
+                      {progress === 100 ? "Completed" : "In Progress"}
+                    </span>
+                  </div>
 
-                  <div className="mt-4">
-                    <div className="flex items-start justify-between gap-3">
-                      <h2 className="text-xl font-semibold text-slate-900">
-                        {course.title}
-                      </h2>
-                      <span
-                        className={`shrink-0 rounded-full px-3 py-1 text-xs font-medium ${
-                          progress === 100
-                            ? "bg-green-100 text-green-700"
-                            : "bg-[#FEF3C7] text-slate-700"
-                        }`}
-                      >
-                        {progress === 100 ? "Completed" : "In Progress"}
-                      </span>
-                    </div>
+                  <div className="p-6 flex flex-col flex-1">
+                    <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">
+                      {course.title}
+                    </h3>
 
-                    <p className="mt-2 text-sm text-slate-600">
-                      Instructor: {getInstructorName(course.instructorId)}
+                    <p className="text-sm text-gray-500 mb-2 font-medium">
+                      {getInstructorName(course.instructorId)}
                     </p>
 
-                    <p className="mt-1 text-sm text-slate-600">
+                    <p className="text-sm text-gray-600 mb-2">
                       Category: {course.category || "General"}
                     </p>
 
-                    <p className="mt-1 text-sm text-slate-600">
-                      {Array.isArray(course.modules) ? course.modules.length : 0} Modules •{" "}
-                      {totalCourseLessons} Lessons
+                    <p className="text-sm text-gray-600 mb-4">
+                      {Array.isArray(course.modules) ? course.modules.length : 0} modules •{" "}
+                      {lessons} lessons
                     </p>
 
-                    <div className="mt-4">
-                      <div className="mb-2 flex items-center justify-between text-sm text-slate-600">
+                    <div className="mb-4">
+                      <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
                         <span>Progress</span>
-                        <span className="font-medium text-[#22C55E]">{progress}%</span>
+                        <span className="font-semibold text-[#22C55E]">
+                          {progress}%
+                        </span>
                       </div>
-
-                      <div className="h-2.5 w-full rounded-full bg-slate-200">
+                      <div className="h-2.5 w-full rounded-full bg-gray-200 overflow-hidden">
                         <div
                           className="h-full rounded-full bg-[#22C55E]"
                           style={{ width: `${progress}%` }}
@@ -235,28 +214,29 @@ function Enrollments({ currentUser, courses = [], users = [] }) {
                       </div>
                     </div>
 
-                    <div className="mt-4 flex flex-wrap gap-3">
+                    <div className="mt-auto flex flex-wrap items-center gap-3">
                       <Link
                         to={`/courses/${course.id}`}
-                        className="rounded-xl bg-[#1976D2] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#1565C0]"
+                        className="py-2 px-4 rounded-lg text-white font-semibold text-center shadow transition-colors duration-300 hover:shadow-lg"
+                        style={{ backgroundColor: "#1976D2" }}
                       >
                         Continue Learning
                       </Link>
 
                       <Link
                         to={`/courses/${course.id}`}
-                        className="text-sm font-medium text-[#0D47A1] transition hover:text-[#1976D2]"
+                        className="text-sm font-semibold text-[#0D47A1] hover:text-[#1976D2] transition"
                       >
                         View Details
                       </Link>
                     </div>
                   </div>
-                </article>
+                </div>
               );
             })}
-          </section>
+          </div>
         )}
-      </main>
+      </div>
     </div>
   );
 }
