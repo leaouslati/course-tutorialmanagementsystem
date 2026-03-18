@@ -2,7 +2,6 @@ import React from "react";
 import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar.jsx";
 import { courses, users } from "../data/mockdata.js";
-import { BookOpen, CheckCircle, BarChart3, Layers } from "lucide-react";
 
 function Enrollments() {
   const currentUser = users[0];
@@ -23,7 +22,7 @@ function Enrollments() {
         )
       : 0;
 
-  const calculateProgress = (course) => {
+  const computeProgress = (course) => {
     if (!currentUser?.progress || !Array.isArray(course.modules)) return 0;
 
     let totalLessons = 0;
@@ -44,24 +43,17 @@ function Enrollments() {
     return Math.round((completedLessons / totalLessons) * 100);
   };
 
-  const completedCourses = enrolledCourses.filter(
-    (course) => calculateProgress(course) === 100
-  ).length;
+  const getStatus = (progress) => {
+    if (progress === 100) return "Completed";
+    if (progress > 0) return "In Progress";
+    return "Not Started";
+  };
 
-  const averageProgress =
-    enrolledCourses.length > 0
-      ? Math.round(
-          enrolledCourses.reduce(
-            (sum, course) => sum + calculateProgress(course),
-            0
-          ) / enrolledCourses.length
-        )
-      : 0;
-
-  const totalLessons = enrolledCourses.reduce(
-    (sum, course) => sum + countLessons(course),
-    0
-  );
+  const getStatusClasses = (progress) => {
+    if (progress === 100) return "bg-green-100 text-green-800";
+    if (progress > 0) return "bg-yellow-100 text-yellow-800";
+    return "bg-gray-100 text-gray-700";
+  };
 
   return (
     <div className="min-h-screen bg-[#F4F8FD]">
@@ -72,50 +64,8 @@ function Enrollments() {
           My Enrollments
         </h1>
         <p className="text-xl text-gray-600 mb-8 text-left font-semibold">
-          Keep learning and track your progress.
+          Continue your courses and keep up with your progress.
         </p>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-10">
-          <div className="bg-white rounded-xl shadow-md p-5">
-            <div className="flex items-center gap-3 mb-3">
-              <BookOpen className="w-6 h-6 text-[#1976D2]" />
-              <p className="text-sm font-medium text-gray-500">Enrolled Courses</p>
-            </div>
-            <h2 className="text-3xl font-bold text-gray-900">
-              {enrolledCourses.length}
-            </h2>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-md p-5">
-            <div className="flex items-center gap-3 mb-3">
-              <CheckCircle className="w-6 h-6 text-[#22C55E]" />
-              <p className="text-sm font-medium text-gray-500">Completed Courses</p>
-            </div>
-            <h2 className="text-3xl font-bold text-gray-900">
-              {completedCourses}
-            </h2>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-md p-5">
-            <div className="flex items-center gap-3 mb-3">
-              <BarChart3 className="w-6 h-6 text-yellow-500" />
-              <p className="text-sm font-medium text-gray-500">Average Progress</p>
-            </div>
-            <h2 className="text-3xl font-bold text-[#22C55E]">
-              {averageProgress}%
-            </h2>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-md p-5">
-            <div className="flex items-center gap-3 mb-3">
-              <Layers className="w-6 h-6 text-[#1976D2]" />
-              <p className="text-sm font-medium text-gray-500">Total Lessons</p>
-            </div>
-            <h2 className="text-3xl font-bold text-gray-900">
-              {totalLessons}
-            </h2>
-          </div>
-        </div>
 
         {enrolledCourses.length === 0 ? (
           <div className="bg-white rounded-xl shadow-md p-8 text-center">
@@ -136,80 +86,69 @@ function Enrollments() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
             {enrolledCourses.map((course) => {
-              const progress = calculateProgress(course);
+              const progress = computeProgress(course);
               const lessons = countLessons(course);
+              const status = getStatus(progress);
 
               return (
                 <div
                   key={course.id}
-                  className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col overflow-hidden hover:-translate-y-1 transition-transform h-full"
+                  className="bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 p-5 flex flex-col gap-4"
                 >
-                  <div className="relative h-44 bg-gray-200">
-                    <img
-                      src={course.image}
-                      alt={`Cover image for ${course.title}`}
-                      className="w-full h-full object-cover rounded-t-xl"
-                    />
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <h2 className="text-xl font-bold text-gray-900 mb-1">
+                        {course.title}
+                      </h2>
+                      <p className="text-sm text-gray-500 font-medium">
+                        {getInstructorName(course.instructorId)}
+                      </p>
+                    </div>
+
                     <span
-                      className={`absolute top-3 right-3 text-xs px-3 py-1 rounded-full font-semibold shadow ${
-                        progress === 100
-                          ? "bg-green-100 text-green-800"
-                          : "bg-yellow-100 text-yellow-800"
-                      }`}
+                      className={`text-xs px-3 py-1 rounded-full font-semibold whitespace-nowrap ${getStatusClasses(
+                        progress
+                      )}`}
                     >
-                      {progress === 100 ? "Completed" : "In Progress"}
+                      {status}
                     </span>
                   </div>
 
-                  <div className="p-6 flex flex-col flex-1">
-                    <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">
-                      {course.title}
-                    </h3>
-
-                    <p className="text-sm text-gray-500 mb-2 font-medium">
-                      {getInstructorName(course.instructorId)}
-                    </p>
-
-                    <p className="text-sm text-gray-600 mb-2">
-                      Category: {course.category || "General"}
-                    </p>
-
-                    <p className="text-sm text-gray-600 mb-4">
+                  <div className="text-sm text-gray-600 space-y-1">
+                    <p>Category: {course.category || "General"}</p>
+                    <p>
                       {Array.isArray(course.modules) ? course.modules.length : 0} modules •{" "}
                       {lessons} lessons
                     </p>
+                  </div>
 
-                    <div className="mb-4">
-                      <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
-                        <span>Progress</span>
-                        <span className="font-semibold text-[#22C55E]">
-                          {progress}%
-                        </span>
-                      </div>
-                      <div className="h-2.5 w-full rounded-full bg-gray-200 overflow-hidden">
-                        <div
-                          className="h-full rounded-full bg-[#22C55E]"
-                          style={{ width: `${progress}%` }}
-                        />
-                      </div>
+                  <div>
+                    <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
+                      <span>Progress</span>
+                      <span className="font-semibold text-[#22C55E]">{progress}%</span>
                     </div>
-
-                    <div className="mt-auto flex flex-wrap items-center gap-3">
-                      <Link
-                        to="/courses"
-                        className="py-2 px-4 rounded-lg text-white font-semibold text-center shadow transition-colors duration-300 hover:shadow-lg"
-                        style={{ backgroundColor: "#1976D2" }}
-                      >
-                        Continue Learning
-                      </Link>
-
-                      <Link
-                        to="/courses"
-                        className="text-sm font-semibold text-[#0D47A1] hover:text-[#1976D2] transition"
-                      >
-                        View Details
-                      </Link>
+                    <div className="h-2.5 w-full rounded-full bg-gray-200 overflow-hidden">
+                      <div
+                        className="h-full rounded-full bg-[#22C55E]"
+                        style={{ width: `${progress}%` }}
+                      />
                     </div>
+                  </div>
+
+                  <div className="pt-2 flex items-center justify-between gap-3">
+                    <Link
+                      to="/courses"
+                      className="inline-flex items-center gap-2 text-sm font-semibold text-[#0D47A1] hover:text-[#1976D2] transition"
+                    >
+                      Continue →
+                    </Link>
+
+                    <Link
+                      to="/courses"
+                      className="text-sm font-semibold text-[#0D47A1] hover:text-[#1976D2] transition"
+                    >
+                      View Details
+                    </Link>
                   </div>
                 </div>
               );
