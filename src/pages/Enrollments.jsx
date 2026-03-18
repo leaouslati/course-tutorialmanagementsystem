@@ -1,13 +1,15 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar.jsx";
+import { courses, users } from "../data/mockdata.js";
 import { BookOpen, CheckCircle, BarChart3, Layers } from "lucide-react";
 
-function Enrollments({ currentUser, courses = [], users = [] }) {
-  const enrolledCourses =
-    currentUser && Array.isArray(currentUser.enrolledCourses)
-      ? courses.filter((course) => currentUser.enrolledCourses.includes(course.id))
-      : [];
+function Enrollments() {
+  const currentUser = users[0];
+
+  const enrolledCourses = Array.isArray(currentUser?.enrolledCourses)
+    ? courses.filter((course) => currentUser.enrolledCourses.includes(course.id))
+    : [];
 
   const getInstructorName = (id) =>
     users.find((user) => user.id === id)?.name || "Unknown Instructor";
@@ -60,28 +62,6 @@ function Enrollments({ currentUser, courses = [], users = [] }) {
     (sum, course) => sum + countLessons(course),
     0
   );
-
-  if (!currentUser) {
-    return (
-      <div className="min-h-screen bg-[#F4F8FD]">
-        <Navbar isLoggedIn={false} />
-        <div className="flex min-h-[calc(100vh-80px)] items-center justify-center px-4 py-8">
-          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-lg text-center">
-            <h1 className="text-3xl font-bold text-gray-900 mb-3">My Enrollments</h1>
-            <p className="text-gray-600 mb-5">
-              Please log in first to view your enrolled courses.
-            </p>
-            <Link
-              to="/login"
-              className="inline-block text-[#0D47A1] font-semibold hover:text-[#1976D2] transition"
-            >
-              Go to Login
-            </Link>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-[#F4F8FD]">
@@ -216,7 +196,7 @@ function Enrollments({ currentUser, courses = [], users = [] }) {
 
                     <div className="mt-auto flex flex-wrap items-center gap-3">
                       <Link
-                        to={`/courses/${course.id}`}
+                        to="/courses"
                         className="py-2 px-4 rounded-lg text-white font-semibold text-center shadow transition-colors duration-300 hover:shadow-lg"
                         style={{ backgroundColor: "#1976D2" }}
                       >
@@ -224,7 +204,7 @@ function Enrollments({ currentUser, courses = [], users = [] }) {
                       </Link>
 
                       <Link
-                        to={`/courses/${course.id}`}
+                        to="/courses"
                         className="text-sm font-semibold text-[#0D47A1] hover:text-[#1976D2] transition"
                       >
                         View Details
