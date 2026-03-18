@@ -9,6 +9,7 @@ export default function Navbar({ darkMode, toggleTheme, isLoggedIn = false }) {
     { name: "Courses", path: "/courses" },
     { name: "Enrollments", path: "/enrollments" },
     { name: "Profile", path: "/profile" },
+    { name: "Manage Courses", path: "/manage-courses" },
   ];
 
   const closeMenu = () => setMenuOpen(false);
