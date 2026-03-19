@@ -1,18 +1,21 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
-import { Eye, EyeOff, Mail, Lock, BookOpen, CheckCircle } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, BookOpen, CheckCircle, AlertCircle } from "lucide-react";
+import { users } from "../data/mockdata";
 
 export default function Login() {
   const navigate = useNavigate();
   const [form, setForm] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
+  const [authError, setAuthError] = useState("");
   const [success, setSuccess] = useState(false);
 
   const update = (field, value) => {
     setForm(prev => ({ ...prev, [field]: value }));
     setErrors(prev => ({ ...prev, [field]: "" }));
+    setAuthError("");
   };
 
   const validate = () => {
@@ -28,7 +31,16 @@ export default function Login() {
     e.preventDefault();
     const errs = validate();
     if (Object.keys(errs).length > 0) { setErrors(errs); return; }
-    // TODO: wire to auth
+
+    const matchedUser = users.find(
+      u => u.email === form.email && u.password === form.password
+    );
+
+    if (!matchedUser) {
+      setAuthError("Incorrect email or password. Please try again.");
+      return;
+    }
+
     setSuccess(true);
     setTimeout(() => navigate("/"), 2000);
   };
@@ -100,6 +112,14 @@ export default function Login() {
                 </div>
                 {errors.password && <p className="text-xs text-red-500">{errors.password}</p>}
               </div>
+
+              {/* Auth error */}
+              {authError && (
+                <div className="flex items-center gap-2 bg-red-50 border border-red-200 rounded-xl px-4 py-3">
+                  <AlertCircle className="w-4 h-4 text-red-500 flex-shrink-0" />
+                  <p className="text-xs text-red-600 font-medium">{authError}</p>
+                </div>
+              )}
 
               <button type="submit"
                 className="w-full rounded-xl py-2.5 text-sm font-semibold text-white shadow transition mt-1"
