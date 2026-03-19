@@ -7,7 +7,7 @@ export default function Navbar({ darkMode, toggleTheme, isLoggedIn = false }) {
   const navLinks = [
     { name: "Home", path: "/" },
     { name: "Courses", path: "/courses" },
-    { name: "Enrollments", path: "/enrollments" },
+    ...(isLoggedIn ? [{ name: "Enrollments", path: "/enrollments" }] : []),
     { name: "Profile", path: "/profile" },
   ];
 
