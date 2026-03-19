@@ -28,7 +28,7 @@ const Field = ({ label, error, children }) => (
 
 const inputCls = (err) =>
   `w-full rounded-xl border bg-white px-3 py-2.5 text-sm text-slate-900 placeholder-slate-400 transition focus:outline-none focus:ring-2 ${
-    err ? "border-red-400 focus:ring-red-400/40" : "border-slate-200 focus:border-'#1976D2' focus:ring-[#1976D2]/20"
+    err ? "border-red-400 focus:ring-red-400/40" : "border-slate-200 focus:border-[#1976D2] focus:ring-[#1976D2]/20"
   }`;
 
 const selectCls = "w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 transition focus:outline-none focus:ring-2 focus:ring-[#1976D2]/20 focus:border-[#1976D2]";
@@ -219,10 +219,10 @@ export default function ManageCourses() {
             </Field>
 
             <div className="lg:col-span-2 flex flex-col sm:flex-row gap-3 pt-2">
-              <button type="submit" className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-[#1976D2] px-6 py-3 text-sm font-bold text-white transition hover:bg-[#1565C0] active:scale-95" style={{boxShadow:"0 2px 8px 0 rgba(25,118,210,0.25)"}}>
+              <button type="submit" className="w-full inline-flex items-center justify-center gap-2 rounded-lg text-white font-semibold text-center shadow transition-colors duration-300 hover:shadow-lg border-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1976D2] px-6 py-2" style={{backgroundColor:"#1976D2"}} onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#0094c5")} onMouseLeave={e => (e.currentTarget.style.backgroundColor = "#1976D2")}>
                 {editingId ? <><Edit className="h-4 w-4" /> Update Course</> : <><PlusCircle className="h-4 w-4" /> Add Course</>}
               </button>
-              <button type="button" onClick={resetForm} className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-[#1976D2] px-6 py-3 text-sm font-bold text-white transition hover:bg-[#1565C0] active:scale-95" style={{boxShadow:"0 2px 8px 0 rgba(25,118,210,0.25)"}}>
+              <button type="button" onClick={resetForm} className="w-full inline-flex items-center justify-center gap-2 rounded-lg text-white font-semibold text-center shadow transition-colors duration-300 hover:shadow-lg border-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1976D2] px-6 py-2" style={{backgroundColor:"#1976D2"}} onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#0094c5")} onMouseLeave={e => (e.currentTarget.style.backgroundColor = "#1976D2")}>
                 Reset
               </button>
             </div>
@@ -291,10 +291,10 @@ export default function ManageCourses() {
 
                         {/* Actions */}
                         <div className="flex flex-col gap-2 pt-3 border-t border-slate-100 mt-3">
-                          <button onClick={() => startEdit(course)} className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-[#1976D2] px-4 py-3 text-sm font-bold text-white transition hover:bg-[#1565C0] active:scale-95" style={{boxShadow:"0 2px 8px 0 rgba(25,118,210,0.25)"}}>
+                          <button onClick={() => startEdit(course)} className="w-full inline-flex items-center justify-center gap-2 rounded-lg text-white font-semibold text-center shadow transition-colors duration-300 hover:shadow-lg border-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1976D2] px-4 py-2" style={{backgroundColor:"#1976D2"}} onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#0094c5")} onMouseLeave={e => (e.currentTarget.style.backgroundColor = "#1976D2")}>
                             <Edit className="h-4 w-4" /> Edit
                           </button>
-                          <button onClick={() => removeCourse(course.id)} className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-[#1976D2] px-4 py-3 text-sm font-bold text-white transition hover:bg-[#1565C0] active:scale-95" style={{boxShadow:"0 2px 8px 0 rgba(25,118,210,0.25)"}}>
+                          <button onClick={() => removeCourse(course.id)} className="w-full inline-flex items-center justify-center gap-2 rounded-lg text-white font-semibold text-center shadow transition-colors duration-300 hover:shadow-lg border-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1976D2] px-4 py-2" style={{backgroundColor:"#1976D2"}} onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#0094c5")} onMouseLeave={e => (e.currentTarget.style.backgroundColor = "#1976D2")}>
                             <Trash2 className="h-4 w-4" /> Delete
                           </button>
                         </div>
