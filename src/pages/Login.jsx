@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { Eye, EyeOff, Mail, Lock, BookOpen, CheckCircle, AlertCircle } from "lucide-react";
@@ -10,7 +10,16 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
   const [authError, setAuthError] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
   const [success, setSuccess] = useState(false);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("rememberedEmail");
+    if (saved) {
+      setForm(prev => ({ ...prev, email: saved }));
+      setRememberMe(true);
+    }
+  }, []);
 
   const update = (field, value) => {
     setForm(prev => ({ ...prev, [field]: value }));
@@ -40,6 +49,9 @@ export default function Login() {
       setAuthError("Incorrect email or password. Please try again.");
       return;
     }
+
+    if (rememberMe) localStorage.setItem("rememberedEmail", form.email);
+    else localStorage.removeItem("rememberedEmail");
 
     setSuccess(true);
     setTimeout(() => navigate("/"), 2000);
@@ -111,6 +123,20 @@ export default function Login() {
                   </button>
                 </div>
                 {errors.password && <p className="text-xs text-red-500">{errors.password}</p>}
+              </div>
+
+              {/* Remember Me */}
+              <div className="flex items-center gap-2">
+                <input
+                  id="rememberMe"
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={e => setRememberMe(e.target.checked)}
+                  className="w-4 h-4 rounded border-slate-300 accent-[#1976D2] cursor-pointer"
+                />
+                <label htmlFor="rememberMe" className="text-sm text-slate-600 cursor-pointer select-none">
+                  Remember me
+                </label>
               </div>
 
               {/* Auth error */}
