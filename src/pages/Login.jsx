@@ -12,6 +12,7 @@ export default function Login() {
   const [authError, setAuthError] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const saved = localStorage.getItem("rememberedEmail");
@@ -40,21 +41,13 @@ export default function Login() {
     e.preventDefault();
     const errs = validate();
     if (Object.keys(errs).length > 0) { setErrors(errs); return; }
-
-    const matchedUser = users.find(
-      u => u.email === form.email && u.password === form.password
-    );
-
-    if (!matchedUser) {
-      setAuthError("Incorrect email or password. Please try again.");
-      return;
-    }
-
-    if (rememberMe) localStorage.setItem("rememberedEmail", form.email);
-    else localStorage.removeItem("rememberedEmail");
-
-    setSuccess(true);
-    setTimeout(() => navigate("/"), 2000);
+    setLoading(true);
+    // TODO: wire to auth
+    setTimeout(() => {
+      setLoading(false);
+      setSuccess(true);
+      setTimeout(() => navigate("/"), 2000);
+    }, 1500);
   };
 
   const inputClass = (field) =>
@@ -76,6 +69,18 @@ export default function Login() {
             <div>
               <p className="text-sm font-bold text-slate-800">Logged in successfully!</p>
               <p className="text-xs text-slate-500 mt-0.5">Taking you home…</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {loading && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20">
+          <div className="flex items-center gap-3 bg-white rounded-2xl shadow-2xl px-8 py-6 border border-blue-100">
+            <svg className="animate-spin h-6 w-6 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" /></svg>
+            <div>
+              <p className="text-sm font-bold text-slate-800">Logging in…</p>
+              <p className="text-xs text-slate-500 mt-0.5">Please wait</p>
             </div>
           </div>
         </div>
