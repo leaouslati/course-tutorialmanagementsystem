@@ -124,7 +124,7 @@ export default function ManageCourses() {
     <div className="min-h-screen bg-[#F4F8FD] text-gray-900">
       <Navbar />
 
-      <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
+      <main className="max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
         {/* ── Header ── */}
         <div className="mb-10 text-center">
@@ -254,7 +254,7 @@ export default function ManageCourses() {
               <p className="text-xs mt-1 opacity-70">Try a different search term or add a new course above.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {filteredCourses.map((course) => {
                 const diff = badge(course.difficulty);
                 return (
@@ -302,7 +302,6 @@ export default function ManageCourses() {
                 );
               })}
             </div>
-            
           )}
         </div>
       </main>
