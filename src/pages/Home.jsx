@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { BookOpen, TrendingUp, Users, Award } from "lucide-react";
+import { BookOpen, TrendingUp, Users, Award, Code2, Star, Zap, Globe, Pencil } from "lucide-react";
 import { Link } from "react-router-dom";
 import CourseCard from "../components/CourseCard";
 import Navbar from "../components/Navbar";
@@ -79,59 +79,157 @@ export default function Home() {
       <header>
         <Navbar />
       </header>
-      {/* 1. Hero Section */}
-       <section className="bg-gradient-to-r from-[#0D47A1] via-[#1565C0] to-[#1976D2] text-white py-32 md:py-48 px-4 relative overflow-hidden" aria-label="Hero section">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center fade-in">
-          <div className="space-y-6">
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold leading-tight tracking-tight drop-shadow-lg" tabIndex={0} aria-label="Main headline">
-              Learn <span className="text-[#90CAF9]" aria-label="highlighted">Anything,</span> Anytime
+   {/* 1. Hero Section */}
+      <section
+        aria-labelledby="hero-heading"
+        className="bg-gradient-to-br from-[#0D47A1] via-[#1565C0] to-[#1976D2] text-white relative overflow-hidden"
+        style={{ padding: 'clamp(4rem, 10vw, 9rem) 1rem' }}
+      >
+        {/* Top icons — aria-hidden so screen readers skip */}
+        {[
+          { Icon: Zap,    left: "20%", top: "5%",  size: 38, duration: "9s",   delay: "0.6s" },
+          { Icon: Pencil, left: "45%", top: "3%",  size: 34, duration: "5.5s", delay: "1.8s" },
+          { Icon: Globe,  left: "72%", top: "6%",  size: 40, duration: "8s",   delay: "0.4s" },
+        ].map(({ Icon, left, top, size, duration, delay }, i) => (
+          <div key={`t${i}`} aria-hidden="true" className="float-icon" style={{ left, top, animationDuration: duration, animationDelay: delay }}>
+            <Icon size={size} />
+          </div>
+        ))}
+
+        {/* Bottom icons */}
+        {[
+          { Icon: Code2,    left: "20%", bottom: "4%", size: 44, duration: "4.5s", delay: "0.4s" },
+          { Icon: Star,     left: "45%", bottom: "3%", size: 38, duration: "10s",  delay: "1.2s" },
+          { Icon: BookOpen, left: "70%", bottom: "5%", size: 42, duration: "6.5s", delay: "0.7s" },
+        ].map(({ Icon, left, bottom, size, duration, delay }, i) => (
+          <div key={`b${i}`} aria-hidden="true" className="float-icon" style={{ left, bottom, animationDuration: duration, animationDelay: delay }}>
+            <Icon size={size} />
+          </div>
+        ))}
+
+        {/* Left side icons */}
+        {[
+          { Icon: BookOpen, left: "1%",  bottom: "15%", size: 52, duration: "4s",  delay: "0s"   },
+          { Icon: Star,     left: "7%",  bottom: "50%", size: 44, duration: "11s", delay: "0.5s" },
+          { Icon: Zap,      left: "13%", bottom: "8%",  size: 40, duration: "6s",  delay: "1.5s" },
+          { Icon: Pencil,   left: "4%",  bottom: "72%", size: 36, duration: "14s", delay: "0.8s" },
+        ].map(({ Icon, left, bottom, size, duration, delay }, i) => (
+          <div key={`l${i}`} aria-hidden="true" className="float-icon" style={{ left, bottom, animationDuration: duration, animationDelay: delay }}>
+            <Icon size={size} />
+          </div>
+        ))}
+
+        {/* Right side icons */}
+        {[
+          { Icon: Code2,    right: "1%",  bottom: "15%", size: 56, duration: "5s",  delay: "0.3s" },
+          { Icon: Globe,    right: "7%",  bottom: "50%", size: 48, duration: "12s", delay: "1s"   },
+          { Icon: BookOpen, right: "13%", bottom: "8%",  size: 54, duration: "7s",  delay: "0.2s" },
+          { Icon: Star,     right: "4%",  bottom: "72%", size: 42, duration: "13s", delay: "2s"   },
+        ].map(({ Icon, right, bottom, size, duration, delay }, i) => (
+          <div key={`r${i}`} aria-hidden="true" className="float-icon" style={{ right, bottom, animationDuration: duration, animationDelay: delay }}>
+            <Icon size={size} />
+          </div>
+        ))}
+
+        {/* Main content */}
+        <div className="relative z-10 w-full max-w-5xl mx-auto px-2 sm:px-6">
+          <div className="flex flex-col items-center text-center gap-6 sm:gap-8">
+
+            <h1
+              id="hero-heading"
+              className="font-extrabold leading-tight tracking-tight drop-shadow-lg"
+              style={{ fontSize: 'clamp(2rem, 5vw, 3.25rem)' }}
+            >
+              Learn <span className="text-[#64B5F6]">Anything,</span> Anytime
             </h1>
-            <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-blue-100 max-w-lg mt-4" tabIndex={0} aria-label="Hero description">
-              Master new skills with our comprehensive courses. From programming to design, learn from industry experts and advance your career.
+
+            <p
+              className="text-blue-100 leading-relaxed max-w-2xl"
+              style={{ fontSize: 'clamp(0.95rem, 2vw, 1.25rem)' }}
+            >
+              Learn from industry experts, grow your skills, and advance your career at your own pace.
             </p>
-            <nav aria-label="Hero actions" className="flex flex-col sm:flex-row gap-4 pt-4">
+
+            <nav aria-label="Primary actions" className="flex flex-row flex-wrap gap-4 justify-center">
               <Link to="/courses">
-                <button className="px-6 py-3 rounded-xl bg-[#90CAF9] text-[#1976D2] font-bold shadow-lg transition-all hover:scale-105 w-full sm:w-auto text-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1976D2]" aria-label="Explore Courses">
+                <button
+                  className="px-6 py-3 rounded-xl bg-[#90CAF9] text-[#1976D2] font-bold shadow-lg transition-all hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#1565C0]"
+                  style={{ fontSize: 'clamp(0.95rem, 1.5vw, 1.125rem)' }}
+                  aria-label="Explore our courses"
+                >
                   Explore Courses
                 </button>
               </Link>
               <Link to="/register">
-                <button className="px-6 py-3 rounded-xl bg-[#90CAF9] text-[#1976D2] font-bold shadow-lg transition-all hover:scale-105 w-full sm:w-auto text-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1976D2]" aria-label="Explore Courses">
-                  Sign Up 
+                <button
+                  className="px-6 py-3 rounded-xl bg-[#90CAF9] text-[#1976D2] font-bold shadow-lg transition-all hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#1565C0]"
+                  style={{ fontSize: 'clamp(0.95rem, 1.5vw, 1.125rem)' }}
+                  aria-label="Sign up for free"
+                >
+                  Sign Up
                 </button>
               </Link>
             </nav>
+
           </div>
         </div>
-      </section>
 
+      </section>
       {/* 2. Popular Categories */}
-      <section className="bg-white py-12 md:py-20 px-4" aria-labelledby="categories-heading">
+      <section
+        aria-labelledby="categories-heading"
+        className="bg-white py-12 md:py-20 px-4"
+      >
         <div className="max-w-7xl mx-auto">
-          <header className="text-center mb-12 fade-in">
-            <h2 id="categories-heading" className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-gray-900 mb-4 tracking-tight">Popular Categories</h2>
-            <p className="text-base sm:text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
+
+          <header className="text-center mb-10 md:mb-14">
+            <h2
+              id="categories-heading"
+              className="font-extrabold text-gray-900 tracking-tight mb-3"
+              style={{ fontSize: 'clamp(1.75rem, 4vw, 3rem)' }}
+            >
+              Popular Categories
+            </h2>
+            <p
+              className="text-gray-500 max-w-xl mx-auto"
+              style={{ fontSize: 'clamp(0.9rem, 1.8vw, 1.1rem)' }}
+            >
               Browse courses by category and find what interests you
             </p>
           </header>
-          <nav aria-label="Popular categories">
-            <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+
+          <nav aria-label="Course categories">
+            <ul className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-6">
               {categories.map((category, idx) => {
-                const courseCount = courses.filter(c => c.category === category.name).length;
+                const count = courses.filter(c => c.category === category.name).length;
                 return (
-                  <li key={category.id} className="fade-in" style={{ animationDelay: `${0.1 * idx}s` }}>
-                    <Link to={`/courses?category=${category.name}`} className="group" aria-label={`Category: ${category.name}`}> 
-                      <div className="bg-white p-6 text-center shadow-md hover:shadow-xl transition-all flex flex-col items-center justify-center hover:scale-105 rounded-xl">
-                        <span className="text-4xl mb-3 block" aria-label={category.name + ' icon'}>{category.icon}</span>
-                        <h3 className="font-semibold text-gray-900 mb-2 text-lg md:text-xl">{category.name}</h3>
-                        <p className="text-sm md:text-base text-gray-600">{courseCount} courses</p>
-                      </div>
+                  <li key={category.id}>
+                    <Link
+                      to={`/courses?category=${category.name}`}
+                      aria-label={`${category.name} — ${count} ${count === 1 ? 'course' : 'courses'}`}
+                      className="group block rounded-2xl border border-slate-100 bg-white shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-200 p-5 sm:p-6 text-center focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1976D2]"
+                    >
+                      <span
+                        role="img"
+                        aria-hidden="true"
+                        className="text-3xl sm:text-4xl mb-3 block"
+                      >
+                        {category.icon}
+                      </span>
+                      <h3 className="font-bold text-gray-900 text-sm sm:text-base md:text-lg leading-tight mb-1">
+                        {category.name}
+                      </h3>
+                      <p className="text-xs sm:text-sm text-slate-400 font-medium">
+                        {count} {count === 1 ? 'course' : 'courses'}
+                      </p>
+                      <div className="mt-3 h-0.5 w-0 group-hover:w-full bg-[#1976D2] transition-all duration-300 rounded-full mx-auto" />
                     </Link>
                   </li>
                 );
               })}
             </ul>
           </nav>
+
         </div>
       </section>
 
