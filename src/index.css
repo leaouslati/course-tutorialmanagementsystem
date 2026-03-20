@@ -2,31 +2,30 @@
 @import url('https://fonts.googleapis.com/css?family=Inter:400,500,700&display=swap');
 
 
-/* --- Floating Icon Animation for Hero Section --- */
 @keyframes floatIcon {
-  0%   { transform: translateY(0px) rotate(0deg);     opacity: 0; }
+  0%   { transform: translateY(0px) rotate(0deg);     opacity: 0;    }
   15%  { opacity: 0.45; }
   85%  { opacity: 0.35; }
-  100% { transform: translateY(-500px) rotate(15deg); opacity: 0; }
+  100% { transform: translateY(-500px) rotate(15deg); opacity: 0;    }
 }
-/* Default: slowest on large screens */
+
 .float-icon {
   position: absolute;
   pointer-events: none;
   color: rgba(144, 202, 249, 0.6);
-  animation: floatIcon ease-in-out 17s infinite;
+  animation: floatIcon ease-in-out infinite;
   z-index: 0;
 }
-/* Shrink icons on small screens */
+
 @media (max-width: 480px) {
   .float-icon svg { width: 20px !important; height: 20px !important; }
-  .float-icon { animation-duration: 14s !important; }
-}
-@media (min-width: 481px) and (max-width: 768px) {
-  .float-icon svg { width: 28px !important; height: 28px !important; }
-  .float-icon { animation-duration: 11s !important; }
+  .float-icon { animation-duration: 12s !important; }
 }
 
+@media (min-width: 481px) and (max-width: 768px) {
+  .float-icon svg { width: 28px !important; height: 28px !important; }
+  .float-icon { animation-duration: 10s !important; }
+}
 
 /* Ensure root container fills the screen and is not cut off */
 :root {
