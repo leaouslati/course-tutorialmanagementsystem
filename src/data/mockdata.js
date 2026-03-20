@@ -11,7 +11,7 @@ export const users = [
 		avatar: '',
 		joinedDate: '2025-09-15',
 		progress: {
-			c1: 80,
+			c1: 100,
 			c2: 40,
 			c3: 0,
 		},
