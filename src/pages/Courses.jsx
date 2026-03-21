@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { courses } from "../data/mockdata";
 import CourseCard from "../components/CourseCard";
 import Navbar from "../components/Navbar.jsx";
-import { Search, RotateCcw } from 'lucide-react';
+import { Search, RotateCcw, BookOpen } from 'lucide-react';
 
 function Courses({ isLoggedIn }) {
   const [search, setSearch] = useState("");
@@ -10,13 +10,22 @@ function Courses({ isLoggedIn }) {
   const [sortTime, setSortTime] = useState("");
   const [difficulty, setDifficulty] = useState("");
 
-  const filterBtnClass = "shadow w-full sm:w-auto max-w-[8rem] sm:max-w-[8rem] sm:px-4 sm:py-2 px-2 py-1 text-[0.9rem] sm:text-base";
+  const resetFilters = () => {
+    setSearch("");
+    setSortRating("");
+    setSortTime("");
+    setDifficulty("");
+  };
+
+  const filterBtnClass = "shadow w-full sm:w-auto px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base rounded-lg transition-all duration-150";
+
   const filterBtnStyle = {
     backgroundColor: '#fff',
     color: '#424242',
     boxShadow: '0 2px 8px 0 rgba(0,0,0,0.08)',
     border: 'none',
   };
+
   const filterBtnActiveStyle = {
     backgroundColor: '#1976D2',
     color: '#fff',
@@ -28,149 +37,170 @@ function Courses({ isLoggedIn }) {
     course.title.toLowerCase().includes(search.toLowerCase())
   );
   if (difficulty) {
-    filteredCourses = filteredCourses.filter(
-      (course) => course.difficulty === difficulty
-    );
+    filteredCourses = filteredCourses.filter((course) => course.difficulty === difficulty);
   }
-  // Rating sorting
-  if (sortRating === "asc") {
-    filteredCourses = [...filteredCourses].sort((a, b) => a.rating - b.rating);
-  }
-  if (sortRating === "desc") {
-    filteredCourses = [...filteredCourses].sort((a, b) => b.rating - a.rating);
-  }
+  if (sortRating === "asc") filteredCourses = [...filteredCourses].sort((a, b) => a.rating - b.rating);
+  if (sortRating === "desc") filteredCourses = [...filteredCourses].sort((a, b) => b.rating - a.rating);
+  if (sortTime === "asc") filteredCourses = [...filteredCourses].sort((a, b) => a.duration - b.duration);
+  if (sortTime === "desc") filteredCourses = [...filteredCourses].sort((a, b) => b.duration - a.duration);
 
-  // Duration sorting
-  if (sortTime === "asc") {
-    filteredCourses = [...filteredCourses].sort((a, b) => a.duration - b.duration);
-  }
-  if (sortTime === "desc") {
-    filteredCourses = [...filteredCourses].sort((a, b) => b.duration - a.duration);
-  }
   return (
     <div className="min-h-screen bg-[#F4F8FD]">
-      {/* Navbar */}
       <Navbar isLoggedIn={isLoggedIn} light />
 
-      <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Page Title */}
-        <h1 className="text-4xl font-bold text-gray-900 mb-6 text-left">
-          Available Courses
-        </h1>
-        <p className="text-xl text-gray-600 mb-8 text-left font-semibold">
+      <main className="max-w-full mx-auto px-3 sm:px-6 lg:px-8 py-5 sm:py-8">
+
+       <h1
+  className="font-bold text-gray-900 text-left whitespace-nowrap mb-2 sm:mb-4"
+  style={{ fontSize: 'clamp(1.1rem, 4vw, 3rem)' }}
+>
+  Available Courses
+</h1>
+        <p
+          className="text-gray-600 mb-4 sm:mb-8 text-left font-semibold"
+          style={{ fontSize: 'clamp(0.8rem, 2.5vw, 1.25rem)' }}
+        >
           Learn. Grow. Achieve.
         </p>
 
-        {/* Search + Filters */}
-        <div className="flex flex-col gap-4 mb-8">
+        <div className="flex flex-col gap-3 sm:gap-4 mb-5 sm:mb-8">
 
-          {/* Search Bar */}
-          <div className="flex items-center mb-2">
-            <div className="relative w-full">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search courses..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-12 py-3 bg-white p-4 rounded-lg shadow text-gray-800"
-                style={{ border: 'none', boxShadow: '0 2px 8px 0 rgba(0,0,0,0.08)' }}
+          <div className="relative w-full">
+            <Search
+              className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400"
+              aria-hidden="true"
+            />
+            <input
+              type="search"
+              placeholder="Search courses..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              aria-label="Search courses"
+              className="w-full pl-10 sm:pl-12 py-2.5 sm:py-3 bg-white rounded-lg text-sm sm:text-base text-gray-800"
+              style={{ border: 'none', boxShadow: '0 2px 8px 0 rgba(0,0,0,0.08)' }}
+            />
+          </div>
+
+          
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3">
+
+            <div className="flex flex-wrap gap-2">
+              {['', 'Beginner', 'Intermediate', 'Advanced'].map((level) => (
+                <button
+                  key={level}
+                  onClick={() => setDifficulty(level)}
+                  className={filterBtnClass}
+                  style={difficulty === level ? filterBtnActiveStyle : filterBtnStyle}
+                  aria-pressed={difficulty === level}
+                >
+                  {level === '' ? 'All Levels' : level}
+                </button>
+              ))}
+            </div>
+
+            <div className="flex items-center gap-2 sm:gap-3">
+              <button
+                onClick={() => setSortRating(sortRating === "desc" ? "asc" : "desc")}
+                className={filterBtnClass}
+                style={sortRating ? filterBtnActiveStyle : filterBtnStyle}
+                aria-label={`Sort by rating ${sortRating === "asc" ? "descending" : "ascending"}`}
+              >
+                Rating{sortRating ? (sortRating === "asc" ? " ↑" : " ↓") : ""}
+              </button>
+              <button
+                onClick={() => setSortTime(sortTime === "desc" ? "asc" : "desc")}
+                className={filterBtnClass}
+                style={sortTime ? filterBtnActiveStyle : filterBtnStyle}
+                aria-label={`Sort by duration ${sortTime === "asc" ? "descending" : "ascending"}`}
+              >
+                Duration{sortTime ? (sortTime === "asc" ? " ↑" : " ↓") : ""}
+              </button>
+              <RotateCcw
+                onClick={resetFilters}
+                className="ml-1 sm:ml-2 cursor-pointer flex-shrink-0"
+                size={22}
+                color="#1976D2"
+                style={{ background: 'none', boxShadow: 'none', border: 'none' }}
+                title="Reset filters"
+                role="button"
+                tabIndex={0}
+                onKeyPress={e => { if (e.key === 'Enter' || e.key === ' ') resetFilters(); }}
               />
             </div>
           </div>
 
-          {/* Levels + Filters */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mt-2">
-            <div className="flex flex-wrap gap-2 sm:gap-3 mb-2 sm:mb-0">
-              <button
-                onClick={() => setDifficulty('')}
-                className={filterBtnClass}
-                style={difficulty === '' ? filterBtnActiveStyle : filterBtnStyle}
-              >All Levels</button>
-              <button
-                onClick={() => setDifficulty('Beginner')}
-                className={filterBtnClass}
-                style={difficulty === 'Beginner' ? filterBtnActiveStyle : filterBtnStyle}
-              >Beginner</button>
-              <button
-                onClick={() => setDifficulty('Intermediate')}
-                className={filterBtnClass}
-                style={difficulty === 'Intermediate' ? filterBtnActiveStyle : filterBtnStyle}
-              >Intermediate</button>
-              <button
-                onClick={() => setDifficulty('Advanced')}
-                className={filterBtnClass}
-                style={difficulty === 'Advanced' ? filterBtnActiveStyle : filterBtnStyle}
-              >Advanced</button>
-            </div>
-            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-              <div className="flex items-center gap-2 sm:gap-3">
-                <button
-                  onClick={() => setSortRating(sortRating === "desc" ? "asc" : "desc")}
-                  className={filterBtnClass}
-                  style={sortRating ? filterBtnActiveStyle : filterBtnStyle}
-                >
-                  Rating{sortRating ? (sortRating === "asc" ? " ↑" : " ↓") : ""}
-                </button>
-                <button
-                  onClick={() => setSortTime(sortTime === "desc" ? "asc" : "desc")}
-                  className={filterBtnClass}
-                  style={sortTime ? filterBtnActiveStyle : filterBtnStyle}
-                >
-                  Duration{sortTime ? (sortTime === "asc" ? " ↑" : " ↓") : ""}
-                </button>
-                <RotateCcw
-                  onClick={() => {
-                    setSearch("");
-                    setSortRating("");
-                    setSortTime("");
-                    setDifficulty("");
-                  }}
-                  className="ml-2 sm:ml-4 cursor-pointer"
-                  size={28}
-                  color="#1976D2"
-                  style={{ border: 'none', outline: 'none', background: 'none', boxShadow: 'none' }}
-                  title="Reset filters"
-                  role="button"
-                  tabIndex={0}
-                  onKeyPress={e => { if (e.key === 'Enter' || e.key === ' ') { setSearch(""); setSortRating(""); setSortTime(""); setDifficulty(""); } }}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-        {/* Courses Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {courses.length === 0 ? (
-            <div className="flex flex-col items-center justify-center col-span-full py-16">
-              <Search className="mb-4 w-12 h-12 text-blue-400" />
-              <h2 className="text-2xl font-semibold text-gray-700 mb-2">No courses available</h2>
-              <p className="text-gray-500 text-base mb-4">There are currently no courses in the system. Please check back later or contact an instructor to add new courses.</p>
-            </div>
-          ) : filteredCourses.length > 0 ? (
-            filteredCourses.map((course) => (
-              <CourseCard key={course.id} course={course} />
-            ))
-          ) : (
-            <div className="flex flex-col items-center justify-center col-span-full py-16">
-              <Search className="mb-4 w-12 h-12 text-blue-400" />
-              <h2 className="text-2xl font-semibold text-gray-700 mb-2">No courses found</h2>
-              <p className="text-gray-500 text-base mb-4">Try adjusting your search or filters to discover more courses.</p>
-              <button
-  onClick={() => {
-    setSearch("");
-    setSortRating("");
-    setSortTime("");
-    setDifficulty("");
-  }}
-  className="mt-2 px-4 py-2 bg-blue-600 text-white !bg-blue-600 !text-white rounded shadow hover:!bg-blue-700 transition"
->
-  Reset Filters
-</button>
+          {(search || difficulty || sortRating || sortTime) && (
+            <div className="flex flex-wrap gap-2 items-center">
+              <span className="text-xs sm:text-sm text-gray-600">Active filters:</span>
+              {search && (
+                <span className="px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 text-xs sm:text-sm">
+                  Search: "{search}"
+                </span>
+              )}
+              {difficulty && (
+                <span className="px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 text-xs sm:text-sm">
+                  {difficulty}
+                </span>
+              )}
+              {sortRating && (
+                <span className="px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 text-xs sm:text-sm">
+                  Rating {sortRating === "asc" ? "↑" : "↓"}
+                </span>
+              )}
+              {sortTime && (
+                <span className="px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 text-xs sm:text-sm">
+                  Duration {sortTime === "asc" ? "↑" : "↓"}
+                </span>
+              )}
             </div>
           )}
+
+          {courses.length > 0 && (
+            <p className="text-xs sm:text-sm text-gray-600" aria-live="polite">
+              Showing <span className="font-semibold">{filteredCourses.length}</span> of{" "}
+              <span className="font-semibold">{courses.length}</span> courses
+            </p>
+          )}
         </div>
-      </div>
+
+        <section aria-label="Course listings">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+            {courses.length === 0 ? (
+              <div className="flex flex-col items-center justify-center col-span-full py-12 sm:py-16 px-4 text-center">
+                <BookOpen className="mb-3 w-8 h-8 sm:w-12 sm:h-12 text-blue-400" aria-hidden="true" />
+                <h2 className="text-base sm:text-2xl font-semibold text-gray-700 mb-2">
+                  No courses available
+                </h2>
+                <p className="text-gray-500 text-xs sm:text-base mb-4">
+                  There are currently no courses in the system. Please check back later or contact an instructor.
+                </p>
+              </div>
+            ) : filteredCourses.length > 0 ? (
+              filteredCourses.map((course) => (
+                <CourseCard key={course.id} course={course} />
+              ))
+            ) : (
+              <div className="flex flex-col items-center justify-center col-span-full py-12 sm:py-16 px-4 text-center">
+                <Search className="mb-3 w-8 h-8 sm:w-12 sm:h-12 text-blue-400" aria-hidden="true" />
+                <h2 className="text-base sm:text-2xl font-semibold text-gray-700 mb-2">
+                  No courses found
+                </h2>
+                <p className="text-gray-500 text-xs sm:text-base mb-4">
+                  Try adjusting your search or filters to discover more courses.
+                </p>
+                <button
+                  onClick={resetFilters}
+                  className="mt-2 px-4 py-2 text-sm sm:text-base bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition focus:outline-none focus:ring-2 focus:ring-blue-400"
+                   style={{ backgroundColor: "#1976D2" }}
+               >
+                  Reset Filters
+                </button>
+              </div>
+            )}
+          </div>
+        </section>
+
+      </main>
     </div>
   );
 }
