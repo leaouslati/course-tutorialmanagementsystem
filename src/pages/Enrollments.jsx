@@ -1,17 +1,44 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar.jsx";
 import { courses, users, modules } from "../data/mockdata.js";
-import { LayoutGrid, Clock } from "lucide-react";
+import { LayoutGrid, Clock, X, AlertTriangle } from "lucide-react";
+import { useState } from "react";
+import { useAuth } from "../pages/AuthContext";
+
+// Shared button styles
+const blueBtn = {
+  base:         "rounded-xl py-2.5 text-sm font-semibold text-white transition",
+  style:        { backgroundColor: '#1976D2' },
+  onMouseEnter: (e) => { e.currentTarget.style.backgroundColor = '#2196F3'; },
+  onMouseLeave: (e) => { e.currentTarget.style.backgroundColor = '#1976D2'; },
+};
+const redBtn = {
+  base:         "rounded-xl py-2.5 text-sm font-semibold text-white transition",
+  style:        { backgroundColor: '#EF4444' },
+  onMouseEnter: (e) => { e.currentTarget.style.backgroundColor = '#DC2626'; },
+  onMouseLeave: (e) => { e.currentTarget.style.backgroundColor = '#EF4444'; },
+};
 
 function Enrollments() {
-  const currentUser = users[0];
+  const { currentUser } = useAuth();
 
-  const enrolledCourses = Array.isArray(currentUser?.enrolledCourses)
-    ? courses.filter((course) => currentUser.enrolledCourses.includes(course.id))
-    : [];
+  const [enrolled, setEnrolled] = useState(
+    Array.isArray(currentUser?.enrolledCourses) ? currentUser.enrolledCourses : []
+  );
+  const [confirmId, setConfirmId] = useState(null); // course id pending unenroll
+  const navigate = useNavigate();
+
+  const enrolledCourses = courses.filter((c) => enrolled.includes(c.id));
+
+  const handleUnenroll = (courseId) => {
+    const updated = enrolled.filter((id) => id !== courseId);
+    setEnrolled(updated);
+    currentUser.enrolledCourses = updated;
+    setConfirmId(null);
+  };
 
   const getInstructorName = (id) =>
-    users.find((user) => user.id === id)?.name || "Unknown Instructor";
+    users.find((u) => u.id === id)?.name || "Unknown Instructor";
 
   const countLessons = (course) => {
     if (!Array.isArray(course.modules)) return 0;
@@ -30,11 +57,64 @@ function Enrollments() {
     return   { label: "Not Started", cls: "bg-gray-100 text-gray-700 border border-gray-300 font-bold" };
   };
 
+  const confirmCourse = courses.find((c) => c.id === confirmId);
+
   return (
-    <div className="min-h-screen bg-[#F4F8FD]">
+    <div className="min-h-screen w-screen bg-[#F4F8FD]">
       <Navbar isLoggedIn={true} />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+      {confirmId && confirmCourse && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="unenroll-title"
+        >
+          <div className="w-full max-w-sm bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+              <div className="flex items-center gap-2">
+                <AlertTriangle className="w-5 h-5 text-red-500" aria-hidden="true" />
+                <h3 id="unenroll-title" className="text-base font-bold text-slate-900">
+                  Unenroll from course?
+                </h3>
+              </div>
+              <button
+                onClick={() => setConfirmId(null)}
+                aria-label="Cancel"
+                className="rounded-lg p-1.5 hover:bg-slate-100 transition"
+              >
+                <X className="w-4 h-4 text-slate-500" aria-hidden="true" />
+              </button>
+            </div>
+            <div className="px-6 py-5">
+              <p className="text-sm text-slate-600 leading-relaxed">
+                Are you sure you want to unenroll from{" "}
+                <span className="font-semibold text-slate-900">{confirmCourse.title}</span>?
+                Your progress will be lost.
+              </p>
+            </div>
+            <div className="flex gap-3 px-6 pb-6">
+              <button
+                onClick={() => setConfirmId(null)}
+                className="flex-1 rounded-xl border border-slate-300 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleUnenroll(confirmId)}
+                className={`flex-1 ${redBtn.base}`}
+                style={redBtn.style}
+                onMouseEnter={redBtn.onMouseEnter}
+                onMouseLeave={redBtn.onMouseLeave}
+              >
+                Yes, unenroll
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         <header className="mb-6 sm:mb-8">
           <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">
             My Enrollments
@@ -56,15 +136,15 @@ function Enrollments() {
             <p className="text-gray-600 mb-5 max-w-md mx-auto">
               You are not enrolled in any courses yet. Start exploring courses and begin learning.
             </p>
-            <Link
-              to="/courses"
-              className="inline-block py-2 px-6 rounded-lg text-white font-semibold shadow transition-colors duration-300 hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1976D2] focus-visible:ring-offset-2"
-              style={{ backgroundColor: "#1976D2" }}
-              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#1565C0")}
-              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#1976D2")}
+            <button
+              onClick={() => navigate("/courses")}
+              className={`${blueBtn.base} px-6 shadow`}
+              style={blueBtn.style}
+              onMouseEnter={blueBtn.onMouseEnter}
+              onMouseLeave={blueBtn.onMouseLeave}
             >
               Browse Courses
-            </Link>
+            </button>
           </div>
         ) : (
           <ol
@@ -94,12 +174,14 @@ function Enrollments() {
                         {getInstructorName(course.instructorId)}
                       </p>
                     </div>
-                    <span
-                      className={`text-xs px-2.5 sm:px-3 py-1 rounded-full whitespace-nowrap flex-shrink-0 ${status.cls}`}
-                      aria-label={`Status: ${status.label}`}
-                    >
-                      {status.label}
-                    </span>
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      <span
+                        className={`text-xs px-2.5 sm:px-3 py-1 rounded-full whitespace-nowrap ${status.cls}`}
+                        aria-label={`Status: ${status.label}`}
+                      >
+                        {status.label}
+                      </span>
+                    </div>
                   </div>
 
                   <p className="text-sm text-gray-600">
@@ -142,14 +224,22 @@ function Enrollments() {
                     </div>
                   </div>
 
-                  <div className="pt-1">
+                  <div className="flex items-center justify-between gap-3 pt-1">
                     <Link
                       to={`/courses/${course.id}`}
                       aria-label={`${actionLabel} ${course.title}`}
-                      className="text-sm font-semibold text-[#1976D2] hover:text-[#1565C0] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1976D2] focus-visible:ring-offset-2 rounded"
+                      className="text-sm font-semibold text-[#1976D2] hover:text-[#2196F3] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1976D2] focus-visible:ring-offset-2 rounded"
                     >
                       {actionLabel} →
                     </Link>
+                    <button
+                      onClick={() => setConfirmId(course.id)}
+                      aria-label={`Unenroll from ${course.title}`}
+                      style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
+                      className="text-sm font-semibold text-red-500 hover:text-red-700 transition-colors"
+                    >
+                      Unenroll
+                    </button>
                   </div>
                 </li>
               );
