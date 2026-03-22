@@ -6,7 +6,7 @@ import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
  import Profile from "./pages/Profile.jsx";
 import ManageCourses from "./pages/ManageCourses.jsx";
-//import CourseDetails from "./pages/CourseDetails.jsx";
+import CourseDetails from "./pages/CourseDetails.jsx";
 import './index.css';
 
 function App() {
@@ -19,7 +19,7 @@ function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/profile" element={<Profile />} />
       <Route path="/register" element={<Register />} />
-       {/* <Route path="/courses/:id" element={<CourseDetails />} /> */}
+       { <Route path="/courses/:id" element={<CourseDetails />} /> }
     </Routes>
   );
 }

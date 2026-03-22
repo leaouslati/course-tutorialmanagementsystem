@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate,useLocation  } from "react-router-dom";//added useLocation 
 import Navbar from "../components/Navbar";
 import { Eye, EyeOff, Mail, Lock, BookOpen, CheckCircle, AlertCircle, KeyRound, X } from "lucide-react";
 import { users } from "../data/mockdata";
@@ -180,6 +180,7 @@ function ForgotPasswordModal({ onClose }) {
 //  Login Page 
 export default function Login() {
   const navigate = useNavigate();
+    const location = useLocation();// added this
   const { login } = useAuth();
   const [form, setForm] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
@@ -235,7 +236,8 @@ export default function Login() {
       else localStorage.removeItem("rememberedEmail");
       login(matchedUser);
       setSuccess(true);
-      setTimeout(() => navigate("/"), 2000);
+      const from = location.state?.from || "/";   //  added this
+      setTimeout(() => navigate(from, { replace: true }), 2000); //replaced "/" with from
     }, 800);
   };
 

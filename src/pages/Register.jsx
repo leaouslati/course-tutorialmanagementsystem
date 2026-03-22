@@ -2,9 +2,15 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { Eye, EyeOff, Mail, Lock, User, BookOpen, GraduationCap, CheckCircle } from "lucide-react";
+//  Added import for AuthContext to enable login after registration
+import { useAuth } from "./AuthContext";
+// Added import for users mock array to save new users
+import { users } from "../data/mockdata";
 
 export default function Register() {
   const navigate = useNavigate();
+  const { login } = useAuth(); // Get login function from AuthContext
+
   const [form, setForm] = useState({ name: "", email: "", password: "", confirm: "", role: "" });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -18,16 +24,17 @@ export default function Register() {
 
   const validate = () => {
     const e = {};
-    if (!form.name.trim())                        e.name     = "Full name is required.";
-    else if (form.name.trim().length < 2)         e.name     = "Name must be at least 2 characters.";
-    if (!form.email.trim())                       e.email    = "Email is required.";
+    if (!form.name.trim()) e.name = "Full name is required.";
+    else if (form.name.trim().length < 2) e.name = "Name must be at least 2 characters.";
+    if (!form.email.trim()) e.email = "Email is required.";
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = "Enter a valid email address.";
-    if (!form.password)                           e.password = "Password is required.";
-    else if (form.password.length < 8)            e.password = "Password must be at least 8 characters.";
-    else if (!/[A-Za-z]/.test(form.password) || !/[0-9]/.test(form.password)) e.password = "Password must include letters and numbers.";
-    if (!form.confirm)                            e.confirm  = "Please confirm your password.";
-    else if (form.confirm !== form.password)      e.confirm  = "Passwords do not match.";
-    if (!form.role)                               e.role     = "Please select a role.";
+    if (!form.password) e.password = "Password is required.";
+    else if (form.password.length < 8) e.password = "Password must be at least 8 characters.";
+    else if (!/[A-Za-z]/.test(form.password) || !/[0-9]/.test(form.password)) 
+        e.password = "Password must include letters and numbers.";
+    if (!form.confirm) e.confirm = "Please confirm your password.";
+    else if (form.confirm !== form.password) e.confirm = "Passwords do not match.";
+    if (!form.role) e.role = "Please select a role.";
     return e;
   };
 
@@ -35,7 +42,25 @@ export default function Register() {
     e.preventDefault();
     const errs = validate();
     if (Object.keys(errs).length > 0) { setErrors(errs); return; }
+
+    // Create a new user object
+    const newUser = {
+      name: form.name,
+      email: form.email,
+      password: form.password,
+      role: form.role
+    };
+
+    //  Add the new user to the users array (mock database)
+    users.push(newUser);
+
+    //  Log in the user immediately using AuthContext
+    login(newUser);
+
+    //  Show success toast
     setSuccess(true);
+
+    //  Redirect home after 2 seconds
     setTimeout(() => navigate("/"), 2000);
   };
 
@@ -67,7 +92,7 @@ export default function Register() {
             <CheckCircle className="w-6 h-6 text-green-500 flex-shrink-0" />
             <div>
               <p className="text-sm font-bold text-slate-800">Account created successfully!</p>
-              <p className="text-xs text-slate-500 mt-0.5">Taking you home…</p>
+              <p className="text-xs text-slate-500 mt-0.5">Logging you in…</p>
             </div>
           </div>
         </div>
@@ -148,8 +173,8 @@ export default function Register() {
                 <label className={labelClass}>I am a...</label>
                 <div className="grid grid-cols-2 gap-3">
                   {[
-                    { value: "student",    label: "Student",    icon: <GraduationCap className="w-5 h-5" />, sub: "I want to learn" },
-                    { value: "instructor", label: "Instructor", icon: <BookOpen className="w-5 h-5" />,      sub: "I want to teach" },
+                    { value: "student", label: "Student", icon: <GraduationCap className="w-5 h-5" />, sub: "I want to learn" },
+                    { value: "instructor", label: "Instructor", icon: <BookOpen className="w-5 h-5" />, sub: "I want to teach" },
                   ].map(({ value, label, icon, sub }) => (
                     <button key={value} type="button" onClick={() => update("role", value)}
                       className="flex flex-col items-center gap-1 rounded-xl border-2 py-4 px-3 transition-all duration-200 focus:outline-none"
