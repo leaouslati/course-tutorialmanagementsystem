@@ -206,8 +206,7 @@ export const courses = [
     instructorId: 'u5',
     category: 'Design',
     difficulty: 'Advanced',
-    image:
-      'https://images.pexels.com/photos/12081657/pexels-photo-12081657.jpeg',
+    image:"https://images.pexels.com/photos/1181244/pexels-photo-1181244.jpeg",
     duration: 60,
     rating: 4.8,
     studentsCount: 60,
@@ -223,8 +222,7 @@ export const courses = [
     instructorId: 'u2',
     category: 'Programming',
     difficulty: 'Beginner',
-    image:
-      'https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=400&q=80',
+    image:"https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=400&q=80",
     duration: 70,
     rating: 4.6,
     studentsCount: 90,

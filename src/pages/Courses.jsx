@@ -61,7 +61,7 @@ function Courses() {
         <header className="mb-4 sm:mb-6">
           <h1
             className="font-bold text-gray-900 text-left mb-2"
-            style={{ fontSize: "clamp(1.1rem, 4vw, 3rem)" }}
+            style={{ fontSize: "clamp(2.35rem, 4vw, 3rem)" }}
           >
             Available Courses
           </h1>

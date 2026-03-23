@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate,useLocation  } from "react-router-dom";//added useLocation 
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { Eye, EyeOff, Mail, Lock, BookOpen, CheckCircle, AlertCircle, KeyRound, X } from "lucide-react";
 import { users } from "../data/mockdata";
@@ -15,6 +15,18 @@ function ForgotPasswordModal({ onClose }) {
   const [showConfirm, setShowConfirm] = useState(false);
   const [pwErrors, setPwErrors] = useState({});
   const [done, setDone] = useState(false);
+
+  const EyeBtn = ({ show, onToggle, label }) => (
+    <button
+      type="button"
+      onClick={onToggle}
+      aria-label={label}
+      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none focus:text-slate-600"
+      style={{ background: "none", border: "none", padding: 0 }}
+    >
+      {show ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+    </button>
+  );
 
   const handleEmailSubmit = () => {
     if (!email.trim()) { setEmailError("Email is required."); return; }
@@ -41,17 +53,6 @@ function ForgotPasswordModal({ onClose }) {
     `w-full py-3 rounded-xl border text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#1976D2]/30 transition pl-10 pr-10 ${
       err ? "border-red-400" : "border-slate-300 focus:border-[#1976D2]"
     }`;
-
-  const EyeBtn = ({ show, onToggle, label }) => (
-    <button
-      type="button"
-      onClick={onToggle}
-      aria-label={label}
-      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none focus:text-slate-600 p-1"
-    >
-      {show ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-    </button>
-  );
 
   return (
     <div
@@ -177,10 +178,10 @@ function ForgotPasswordModal({ onClose }) {
   );
 }
 
-//  Login Page 
+// Login Page
 export default function Login() {
   const navigate = useNavigate();
-    const location = useLocation();// added this
+  const location = useLocation();
   const { login } = useAuth();
   const [form, setForm] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
@@ -190,6 +191,18 @@ export default function Login() {
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showForgot, setShowForgot] = useState(false);
+
+  const EyeBtn = ({ show, onToggle }) => (
+    <button
+      type="button"
+      onClick={onToggle}
+      aria-label={show ? "Hide password" : "Show password"}
+      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none focus:text-slate-600"
+      style={{ background: "none", border: "none", padding: 0 }}
+    >
+      {show ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+    </button>
+  );
 
   useEffect(() => {
     const saved = localStorage.getItem("rememberedEmail");
@@ -207,10 +220,10 @@ export default function Login() {
 
   const validate = () => {
     const e = {};
-    if (!form.email.trim())                                   e.email    = "Email is required.";
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email    = "Enter a valid email address.";
-    if (!form.password)                                       e.password = "Password is required.";
-    else if (form.password.length < 8)                        e.password = "Password must be at least 8 characters.";
+    if (!form.email.trim())                                    e.email    = "Email is required.";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))  e.email    = "Enter a valid email address.";
+    if (!form.password)                                        e.password = "Password is required.";
+    else if (form.password.length < 8)                         e.password = "Password must be at least 8 characters.";
     return e;
   };
 
@@ -236,8 +249,8 @@ export default function Login() {
       else localStorage.removeItem("rememberedEmail");
       login(matchedUser);
       setSuccess(true);
-      const from = location.state?.from || "/";   //  added this
-      setTimeout(() => navigate(from, { replace: true }), 2000); //replaced "/" with from
+      const from = location.state?.from || "/";
+      setTimeout(() => navigate(from, { replace: true }), 2000);
     }, 800);
   };
 
@@ -255,11 +268,7 @@ export default function Login() {
 
       {/* Success toast */}
       {success && (
-        <div
-          role="status"
-          aria-live="polite"
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
-        >
+        <div role="status" aria-live="polite" className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="flex items-center gap-3 bg-white rounded-2xl shadow-2xl px-6 sm:px-8 py-5 sm:py-6 border border-green-100 max-w-xs w-full sm:w-auto">
             <CheckCircle className="w-6 h-6 text-green-500 flex-shrink-0" aria-hidden="true" />
             <div>
@@ -272,12 +281,7 @@ export default function Login() {
 
       {/* Loading overlay */}
       {loading && (
-        <div
-          role="status"
-          aria-live="polite"
-          aria-label="Logging in, please wait"
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 p-4"
-        >
+        <div role="status" aria-live="polite" aria-label="Logging in, please wait" className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 p-4">
           <div className="flex items-center gap-3 bg-white rounded-2xl shadow-2xl px-6 sm:px-8 py-5 sm:py-6 border border-blue-100 max-w-xs w-full sm:w-auto">
             <svg className="animate-spin h-6 w-6 text-[#1976D2] flex-shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
@@ -345,23 +349,16 @@ export default function Login() {
                     aria-describedby={errors.password ? "password-error" : undefined}
                     className={`${inputClass("password")} pl-10 pr-10`}
                   />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    aria-label={showPassword ? "Hide password" : "Show password"}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none focus:text-slate-600 p-1"
-                  >
-                    {showPassword ? <EyeOff className="w-4 h-4" aria-hidden="true" /> : <Eye className="w-4 h-4" aria-hidden="true" />}
-                  </button>
+                  <EyeBtn show={showPassword} onToggle={() => setShowPassword(!showPassword)} />
                 </div>
                 {errors.password && <p id="password-error" role="alert" className="text-xs text-red-500">{errors.password}</p>}
                 <button
                   type="button"
                   onClick={() => setShowForgot(true)}
-                  className="self-end text-xs font-medium focus:outline-none focus:underline transition"
-                  style={{ color: '#1976D2' }}
-                  onMouseEnter={e => e.currentTarget.style.color = '#2196F3'}
-                  onMouseLeave={e => e.currentTarget.style.color = '#1976D2'}
+                className="self-end text-xs focus:outline-none transition"
+style={{ color: '#1976D2', background: 'none', border: 'none', padding: 0 }}
+onMouseEnter={e => e.currentTarget.style.color = '#2196F3'}
+onMouseLeave={e => e.currentTarget.style.color = '#1976D2'}
                 >
                   Forgot password?
                 </button>

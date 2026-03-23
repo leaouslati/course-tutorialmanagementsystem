@@ -4,34 +4,55 @@ import { courses, users, modules } from "../data/mockdata.js";
 import Navbar from "../components/Navbar.jsx";
 import { useAuth } from "./AuthContext.jsx";
 import {
-  Check, RotateCcw, Clock, BarChart2, Users, Star,
-  BookOpen, Bookmark, BookmarkCheck, Share2
+  Check, RotateCcw, Clock, Users, Star,
+  BookOpen, Bookmark, BookmarkCheck,
+  GraduationCap, Layers, FileText, Tag
 } from "lucide-react";
 import ModuleAccordion from "../components/ModuleAccordion.jsx";
 
+// FIX 1: Toast fade animation injected once via a <style> tag.
+// Covers fade-in + visible hold + fade-out within the 3.5s window.
+const toastStyle = `
+  @keyframes toastFade {
+    0%   { opacity: 0; transform: translateX(-50%) translateY(8px); }
+    12%  { opacity: 1; transform: translateX(-50%) translateY(0); }
+    80%  { opacity: 1; transform: translateX(-50%) translateY(0); }
+    100% { opacity: 0; transform: translateX(-50%) translateY(4px); }
+  }
+  .toast-animate {
+    animation: toastFade 3.5s ease forwards;
+  }
+`;
+
 export default function CourseDetails() {
-  const { id }             = useParams();
-  const navigate           = useNavigate();
+  const { id }         = useParams();
+  const navigate       = useNavigate();
   const { currentUser, login } = useAuth();
 
   const course = courses.find(c => c.id.toString() === id);
 
   const enrolledIds = Array.isArray(currentUser?.enrolledCourses)
-    ? currentUser.enrolledCourses
-    : [];
+    ? currentUser.enrolledCourses : [];
 
-  const [enrolled, setEnrolled] = useState(() => enrolledIds.includes(course?.id));
+  const [enrolled,  setEnrolled]  = useState(() => enrolledIds.includes(course?.id));
   const [showPopup, setShowPopup] = useState(false);
-  const [saved, setSaved]         = useState(false);
-  const [copied, setCopied]       = useState(false);
+  const [saved,     setSaved]     = useState(false);
 
   if (!course) {
     return (
       <>
         <Navbar />
-        <main className="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-6">
-          <h1 className="text-2xl font-bold text-gray-800 mb-3">Course not found</h1>
-          <Link to="/courses" className="text-blue-600 underline underline-offset-4 hover:opacity-75 transition-opacity">
+        <main className="min-h-screen flex flex-col items-center justify-center bg-[#F4F8FD] px-4 py-6">
+          <h1
+            className="font-bold text-gray-900 mb-3 text-center"
+            style={{ fontSize: "clamp(1.25rem, 4vw, 1.75rem)" }}
+          >
+            Course not found
+          </h1>
+          <Link
+            to="/courses"
+            className="text-sm font-medium text-[#1976D2] underline underline-offset-4 hover:opacity-75 transition-opacity"
+          >
             Back to Courses
           </Link>
         </main>
@@ -44,233 +65,233 @@ export default function CourseDetails() {
     .map(mid => modules.find(m => m.id === mid))
     .filter(Boolean);
 
+  const totalLessons = courseModules.reduce((a, m) => a + (m?.lessons?.length || 0), 0);
+  const totalModules = courseModules.length;
+
   const handleEnroll = () => {
     if (!currentUser) {
       navigate("/login", { state: { from: `/courses/${id}` } });
       return;
     }
     if (enrolled) return;
-
-    const updatedEnrolledCourses = [...enrolledIds, course.id];
-    const updatedUser = { ...currentUser, enrolledCourses: updatedEnrolledCourses };
+    const updatedUser = { ...currentUser, enrolledCourses: [...enrolledIds, course.id] };
     login(updatedUser);
-
     setEnrolled(true);
     setShowPopup(true);
     setTimeout(() => setShowPopup(false), 3500);
   };
 
-  const handleShare = async () => {
-    try {
-      if (navigator.share) {
-        await navigator.share({ title: course.title, url: window.location.href });
-      } else {
-        await navigator.clipboard.writeText(window.location.href);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2500);
-      }
-    } catch {}
-  };
-
-  const stats = [
-    { icon: Clock,     label: "Duration",   value: `${course.duration ?? "N/A"} min` },
-    { icon: BarChart2, label: "Difficulty",  value: course.difficulty || "N/A" },
-    { icon: Users,     label: "Students",    value: (course.studentsCount ?? 0).toLocaleString() },
-    { icon: Star,      label: "Rating",      value: course.rating ?? "N/A" },
+  const detailStats = [
+    { icon: <Layers        className="w-4 h-4 text-[#1976D2]" />, label: "Modules",  value: totalModules },
+    { icon: <FileText      className="w-4 h-4 text-[#1976D2]" />, label: "Lessons",  value: totalLessons },
+    { icon: <Tag           className="w-4 h-4 text-[#1976D2]" />, label: "Category", value: course.category || "General" },
+    { icon: <GraduationCap className="w-4 h-4 text-[#1976D2]" />, label: "Level",    value: course.difficulty },
   ];
 
   return (
     <>
+      {/* FIX 1: Inject toast animation styles */}
+      <style>{toastStyle}</style>
+
       <Navbar />
 
-      <div className="min-h-screen bg-gray-100 w-full p-4 sm:p-6">
+      <main className="min-h-screen bg-[#F4F8FD] w-full px-4 sm:px-6 lg:px-8 py-6 pb-12">
 
         {/* ── Top bar ── */}
-        <div className="mb-5 max-w-5xl mx-auto flex items-center justify-between">
+        <div className="mb-4 max-w-5xl mx-auto flex items-center justify-between">
+          {/*
+            FIX 2: Removed redundant aria-label — visible text "Back to Courses"
+            is already descriptive enough for screen readers.
+          */}
           <Link
             to="/courses"
-            aria-label="Back to courses list"
-            className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors duration-200"
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors duration-200"
           >
             <RotateCcw size={15} aria-hidden="true" />
-            Back to Courses
+            <span>Back to Courses</span>
           </Link>
 
-          <div className="flex items-center gap-1" role="toolbar" aria-label="Course actions">
-
-            {/* Bookmark — blue bg, white icon */}
-            <button
-              onClick={() => setSaved(s => !s)}
-              aria-label={saved ? "Remove from saved" : "Save this course"}
-              aria-pressed={saved}
-              className="p-2 rounded-lg hover:bg-gray-200 focus-visible:outline
-                         focus-visible:outline-2 focus-visible:outline-blue-500 transition-colors duration-200"
-              style={{ backgroundColor: "#1976D2" }}
-            >
-              {saved
-                ? <BookmarkCheck size={18} className="text-white" aria-hidden="true" />
-                : <Bookmark size={18} className="text-white" aria-hidden="true" />}
-            </button>
-
-            {/* Share — blue bg, white icon */}
-            <button
-              onClick={handleShare}
-              aria-label="Share this course"
-              className="p-2 rounded-lg hover:bg-gray-200 focus-visible:outline
-                         focus-visible:outline-2 focus-visible:outline-blue-500 transition-colors duration-200"
-              style={{ backgroundColor: "#1976D2" }}
-            >
-              <Share2 size={18} className="text-white" aria-hidden="true" />
-            </button>
-          </div>
+          <button
+            onClick={() => setSaved(s => !s)}
+            aria-label={saved ? "Remove from saved" : "Save this course"}
+            aria-pressed={saved}
+            className="p-2 rounded-xl transition-colors duration-200
+                       focus-visible:outline focus-visible:outline-2
+                       focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+            style={{ backgroundColor: "#1976D2" }}
+            onMouseEnter={e => e.currentTarget.style.backgroundColor = "#2196F3"}
+            onMouseLeave={e => e.currentTarget.style.backgroundColor = "#1976D2"}
+          >
+            {saved
+              ? <BookmarkCheck size={17} className="text-white" aria-hidden="true" />
+              : <Bookmark      size={17} className="text-white" aria-hidden="true" />}
+          </button>
         </div>
 
-        <div className="max-w-5xl mx-auto space-y-5">
+        <div className="max-w-5xl mx-auto space-y-4">
 
-          {/* ── Hero Card ── */}
+          {/* ── Single unified card ── */}
           <article
-            aria-label={`${course.title} course overview`}
-            className="bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-200"
+            aria-labelledby="course-title"
+            className="bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-200 mb-8"
           >
             <div className="flex flex-col md:flex-row">
 
-              {/* Image */}
-              <div className="w-full md:w-2/5 flex-shrink-0">
+              <div className="w-full md:w-2/5 flex-shrink-0 md:min-h-[22rem]">
                 <img
                   src={course.image}
                   alt={`Cover image for ${course.title}`}
                   loading="lazy"
-                  className="w-full h-56 sm:h-64 md:h-full object-cover"
+                  className="w-full h-52 sm:h-64 md:h-full object-cover"
                 />
               </div>
 
               {/* Info */}
               <div className="flex-1 p-5 sm:p-7 flex flex-col gap-4">
 
-                <p className="text-xs font-semibold uppercase tracking-widest text-blue-600">
-                  {instructor ? instructor.name : "Unknown Instructor"}
+                {/* Instructor + title */}
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-widest text-[#1976D2] mb-1">
+                    {instructor ? instructor.name : "Unknown Instructor"}
+                  </p>
+                  <h1
+                    id="course-title"
+                    className="font-bold text-gray-900 leading-snug"
+                    style={{ fontSize: "clamp(1.2rem, 3vw, 1.75rem)" }}
+                  >
+                    {course.title}
+                  </h1>
+                </div>
+
+                {/* Description */}
+                <p className="text-sm sm:text-base text-gray-600 leading-relaxed">
+                  {course.description || course.shortDescription}
                 </p>
 
-                <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 leading-snug">
-                  {course.title}
-                </h1>
-
-                <p className="text-sm text-gray-700 leading-relaxed">
-                  {course.description}
-                </p>
-
-              
-                <dl className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  {stats.map(({ icon: Icon, label, value }) => (
+                {/* Detail stats */}
+                <dl className="grid grid-cols-2 gap-2 sm:gap-3">
+                  {detailStats.map(({ icon, label, value }) => (
                     <div
                       key={label}
-                      className="flex items-center gap-2 p-3 rounded-xl bg-gray-50 border border-gray-100"
+                      className="flex items-center gap-2 p-2.5 sm:p-3 rounded-xl bg-[#F4F8FD] border border-slate-100"
                     >
-                      <div className="p-1.5 rounded-lg bg-blue-50 flex-shrink-0" aria-hidden="true">
-                        <Icon size={14} className="text-blue-600" />
-                      </div>
-                      <div>
-                        <dt className="text-xs text-gray-400">{label}</dt>
-                        <dd className="text-sm font-semibold text-gray-700 leading-tight">{value}</dd>
+                      <span aria-hidden="true" className="flex-shrink-0">{icon}</span>
+                      <div className="min-w-0">
+                        <dt className="text-[10px] text-gray-400 uppercase tracking-wider truncate">{label}</dt>
+                        <dd className="text-xs sm:text-sm font-semibold text-gray-800 leading-tight truncate">{value}</dd>
                       </div>
                     </div>
                   ))}
                 </dl>
 
-                
+                {/* Quick numbers */}
+                <div
+                  className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs text-gray-500 border-t border-slate-100 pt-3"
+                  aria-label="Course statistics"
+                >
+                  <span className="flex items-center gap-1">
+                    <Star  className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400" aria-hidden="true" />
+                    <span>{course.rating} rating</span>
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Users className="w-3.5 h-3.5 text-[#1976D2]" aria-hidden="true" />
+                    <span>{(course.studentsCount ?? 0).toLocaleString()} students</span>
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Clock className="w-3.5 h-3.5 text-[#1976D2]" aria-hidden="true" />
+                    <span>{course.duration} min</span>
+                  </span>
+                </div>
+
+                {/* Enroll button */}
                 <button
                   onClick={handleEnroll}
                   disabled={enrolled}
                   aria-label={
-                    !currentUser
-                      ? "Log in to enroll in this course"
-                      : enrolled
-                      ? `Already enrolled in ${course.title}`
-                      : `Enroll in ${course.title}`
+                    !currentUser ? "Log in to enroll in this course"
+                    : enrolled    ? `Already enrolled in ${course.title}`
+                    : `Enroll in ${course.title}`
                   }
                   className="mt-auto w-full py-3 rounded-xl text-white font-semibold text-sm shadow
-                             transition-all duration-300 border-none
-                             focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2
-                             focus-visible:outline-blue-500
+                             transition-all duration-300
+                             focus-visible:outline focus-visible:outline-2
+                             focus-visible:outline-offset-2 focus-visible:outline-blue-500
                              disabled:cursor-not-allowed disabled:opacity-80"
                   style={{ backgroundColor: enrolled ? "#4caf50" : "#1976D2" }}
-                  onMouseEnter={e => { if (!enrolled) e.currentTarget.style.backgroundColor = "#0094c5"; }}
+                  /*
+                    FIX 4: Hover handlers now check `enrolled` before changing color,
+                    making the guard airtight even if `disabled` attr is bypassed via JS.
+                  */
+                  onMouseEnter={e => { if (!enrolled) e.currentTarget.style.backgroundColor = "#2196F3"; }}
                   onMouseLeave={e => { if (!enrolled) e.currentTarget.style.backgroundColor = "#1976D2"; }}
                 >
-                  {enrolled
-                    ? "✓ Enrolled"
-                    : currentUser
-                    ? "Enroll Now"
-                    : "Log in to Enroll"}
+                  {enrolled ? "✓ Enrolled" : currentUser ? "Enroll Now" : "Log in to Enroll"}
                 </button>
 
                 {enrolled && (
                   <Link
                     to="/enrollments"
-                    className="text-center text-xs text-blue-600 hover:underline underline-offset-4 transition-colors"
+                    className="text-center text-xs font-medium text-[#1976D2] hover:underline underline-offset-4 transition-colors -mt-2"
                   >
                     View in My Enrollments →
                   </Link>
                 )}
+
               </div>
             </div>
           </article>
 
-          
+          {/* ── Modules ── */}
           {courseModules.length > 0 && (
             <section
               aria-labelledby="modules-heading"
-              className="bg-white rounded-2xl shadow-sm border border-gray-200 p-5 sm:p-7"
+              className="bg-white rounded-2xl shadow-sm border border-gray-200 p-5 sm:p-7 mb-8"
             >
-              <header className="flex items-center gap-2.5 mb-5">
-                <div className="p-2 rounded-lg bg-blue-50" aria-hidden="true">
-                  <BookOpen size={16} className="text-blue-600" />
+              <header className="flex items-center gap-3 mb-5 sm:mb-6">
+                <div className="p-2.5 rounded-xl bg-[#E3F2FD] flex-shrink-0" aria-hidden="true">
+                  <BookOpen size={20} className="text-[#1976D2]" />
                 </div>
                 <div>
-                  <h2 id="modules-heading" className="text-lg font-bold text-gray-800 leading-tight">
+                  <h2
+                    id="modules-heading"
+                    className="font-bold text-gray-900"
+                    style={{ fontSize: "clamp(1.1rem, 2.5vw, 1.4rem)" }}
+                  >
                     Course Modules
                   </h2>
-                  <p className="text-xs text-gray-400 mt-0.5">
-                    {courseModules.length} module{courseModules.length !== 1 ? "s" : ""} included
+                  <p className="text-xs sm:text-sm text-gray-400 mt-0.5">
+                    {totalModules} module{totalModules !== 1 ? "s" : ""} · {totalLessons} lesson{totalLessons !== 1 ? "s" : ""}
                   </p>
                 </div>
               </header>
-
               <ModuleAccordion modules={courseModules} />
             </section>
           )}
-        </div>
-      </div>
 
-      
+        </div>
+      </main>
+
+      {/* Screen reader live region */}
       <div aria-live="polite" aria-atomic="true" className="sr-only">
         {showPopup && `Successfully enrolled in ${course.title}`}
-        {copied && "Link copied to clipboard"}
       </div>
 
-  
+      {/*
+        FIX 5: Toast overflow fixed.
+        - max-w-[90vw] prevents it spilling off screen on narrow phones
+        - text-center + whitespace-normal lets long course titles wrap
+          instead of forcing a single unbreakable line
+        - toast-animate class drives the CSS fade-in → hold → fade-out
+      */}
       {showPopup && (
         <div
           role="status"
-          className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50
-                     bg-green-600 text-white px-5 py-3 rounded-xl shadow-lg
-                     flex items-center gap-2 text-sm font-medium"
+          className="toast-animate fixed bottom-6 left-1/2 z-50 bg-green-600 text-white
+                     px-5 py-3 rounded-xl shadow-lg flex items-center gap-2
+                     text-sm font-medium text-center max-w-[90vw]"
         >
-          <Check size={18} aria-hidden="true" />
-          Successfully enrolled in &quot;{course.title}&quot;!
-        </div>
-      )}
-
-      {/* Copy toast */}
-      {copied && (
-        <div
-          role="status"
-          className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50
-                     bg-gray-800 text-white px-5 py-3 rounded-xl shadow-lg
-                     flex items-center gap-2 text-sm font-medium"
-        >
-          <Check size={18} aria-hidden="true" />
-          Link copied to clipboard!
+          <Check size={18} aria-hidden="true" className="flex-shrink-0" />
+          <span>Successfully enrolled in &quot;{course.title}&quot;!</span>
         </div>
       )}
     </>

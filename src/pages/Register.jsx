@@ -2,15 +2,12 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { Eye, EyeOff, Mail, Lock, User, BookOpen, GraduationCap, CheckCircle } from "lucide-react";
-//  Added import for AuthContext to enable login after registration
 import { useAuth } from "./AuthContext";
-// Added import for users mock array to save new users
 import { users } from "../data/mockdata";
 
 export default function Register() {
   const navigate = useNavigate();
-  const { login } = useAuth(); // Get login function from AuthContext
-
+  const { login } = useAuth(); 
   const [form, setForm] = useState({ name: "", email: "", password: "", confirm: "", role: "" });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -43,24 +40,20 @@ export default function Register() {
     const errs = validate();
     if (Object.keys(errs).length > 0) { setErrors(errs); return; }
 
-    // Create a new user object
     const newUser = {
+       id: `u${Date.now()}`,
       name: form.name,
       email: form.email,
       password: form.password,
-      role: form.role
+      role: form.role,
+      joinedDate: new Date().toISOString(), 
+  enrolledCourses: [],              
+  progress: {},     
     };
 
-    //  Add the new user to the users array (mock database)
     users.push(newUser);
-
-    //  Log in the user immediately using AuthContext
     login(newUser);
-
-    //  Show success toast
     setSuccess(true);
-
-    //  Redirect home after 2 seconds
     setTimeout(() => navigate("/"), 2000);
   };
 
@@ -73,11 +66,12 @@ export default function Register() {
 
   const EyeBtn = ({ show, onToggle }) => (
     <button type="button" onClick={onToggle}
-      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none"
-      style={{ background: 'none', border: 'none', padding: 0 }}
-    >
-      {show ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-    </button>
+  aria-label={show ? "Hide password" : "Show password"}
+  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none"
+  style={{ background: 'none', border: 'none', padding: 0 }}
+>
+  {show ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+</button>
   );
 
   return (
