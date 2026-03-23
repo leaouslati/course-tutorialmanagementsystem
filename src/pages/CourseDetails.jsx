@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { courses, users, modules } from "../data/mockdata.js";
-import Navbar from "../components/Navbar.jsx";
 import { useAuth } from "./AuthContext.jsx";
 import {
   Check, RotateCcw, Clock, Users, Star,
@@ -10,8 +9,6 @@ import {
 } from "lucide-react";
 import ModuleAccordion from "../components/ModuleAccordion.jsx";
 
-// FIX 1: Toast fade animation injected once via a <style> tag.
-// Covers fade-in + visible hold + fade-out within the 3.5s window.
 const toastStyle = `
   @keyframes toastFade {
     0%   { opacity: 0; transform: translateX(-50%) translateY(8px); }
@@ -40,23 +37,20 @@ export default function CourseDetails() {
 
   if (!course) {
     return (
-      <>
-        <Navbar />
-        <main className="min-h-screen flex flex-col items-center justify-center bg-[#F4F8FD] px-4 py-6">
-          <h1
-            className="font-bold text-gray-900 mb-3 text-center"
-            style={{ fontSize: "clamp(1.25rem, 4vw, 1.75rem)" }}
-          >
-            Course not found
-          </h1>
-          <Link
-            to="/courses"
-            className="text-sm font-medium text-[#1976D2] underline underline-offset-4 hover:opacity-75 transition-opacity"
-          >
-            Back to Courses
-          </Link>
-        </main>
-      </>
+      <main className="min-h-screen flex flex-col items-center justify-center bg-[#F4F8FD] dark:bg-slate-900 px-4 py-6">
+        <h1
+          className="font-bold text-gray-900 dark:text-white mb-3 text-center"
+          style={{ fontSize: "clamp(1.25rem, 4vw, 1.75rem)" }}
+        >
+          Course not found
+        </h1>
+        <Link
+          to="/courses"
+          className="text-sm font-medium text-[#1976D2] underline underline-offset-4 hover:opacity-75 transition-opacity"
+        >
+          Back to Courses
+        </Link>
+      </main>
     );
   }
 
@@ -90,22 +84,15 @@ export default function CourseDetails() {
 
   return (
     <>
-      {/* FIX 1: Inject toast animation styles */}
       <style>{toastStyle}</style>
 
-      <Navbar />
-
-      <main className="min-h-screen bg-[#F4F8FD] w-full px-4 sm:px-6 lg:px-8 py-6 pb-12">
+      <main className="min-h-screen bg-[#F4F8FD] dark:bg-slate-900 w-full px-4 sm:px-6 lg:px-8 py-6 pb-12 transition-colors duration-300">
 
         {/* ── Top bar ── */}
         <div className="mb-4 max-w-5xl mx-auto flex items-center justify-between">
-          {/*
-            FIX 2: Removed redundant aria-label — visible text "Back to Courses"
-            is already descriptive enough for screen readers.
-          */}
           <Link
             to="/courses"
-            className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors duration-200"
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white transition-colors duration-200"
           >
             <RotateCcw size={15} aria-hidden="true" />
             <span>Back to Courses</span>
@@ -133,7 +120,7 @@ export default function CourseDetails() {
           {/* ── Single unified card ── */}
           <article
             aria-labelledby="course-title"
-            className="bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-200 mb-8"
+            className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm overflow-hidden border border-gray-200 dark:border-slate-700 mb-8 transition-colors duration-300"
           >
             <div className="flex flex-col md:flex-row">
 
@@ -156,7 +143,7 @@ export default function CourseDetails() {
                   </p>
                   <h1
                     id="course-title"
-                    className="font-bold text-gray-900 leading-snug"
+                    className="font-bold text-gray-900 dark:text-white leading-snug"
                     style={{ fontSize: "clamp(1.2rem, 3vw, 1.75rem)" }}
                   >
                     {course.title}
@@ -164,7 +151,7 @@ export default function CourseDetails() {
                 </div>
 
                 {/* Description */}
-                <p className="text-sm sm:text-base text-gray-600 leading-relaxed">
+                <p className="text-sm sm:text-base text-gray-600 dark:text-slate-300 leading-relaxed">
                   {course.description || course.shortDescription}
                 </p>
 
@@ -173,12 +160,12 @@ export default function CourseDetails() {
                   {detailStats.map(({ icon, label, value }) => (
                     <div
                       key={label}
-                      className="flex items-center gap-2 p-2.5 sm:p-3 rounded-xl bg-[#F4F8FD] border border-slate-100"
+                      className="flex items-center gap-2 p-2.5 sm:p-3 rounded-xl bg-[#F4F8FD] dark:bg-slate-700 border border-slate-100 dark:border-slate-600"
                     >
                       <span aria-hidden="true" className="flex-shrink-0">{icon}</span>
                       <div className="min-w-0">
-                        <dt className="text-[10px] text-gray-400 uppercase tracking-wider truncate">{label}</dt>
-                        <dd className="text-xs sm:text-sm font-semibold text-gray-800 leading-tight truncate">{value}</dd>
+                        <dt className="text-[10px] text-gray-400 dark:text-slate-400 uppercase tracking-wider truncate">{label}</dt>
+                        <dd className="text-xs sm:text-sm font-semibold text-gray-800 dark:text-slate-100 leading-tight truncate">{value}</dd>
                       </div>
                     </div>
                   ))}
@@ -186,11 +173,11 @@ export default function CourseDetails() {
 
                 {/* Quick numbers */}
                 <div
-                  className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs text-gray-500 border-t border-slate-100 pt-3"
+                  className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs text-gray-500 dark:text-slate-400 border-t border-slate-100 dark:border-slate-600 pt-3"
                   aria-label="Course statistics"
                 >
                   <span className="flex items-center gap-1">
-                    <Star  className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400" aria-hidden="true" />
+                    <Star className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400" aria-hidden="true" />
                     <span>{course.rating} rating</span>
                   </span>
                   <span className="flex items-center gap-1">
@@ -218,10 +205,6 @@ export default function CourseDetails() {
                              focus-visible:outline-offset-2 focus-visible:outline-blue-500
                              disabled:cursor-not-allowed disabled:opacity-80"
                   style={{ backgroundColor: enrolled ? "#4caf50" : "#1976D2" }}
-                  /*
-                    FIX 4: Hover handlers now check `enrolled` before changing color,
-                    making the guard airtight even if `disabled` attr is bypassed via JS.
-                  */
                   onMouseEnter={e => { if (!enrolled) e.currentTarget.style.backgroundColor = "#2196F3"; }}
                   onMouseLeave={e => { if (!enrolled) e.currentTarget.style.backgroundColor = "#1976D2"; }}
                 >
@@ -245,21 +228,21 @@ export default function CourseDetails() {
           {courseModules.length > 0 && (
             <section
               aria-labelledby="modules-heading"
-              className="bg-white rounded-2xl shadow-sm border border-gray-200 p-5 sm:p-7 mb-8"
+              className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-700 p-5 sm:p-7 mb-8 transition-colors duration-300"
             >
               <header className="flex items-center gap-3 mb-5 sm:mb-6">
-                <div className="p-2.5 rounded-xl bg-[#E3F2FD] flex-shrink-0" aria-hidden="true">
+                <div className="p-2.5 rounded-xl bg-[#E3F2FD] dark:bg-blue-900/40 flex-shrink-0" aria-hidden="true">
                   <BookOpen size={20} className="text-[#1976D2]" />
                 </div>
                 <div>
                   <h2
                     id="modules-heading"
-                    className="font-bold text-gray-900"
+                    className="font-bold text-gray-900 dark:text-white"
                     style={{ fontSize: "clamp(1.1rem, 2.5vw, 1.4rem)" }}
                   >
                     Course Modules
                   </h2>
-                  <p className="text-xs sm:text-sm text-gray-400 mt-0.5">
+                  <p className="text-xs sm:text-sm text-gray-400 dark:text-slate-400 mt-0.5">
                     {totalModules} module{totalModules !== 1 ? "s" : ""} · {totalLessons} lesson{totalLessons !== 1 ? "s" : ""}
                   </p>
                 </div>
@@ -271,18 +254,10 @@ export default function CourseDetails() {
         </div>
       </main>
 
-      {/* Screen reader live region */}
       <div aria-live="polite" aria-atomic="true" className="sr-only">
         {showPopup && `Successfully enrolled in ${course.title}`}
       </div>
 
-      {/*
-        FIX 5: Toast overflow fixed.
-        - max-w-[90vw] prevents it spilling off screen on narrow phones
-        - text-center + whitespace-normal lets long course titles wrap
-          instead of forcing a single unbreakable line
-        - toast-animate class drives the CSS fade-in → hold → fade-out
-      */}
       {showPopup && (
         <div
           role="status"

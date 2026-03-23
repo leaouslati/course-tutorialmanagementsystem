@@ -1,5 +1,5 @@
 ﻿import { Link } from "react-router-dom";
-import Navbar from "../components/Navbar.jsx";
+// ...removed Navbar import
 import { courses, modules } from "../data/mockdata";
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "../pages/AuthContext";
@@ -350,7 +350,7 @@ export default function Profile() {
 
   return (
     <div className="w-screen min-h-screen bg-[#F4F8FD] text-slate-800">
-      <Navbar />
+
       <main className="w-full min-h-screen px-4 sm:px-6 lg:px-8 py-6 flex flex-col items-center gap-8">
 
         <section aria-labelledby="profile-heading" className="w-full max-w-5xl rounded-2xl bg-white shadow-md border border-slate-200 overflow-hidden">

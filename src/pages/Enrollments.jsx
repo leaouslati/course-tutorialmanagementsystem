@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import Navbar from "../components/Navbar.jsx";
+// ...removed Navbar import
 import { courses, users, modules } from "../data/mockdata.js";
 import { LayoutGrid, Clock, X, AlertTriangle } from "lucide-react";
 import { useState } from "react";
@@ -61,7 +61,7 @@ function Enrollments() {
 
   return (
     <div className="min-h-screen w-screen bg-[#F4F8FD]">
-      <Navbar isLoggedIn={true} />
+
 
       {confirmId && confirmCourse && (
         <div

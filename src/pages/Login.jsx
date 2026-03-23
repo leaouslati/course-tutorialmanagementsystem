@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import Navbar from "../components/Navbar";
+// ...removed Navbar import
 import { Eye, EyeOff, Mail, Lock, BookOpen, CheckCircle, AlertCircle, KeyRound, X } from "lucide-react";
 import { users } from "../data/mockdata";
 import { useAuth } from "./AuthContext";
@@ -264,7 +264,7 @@ export default function Login() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0D47A1] via-[#1565C0] to-[#1976D2] flex flex-col">
       <style>{`input::placeholder { color: #cbd5e1; }`}</style>
-      <Navbar />
+
 
       {/* Success toast */}
       {success && (
