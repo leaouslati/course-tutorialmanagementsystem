@@ -116,9 +116,9 @@ function Enrollments() {
 
       <main className="w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         <header className="mb-6 sm:mb-8">
-          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">
-            My Enrollments
-          </h1>
+       <h1 className="font-bold text-gray-900 mb-2" style={{ fontSize: "clamp(2.35rem, 4vw, 2.25rem)" }}>
+  My Enrollments
+</h1>
           <p className="text-base sm:text-lg text-gray-600 font-semibold mb-1">
             Continue your courses and keep up with your progress.
           </p>

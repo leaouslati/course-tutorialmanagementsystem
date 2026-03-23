@@ -200,7 +200,7 @@ export default function Home() {
               <Link to="/courses">
                 <button className="w-full sm:w-auto py-2.5 px-8 rounded-lg text-white font-semibold shadow transition-colors duration-300 hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1976D2] focus-visible:ring-offset-2"
                   style={{ fontSize: 'clamp(0.85rem, 1.5vw, 1rem)', backgroundColor: "#1976D2" }}
-                  onMouseEnter={e => e.currentTarget.style.backgroundColor = "#0094c5"}
+                  onMouseEnter={e => e.currentTarget.style.backgroundColor = "#2196F3"}
                   onMouseLeave={e => e.currentTarget.style.backgroundColor = "#1976D2"}
                   aria-label="View all available courses">
                   View All Courses
