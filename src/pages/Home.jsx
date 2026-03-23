@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { BookOpen, TrendingUp, Users, Award, Code2, Star, Zap, Globe, Pencil } from "lucide-react";
 import { Link } from "react-router-dom";
 import CourseCard from "../components/CourseCard";
-import Navbar from "../components/Navbar";
+// ...removed Navbar import
 import { courses } from "../data/mockdata.js";
 import CountUp from "react-countup";
 
@@ -123,7 +123,7 @@ export default function Home() {
 
   return (
     <>
-      <Navbar />
+
       <main className="min-h-screen bg-white text-gray-900">
 
         {/* 1. Hero */}
