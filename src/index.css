@@ -125,10 +125,12 @@ button:focus-visible {
     background-color: #ffffff;
   }
 
-  a:hover {
-    color: #747bff;
-  }
-
+a:visited {
+  color: #1976D2;
+}
+a:hover{
+  color:#1976D2;
+}
   button {
     background-color: #f9f9f9;
   }
