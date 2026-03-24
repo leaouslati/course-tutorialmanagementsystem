@@ -25,6 +25,34 @@ const emptyForm = {
   image: "", instructorId: "u2",
 };
 
+/* ─── Field Helper (must live outside CourseModal to keep stable identity) ── */
+function Field({ label, error, children, htmlFor, labelCol }) {
+  return (
+    <div className="space-y-1.5">
+      <label
+        htmlFor={htmlFor}
+        style={{
+          display: "block",
+          fontSize: 10,
+          fontWeight: 800,
+          textTransform: "uppercase",
+          letterSpacing: "0.1em",
+          color: labelCol,
+        }}
+      >
+        {label}
+      </label>
+      {children}
+      {error && (
+        <p className="text-xs flex items-center gap-1" style={{ color: "#ef4444" }} role="alert">
+          <AlertCircle className="h-3 w-3" aria-hidden="true" />
+          {error}
+        </p>
+      )}
+    </div>
+  );
+}
+
 /* ─── Course Form Modal ─────────────────────────────────────────────────── */
 function CourseModal({ open, onClose, onSave, initial, isEditing, darkMode }) {
   const [form, setForm] = useState(initial || emptyForm);
@@ -32,8 +60,6 @@ function CourseModal({ open, onClose, onSave, initial, isEditing, darkMode }) {
   const titleId = "course-modal-title";
 
   const cardBg = darkMode ? "#0f1f3d" : "#ffffff";
-  const headingCol = darkMode ? "#f1f5f9" : "#111827";
-  const subCol = darkMode ? "#94a3b8" : "#4b5563";
   const inputBg = darkMode ? "#0a1628" : "#ffffff";
   const inputText = darkMode ? "#f1f5f9" : "#1f2937";
   const borderCol = darkMode ? "#1a3a6b" : "#e2e8f0";
@@ -82,20 +108,6 @@ function CourseModal({ open, onClose, onSave, initial, isEditing, darkMode }) {
     transition: "border-color 0.15s",
   });
 
-  const Field = ({ label, error, children, htmlFor }) => (
-    <div className="space-y-1.5">
-      <label htmlFor={htmlFor} style={{ display: "block", fontSize: 10, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.1em", color: labelCol }}>
-        {label}
-      </label>
-      {children}
-      {error && (
-        <p className="text-xs flex items-center gap-1" style={{ color: "#ef4444" }} role="alert">
-          <AlertCircle className="h-3 w-3" aria-hidden="true" />{error}
-        </p>
-      )}
-    </div>
-  );
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby={titleId}>
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} aria-hidden="true" />
@@ -117,45 +129,45 @@ function CourseModal({ open, onClose, onSave, initial, isEditing, darkMode }) {
 
         {/* Body */}
         <div className="p-4 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
-          <Field label="Course Title *" error={errors.title} htmlFor="field-title">
+          <Field label="Course Title *" error={errors.title} htmlFor="field-title" labelCol={labelCol}>
             <input id="field-title" value={form.title} onChange={set("title")} style={inputStyle(errors.title)} placeholder="e.g. Complete JavaScript Bootcamp" aria-required="true" aria-invalid={!!errors.title} />
           </Field>
 
-          <Field label="Short Description *" error={errors.shortDescription} htmlFor="field-shortDesc">
+          <Field label="Short Description *" error={errors.shortDescription} htmlFor="field-shortDesc" labelCol={labelCol}>
             <input id="field-shortDesc" value={form.shortDescription} onChange={set("shortDescription")} style={inputStyle(errors.shortDescription)} placeholder="A one-line pitch" aria-required="true" aria-invalid={!!errors.shortDescription} />
           </Field>
 
           <div className="sm:col-span-2">
-            <Field label="Full Description *" error={errors.description} htmlFor="field-desc">
+            <Field label="Full Description *" error={errors.description} htmlFor="field-desc" labelCol={labelCol}>
               <textarea id="field-desc" value={form.description} onChange={set("description")} style={{ ...inputStyle(errors.description), resize: "none" }} rows={2} placeholder="Describe what learners will achieve..." aria-required="true" aria-invalid={!!errors.description} />
             </Field>
           </div>
 
-          <Field label="Category" htmlFor="field-category">
+          <Field label="Category" htmlFor="field-category" labelCol={labelCol}>
             <select id="field-category" value={form.category} onChange={set("category")} style={inputStyle(false)}>
               {categoryOptions.map((o) => <option key={o}>{o}</option>)}
             </select>
           </Field>
 
-          <Field label="Difficulty" htmlFor="field-difficulty">
+          <Field label="Difficulty" htmlFor="field-difficulty" labelCol={labelCol}>
             <select id="field-difficulty" value={form.difficulty} onChange={set("difficulty")} style={inputStyle(false)}>
               {difficultyOptions.map((o) => <option key={o}>{o}</option>)}
             </select>
           </Field>
 
-          <Field label="Duration (minutes)" htmlFor="field-duration">
+          <Field label="Duration (minutes)" htmlFor="field-duration" labelCol={labelCol}>
             <input id="field-duration" type="number" min={10} value={form.duration} onChange={set("duration")} style={inputStyle(false)} placeholder="60" />
           </Field>
 
-          <Field label="Rating (0–5)" htmlFor="field-rating">
+          <Field label="Rating (0–5)" htmlFor="field-rating" labelCol={labelCol}>
             <input id="field-rating" type="number" step="0.1" min={0} max={5} value={form.rating} onChange={set("rating")} style={inputStyle(false)} placeholder="4.5" />
           </Field>
 
-          <Field label="Enrolled Students" htmlFor="field-students">
+          <Field label="Enrolled Students" htmlFor="field-students" labelCol={labelCol}>
             <input id="field-students" type="number" min={0} value={form.studentsCount} onChange={set("studentsCount")} style={inputStyle(false)} placeholder="0" />
           </Field>
 
-          <Field label="Image URL" htmlFor="field-image">
+          <Field label="Image URL" htmlFor="field-image" labelCol={labelCol}>
             <input id="field-image" value={form.image} onChange={set("image")} style={inputStyle(false)} placeholder="https://..." />
           </Field>
 
@@ -251,7 +263,6 @@ export default function ManageCourses({ darkMode = false }) {
   const [editingCourse, setEditing] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
 
-  // ── Color tokens (exact match to your other pages) ──
   const pageBg = darkMode ? "#060f1e" : "#F4F8FD";
   const cardBg = darkMode ? "#0f1f3d" : "#ffffff";
   const cardBorder = darkMode ? "#1a3a6b" : "transparent";
@@ -341,7 +352,6 @@ export default function ManageCourses({ darkMode = false }) {
 
         {/* Toolbar */}
         <div className="mb-6 flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
-          {/* Search */}
           <div className="relative flex-1">
             <label htmlFor="course-search" className="sr-only">Search courses</label>
             <SearchIcon className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2" style={{ color: mutedCol }} aria-hidden="true" />
@@ -363,7 +373,6 @@ export default function ManageCourses({ darkMode = false }) {
             />
           </div>
 
-          {/* Add Button */}
           <button
             onClick={openAdd}
             className="shrink-0 inline-flex items-center justify-center gap-2 rounded-lg px-5 py-3 text-sm font-semibold text-white shadow transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1976D2] focus-visible:ring-offset-2 w-full sm:w-auto"
@@ -395,7 +404,8 @@ export default function ManageCourses({ darkMode = false }) {
         ) : (
           <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 list-none p-0" aria-label="Course catalog">
             {filteredCourses.map((course) => {
-              const diff = badge(course.difficulty, darkMode); return (
+              const diff = badge(course.difficulty, darkMode);
+              return (
                 <li key={course.id}>
                   <article
                     className="flex flex-col rounded-xl overflow-hidden h-full transition-all duration-300"
@@ -416,7 +426,6 @@ export default function ManageCourses({ darkMode = false }) {
                     }}
                     aria-label={course.title}
                   >
-                    {/* Image */}
                     {course.image ? (
                       <img src={course.image} alt="" role="presentation" className="h-40 w-full object-cover" />
                     ) : (
@@ -426,25 +435,20 @@ export default function ManageCourses({ darkMode = false }) {
                     )}
 
                     <div className="p-4 sm:p-6 flex flex-col flex-1">
-                      {/* Badge */}
                       <span className={`self-start inline-block px-2 py-0.5 rounded-full text-xs font-semibold mb-3 ${diff}`}>
                         {course.difficulty}
                       </span>
 
-                      {/* Title */}
                       <h2 className="text-base sm:text-lg font-bold leading-snug line-clamp-2 mb-2" style={{ color: headingCol }}>
                         {course.title}
                       </h2>
 
-                      {/* Short desc */}
                       <p className="text-sm line-clamp-2 mb-2" style={{ color: bodyText }}>{course.shortDescription}</p>
 
-                      {/* Category */}
                       <p className="text-sm mb-3" style={{ color: subCol }}>
                         <span className="font-semibold" style={{ color: darkMode ? "#f1f5f9" : "#374151" }}>Category:</span> {course.category || "General"}
                       </p>
 
-                      {/* Meta row */}
                       <div className="flex flex-wrap items-center gap-3 mb-4 text-sm" style={{ color: subCol }}>
                         <span className="flex items-center gap-1">
                           <Clock className="h-4 w-4" style={{ color: "#1976D2" }} aria-hidden="true" />
@@ -460,7 +464,6 @@ export default function ManageCourses({ darkMode = false }) {
                         </span>
                       </div>
 
-                      {/* Actions */}
                       <div className="flex gap-2 mt-auto">
                         <button
                           onClick={() => openEdit(course)}
@@ -502,15 +505,15 @@ export default function ManageCourses({ darkMode = false }) {
         )}
       </main>
 
-      {/* Modals */}
       <CourseModal
         open={modalOpen}
         onClose={closeModal}
         onSave={handleSave}
         darkMode={darkMode}
-        initial={editingCourse
-          ? { ...editingCourse, duration: editingCourse.duration?.toString(), rating: editingCourse.rating?.toString(), studentsCount: editingCourse.studentsCount?.toString() }
-          : emptyForm
+        initial={
+          editingCourse
+            ? { ...editingCourse, duration: editingCourse.duration?.toString(), rating: editingCourse.rating?.toString(), studentsCount: editingCourse.studentsCount?.toString() }
+            : emptyForm
         }
         isEditing={!!editingCourse}
       />
