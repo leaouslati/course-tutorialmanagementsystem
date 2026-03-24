@@ -22,7 +22,7 @@ We developed a Course Tutorial Management System to help manage tutorials, cours
 
 
 ## Deployed Application
-Access the live application here:  add link
+Access the live application here: [https://course-tutorialmanagementsystem.vercel.app/]
 
 ## Setup Instructions for Running Frontend Locally
 1. **Clone the repository:**

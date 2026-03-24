@@ -57,7 +57,7 @@ function FeatureCard({ feature, darkMode }) {
   const toggle = () => setFlipped((f) => !f);
 
   return (
-    // ✅ Height lives HERE on the <li>, not on the inner div
+
     <li
       className="list-none w-full sm:h-[220px] md:h-[240px] lg:h-[256px]"
     >
@@ -73,7 +73,7 @@ function FeatureCard({ feature, darkMode }) {
         aria-pressed={flipped}
         aria-label={`${feature.title} — press to ${flipped ? "see overview" : "see details"}`}
       >
-        {/* ── Mobile: simple tap toggle, no 3D ── */}
+        {/* ── Mobile:  */}
         <div className="sm:hidden w-full">
           <div
             className={`w-full rounded-lg p-3 border overflow-hidden transition-all duration-300 h-[210px] ${
@@ -96,9 +96,9 @@ function FeatureCard({ feature, darkMode }) {
                 <span className="text-[9px] text-slate-400 select-none flex-shrink-0">tap to flip</span>
               </div>
             ) : (
-              <ul className="space-y-1.5 w-full h-full overflow-y-auto">
+              <ul className="space-y-1.5 w-full h-full overflow-y-auto flex flex-col items-center justify-center">
                 {feature.backDesc.split("|").map((item, idx) => (
-                  <li key={idx} className="flex items-start gap-2">
+                  <li key={idx} className="flex items-center gap-2 justify-center">
                     <span className="text-[#1976D2] flex-shrink-0 mt-0.5 text-xs" aria-hidden="true">✔</span>
                     <span className={`text-xs font-medium leading-snug ${darkMode ? "text-slate-300" : "text-gray-700"}`}>
                       {item.trim()}
@@ -110,7 +110,7 @@ function FeatureCard({ feature, darkMode }) {
           </div>
         </div>
 
-        {/* ── Desktop: 3D flip, fixed height inherited from <li> ── */}
+        {/* ── Desktop: */}
         <div
           className="hidden sm:block relative w-full h-full"
           style={{
@@ -255,8 +255,8 @@ export default function Home({ darkMode = false }) {
                     className="px-6 py-3 rounded-xl font-bold shadow-lg transition-transform duration-200 hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#1565C0]"
                     style={{
                       fontSize: "clamp(0.95rem, 1.5vw, 1.125rem)",
-                      backgroundColor: darkMode ? "#5b9bd5" : "#1976D2",
-                      color: "#ffffff",
+                      backgroundColor: darkMode ? "#5b9bd5" : "#ffffff",
+                       color: darkMode?"#ffffff":"#1976D2",
                     }}
                     aria-label={aria}
                   >
@@ -439,8 +439,8 @@ export default function Home({ darkMode = false }) {
                 className="px-6 py-3 rounded-xl font-bold shadow-lg transition-transform duration-200 hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#1565C0]"
                 style={{
                   fontSize: "clamp(0.85rem, 1.5vw, 1rem)",
-                  backgroundColor: darkMode ? "#5b9bd5" : "#1976D2",
-                  color: "#ffffff",
+                  backgroundColor: darkMode ? "#5b9bd5" : "#ffffff",
+                  color: darkMode?"#ffffff":"#1976D2",
                 }}
                 aria-label="Create a free account"
               >
