@@ -45,6 +45,38 @@ Access the live application here: [https://course-tutorialmanagementsystem-qwlvy
 
 ## Screenshots of Important Features
 
+### Homepage in Light Mode
+![Homepage in Light Mode](./screenshots/homepage-light-mode.png)
+
+### Homepage in Dark Mode
+![Homepage in Dark Mode](./screenshots/homepage-dark-mode.png)
+
+### Course page filterng searching and checking courses
+![Course Page](./screenshots/Course-page.png)
+
+### Enrollments page
+![Enrollments page](./screenshots/Enrollments-page.png)
+
+### Profile page
+![Profile page](./screenshots/ProfilePage.png)
+
+### Navbar before logging in 
+![Navbar](./screenshots/Navbar.png)
+
+### Navbar after logging in
+![Navbar after](./screenshots/-Navbar-.png)
+
+### Login Page
+![Login page](./screenshots/login-page.png)
+
+### Sign-up Page
+![Sign-up page](./screenshots/Sign-up-page.png)
+
+### Manage Courses Page
+![Manage Courses Page](./screenshots/ManageCourses-page.png)
+
+### Course Details Page
+![Course Details page](./screenshots/CourseDetails-page.png)
 
 
 ## Team Member Contributions
@@ -81,41 +113,33 @@ Access the live application here: [https://course-tutorialmanagementsystem-qwlvy
 - Responsible for: Navbar, Profile Page, and Enrollments Page.
 - Contributions:
    - Built the Navbar component and organized it inside the components folder, including the navigation menu, page links, and theme toggle button. Also updated it so the Enrollments link only appears when the user is logged in.
-
    - Designed and implemented the Profile Page with user information, quick actions, badges, ID card modal, and edit profile modal. Added responsive layouts so the page works well on mobile, tablet, and desktop screens.
-
    - Developed the Enrollments Page to display each student’s enrolled courses with progress bars, course status, module and lesson counts, and continue actions. Also added unenroll confirmation handling and responsive card layouts
-
    - Expanded and structured the mock data in mockdata.js by adding more courses, users, lessons, and modules, with different progress values to make testing more realistic and to support dynamic rendering across the app.
-
    - Continuously tested the pages during development to make sure the layouts, navigation, and course data were working correctly.
 
 ### Member 4: Reem Nassif
 - Responsible for: Register Page & Manage Courses Page
 - Contributions:
    - Designed and implemented the user registration form with input validation and role selection.
-
    - Integrated authentication logic with automatic login and navigation after successful registration.
-
    - Developed the Manage Courses page with full CRUD functionality (add, edit, delete courses).
-
    - Implemented search and dynamic updates to manage courses efficiently within the interface. 
-
    - Integrated advanced features such as user authentication, role management, and dynamic course handling.
 
-
 ## Mock Data Explanation 
-Responsible for: Using mock data to simulate realistic user interactions across the platform.
-How it’s used:
-
-- When a user logs in, the mock user data determines their role (student or instructor) and displays the relevant dashboard and courses.
-
-- Opening a user profile shows enrolled courses and current progress for each course, allowing testing of progress tracking.
-
-- CourseCard components dynamically render courses with titles, instructors, ratings, and badges (e.g., “new” or “updated”) using mock course data.
-
-- Viewing a CourseDetails page shows the full course description, modules, and lessons, simulating lesson navigation and enrollment actions.
-
-- Searching and filtering courses is powered by mock course categories, difficulties, and ratings, allowing realistic course discovery scenarios.
-
-- Simulates interactions like marking lessons as complete, navigating between modules, and receiving real-time notifications without a live backend.
+- Responsible for: Creating mock data for users, courses, modules, and lessons.
+- Users:
+   - Includes students and instructors with unique IDs, names, emails, roles, and avatars.
+   - Tracks enrolled courses, created courses (for instructors), progress in courses, and join dates.
+- Lessons:
+   - Each lesson has an ID, title, content description, duration (minutes), and a video URL.
+   - Covers programming, web development, design, math, and language topics.
+- Courses:
+   - Each course includes ID, title, short and full descriptions, instructor, category, difficulty, image, duration, rating, student count, and associated modules.
+   - Designed to support course listing, filtering, searching, and detailed views.
+- Modules:
+   - Modules group lessons together, with a unique ID, title, order, and a list of lesson IDs.
+   - Examples: JavaScript Fundamentals, React Introduction, CSS Mastery, Node.js Basics, Math Foundations, English Basics.
+- Purpose:
+   - Provides structured, realistic data for testing and development of CourseCard, CourseDetails, Courses pages, and module/lesson functionality.
