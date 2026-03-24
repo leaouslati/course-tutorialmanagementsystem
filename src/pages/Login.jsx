@@ -409,21 +409,20 @@ export default function Login({ darkMode = false }) {
         <div className="w-full max-w-sm sm:max-w-md">
 
           {/* ── Page header ── */}
-          <header className="flex flex-col items-center mb-6">
+          <header className="flex flex-col items-center mb-6" aria-hidden="true">
             <div
               className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center shadow-md mb-4"
               style={{ backgroundColor: "rgba(255,255,255,0.15)", backdropFilter: "blur(8px)" }}
-              aria-hidden="true"
             >
               <BookOpen className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
             </div>
             <h1
-              className="text-2xl sm:text-3xl font-extrabold tracking-tight"
-              style={{ color: headingCol }}
+              className="font-extrabold tracking-tight text-center"
+              style={{ fontSize: "clamp(2.35rem, 4vw, 3rem)", color: headingCol }}
             >
               Welcome Back
             </h1>
-            <p className="text-sm mt-1 text-center" style={{ color: subCol }}>
+            <p className="text-sm text-center" style={{ color: subCol }}>
               Sign in to continue your learning journey
             </p>
           </header>

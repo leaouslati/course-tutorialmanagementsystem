@@ -66,7 +66,6 @@ function useEscapeKey(fn) {
   }, [fn]);
 }
 
-/* ─── StatRow ─────────────────────────────────────────────────────────── */
 function StatRow({ icon, label, value, valueClass, small = false, darkMode }) {
   const size = small ? "text-sm" : "text-base";
   return (
@@ -82,7 +81,7 @@ function StatRow({ icon, label, value, valueClass, small = false, darkMode }) {
   );
 }
 
-/* ─── ID Card Modal ────────────────────────────────────────────────────── */
+
 function IDCardModal({ user, subtitle, idPrefix, badge, stats, onClose, darkMode }) {
   const trapRef = useFocusTrap(true);
   useEscapeKey(onClose);
@@ -189,7 +188,7 @@ function IDCardModal({ user, subtitle, idPrefix, badge, stats, onClose, darkMode
   );
 }
 
-/* ─── Edit Modal ───────────────────────────────────────────────────────── */
+
 function EditModal({ user, onSave, onClose, darkMode }) {
   const [tab,         setTab]         = useState("info");
   const [name,        setName]        = useState(user.name);
@@ -419,7 +418,7 @@ function EditModal({ user, onSave, onClose, darkMode }) {
   );
 }
 
-/* ─── Badge Card ───────────────────────────────────────────────────────── */
+
 function BadgeCard({ icon, title, desc, earned, bg, border, darkMode }) {
   return (
     <div
@@ -464,7 +463,7 @@ function BadgeCard({ icon, title, desc, earned, bg, border, darkMode }) {
 function QuickAction({ to, icon, label, sub, onClick, darkMode }) {
   const style = {
     backgroundColor: darkMode ? "#0f1f3d" : "#ffffff",
-    border: `1px solid ${darkMode ? "#1a3a6b" : "#e2e8f0"}`,
+    border: "1px solid transparent",
     borderRadius: "0.75rem",
     padding: "1rem",
     display: "flex",
@@ -495,7 +494,7 @@ function QuickAction({ to, icon, label, sub, onClick, darkMode }) {
 
   const hoverStyle = {
     ...style,
-    borderColor: "#1976D2",
+    border: "1px solid #1976D2",
     boxShadow: darkMode ? "0 0 16px 2px rgba(25,118,210,0.2)" : "0 4px 12px rgba(0,0,0,0.08)",
   };
 
