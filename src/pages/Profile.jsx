@@ -459,7 +459,6 @@ function BadgeCard({ icon, title, desc, earned, bg, border, darkMode }) {
   );
 }
 
-/* ─── Quick Action ─────────────────────────────────────────────────────── */
 function QuickAction({ to, icon, label, sub, onClick, darkMode }) {
   const style = {
     backgroundColor: darkMode ? "#0f1f3d" : "#ffffff",
