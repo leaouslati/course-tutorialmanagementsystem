@@ -73,6 +73,7 @@ Access the live application here:  add link
 ![Sign-up page](./screenshots/Sign-up-page.png)
 
 ### Manage Courses Page
+![Manage Courses Page](./screenshots/ManageCourses-page.png)
 
 ### Course Details Page
 ![Course Details page](./screenshots/CourseDetails-page.png)
