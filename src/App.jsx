@@ -33,14 +33,14 @@ function App() {
     <div className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition-colors duration-300">
       <Navbar darkMode={darkMode} toggleTheme={toggleTheme} />
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/courses" element={<Courses />} />
-        <Route path="/enrollments" element={<Enrollments />} />
-        <Route path="/manage-courses" element={<ManageCourses />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/courses/:id" element={<CourseDetails />} />
+        <Route path="/" element={<Home darkMode={darkMode} />} />
+        <Route path="/courses" element={<Courses darkMode={darkMode} />} />
+        <Route path="/enrollments" element={<Enrollments darkMode={darkMode} />} />
+        <Route path="/manage-courses" element={<ManageCourses darkMode={darkMode} />} />
+        <Route path="/login" element={<Login darkMode={darkMode} />} />
+        <Route path="/profile" element={<Profile darkMode={darkMode} />} />
+        <Route path="/register" element={<Register darkMode={darkMode} />} />
+        <Route path="/courses/:id" element={<CourseDetails darkMode={darkMode} />} />
       </Routes>
     </div>
   );
