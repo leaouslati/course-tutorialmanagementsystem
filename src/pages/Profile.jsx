@@ -9,41 +9,41 @@ import {
 } from "lucide-react";
 
 const LEVELS = [
-  { min: 80, label: "Expert",       colorClass: "text-rose-500",   bgClass: "bg-rose-50",   hex: "#f43f5e" },
-  { min: 50, label: "Advanced",     colorClass: "text-purple-600", bgClass: "bg-purple-50", hex: "#9333ea" },
-  { min: 20, label: "Intermediate", colorClass: "text-amber-500",  bgClass: "bg-amber-50",  hex: "#f59e0b" },
-  { min: 0,  label: "Beginner",     colorClass: "text-green-600",  bgClass: "bg-green-50",  hex: "#22c55e" },
+  { min: 80, label: "Expert", colorClass: "text-rose-500", bgClass: "bg-rose-50", hex: "#f43f5e" },
+  { min: 50, label: "Advanced", colorClass: "text-purple-600", bgClass: "bg-purple-50", hex: "#9333ea" },
+  { min: 20, label: "Intermediate", colorClass: "text-amber-500", bgClass: "bg-amber-50", hex: "#f59e0b" },
+  { min: 0, label: "Beginner", colorClass: "text-green-600", bgClass: "bg-green-50", hex: "#22c55e" },
 ];
 const INSTRUCTOR_LEVELS = [
-  { min: 5, label: "Expert Instructor",      colorClass: "text-rose-500",   bgClass: "bg-rose-50",   hex: "#f43f5e" },
+  { min: 5, label: "Expert Instructor", colorClass: "text-rose-500", bgClass: "bg-rose-50", hex: "#f43f5e" },
   { min: 3, label: "Established Instructor", colorClass: "text-purple-600", bgClass: "bg-purple-50", hex: "#9333ea" },
-  { min: 1, label: "Rising Instructor",      colorClass: "text-amber-500",  bgClass: "bg-amber-50",  hex: "#f59e0b" },
-  { min: 0, label: "New Instructor",         colorClass: "text-green-600",  bgClass: "bg-green-50",  hex: "#22c55e" },
+  { min: 1, label: "Rising Instructor", colorClass: "text-amber-500", bgClass: "bg-amber-50", hex: "#f59e0b" },
+  { min: 0, label: "New Instructor", colorClass: "text-green-600", bgClass: "bg-green-50", hex: "#22c55e" },
 ];
 const getLevel = (arr, val) => arr.find((l) => val >= l.min);
 
 const mkStudentBadges = (fin, enr, avg) => [
-  { icon: <BookOpen   className="w-6 h-6 text-[#1976D2]"  />, bg: "bg-blue-50",   border: "border-blue-200",   title: "First Enrollment", desc: "Enrolled in your first course",  earned: enr >= 1 },
-  { icon: <Award      className="w-6 h-6 text-amber-500"  />, bg: "bg-amber-50",  border: "border-amber-200",  title: "Course Completer", desc: "Finished at least one course",   earned: fin >= 1 },
-  { icon: <TrendingUp className="w-6 h-6 text-green-500"  />, bg: "bg-green-50",  border: "border-green-200",  title: "Overachiever",     desc: "Completed 3+ courses",           earned: fin >= 3 },
-  { icon: <Target     className="w-6 h-6 text-purple-500" />, bg: "bg-purple-50", border: "border-purple-200", title: "Halfway There",    desc: "Average progress above 50%",     earned: avg >= 50 },
-  { icon: <Zap        className="w-6 h-6 text-yellow-500" />, bg: "bg-yellow-50", border: "border-yellow-200", title: "Fast Learner",     desc: "Enrolled in 5+ courses",         earned: enr >= 5 },
-  { icon: <Star       className="w-6 h-6 text-rose-500"   />, bg: "bg-rose-50",   border: "border-rose-200",   title: "Top Student",      desc: "Average progress above 80%",     earned: avg >= 80 },
+  { icon: <BookOpen className="w-6 h-6 text-[#1976D2]" />, bg: "bg-blue-50", border: "border-blue-200", title: "First Enrollment", desc: "Enrolled in your first course", earned: enr >= 1 },
+  { icon: <Award className="w-6 h-6 text-amber-500" />, bg: "bg-amber-50", border: "border-amber-200", title: "Course Completer", desc: "Finished at least one course", earned: fin >= 1 },
+  { icon: <TrendingUp className="w-6 h-6 text-green-500" />, bg: "bg-green-50", border: "border-green-200", title: "Overachiever", desc: "Completed 3+ courses", earned: fin >= 3 },
+  { icon: <Target className="w-6 h-6 text-purple-500" />, bg: "bg-purple-50", border: "border-purple-200", title: "Halfway There", desc: "Average progress above 50%", earned: avg >= 50 },
+  { icon: <Zap className="w-6 h-6 text-yellow-500" />, bg: "bg-yellow-50", border: "border-yellow-200", title: "Fast Learner", desc: "Enrolled in 5+ courses", earned: enr >= 5 },
+  { icon: <Star className="w-6 h-6 text-rose-500" />, bg: "bg-rose-50", border: "border-rose-200", title: "Top Student", desc: "Average progress above 80%", earned: avg >= 80 },
 ];
 const mkInstructorBadges = (cre, les) => [
-  { icon: <PlusCircle className="w-6 h-6 text-[#1976D2]"  />, bg: "bg-blue-50",   border: "border-blue-200",   title: "Course Creator",    desc: "Published your first course", earned: cre >= 1 },
-  { icon: <Layers     className="w-6 h-6 text-purple-500" />, bg: "bg-purple-50", border: "border-purple-200", title: "Dedicated Teacher", desc: "Created 3+ courses",          earned: cre >= 3 },
-  { icon: <Shield     className="w-6 h-6 text-green-500"  />, bg: "bg-green-50",  border: "border-green-200",  title: "Content Master",    desc: "Published 20+ lessons",       earned: les >= 20 },
-  { icon: <Star       className="w-6 h-6 text-amber-500"  />, bg: "bg-amber-50",  border: "border-amber-200",  title: "Expert Instructor", desc: "Created 5+ courses",          earned: cre >= 5 },
+  { icon: <PlusCircle className="w-6 h-6 text-[#1976D2]" />, bg: "bg-blue-50", border: "border-blue-200", title: "Course Creator", desc: "Published your first course", earned: cre >= 1 },
+  { icon: <Layers className="w-6 h-6 text-purple-500" />, bg: "bg-purple-50", border: "border-purple-200", title: "Dedicated Teacher", desc: "Created 3+ courses", earned: cre >= 3 },
+  { icon: <Shield className="w-6 h-6 text-green-500" />, bg: "bg-green-50", border: "border-green-200", title: "Content Master", desc: "Published 20+ lessons", earned: les >= 20 },
+  { icon: <Star className="w-6 h-6 text-amber-500" />, bg: "bg-amber-50", border: "border-amber-200", title: "Expert Instructor", desc: "Created 5+ courses", earned: cre >= 5 },
 ];
 
 function useFocusTrap(active) {
   const ref = useRef(null);
   useEffect(() => {
     if (!active || !ref.current) return;
-    const els   = ref.current.querySelectorAll('button,[href],input,select,textarea,[tabindex]:not([tabindex="-1"])');
+    const els = ref.current.querySelectorAll('button,[href],input,select,textarea,[tabindex]:not([tabindex="-1"])');
     const first = els[0];
-    const last  = els[els.length - 1];
+    const last = els[els.length - 1];
     first?.focus();
     const handler = (e) => {
       if (e.key !== "Tab") return;
@@ -115,7 +115,7 @@ function PwField({ label, fieldId, value, onChange, showKey, placeholder, show, 
 function IDCardModal({ user, subtitle, idPrefix, badge, stats, onClose, darkMode }) {
   const trapRef = useFocusTrap(true);
   useEscapeKey(onClose);
-  const joined   = user.joinedDate
+  const joined = user.joinedDate
     ? new Date(user.joinedDate).toLocaleDateString("en-US", { month: "short", year: "numeric" })
     : "Unknown";
   const idNumber = `${idPrefix}-${user.id?.toUpperCase().replace("U", "").padStart(4, "0") ?? "0000"}`;
@@ -209,28 +209,28 @@ function IDCardModal({ user, subtitle, idPrefix, badge, stats, onClose, darkMode
 }
 
 function EditModal({ user, onSave, onClose, darkMode }) {
-  const [tab,         setTab]         = useState("info");
-  const [name,        setName]        = useState(user.name);
-  const [email,       setEmail]       = useState(user.email);
+  const [tab, setTab] = useState("info");
+  const [name, setName] = useState(user.name);
+  const [email, setEmail] = useState(user.email);
   const [infoSuccess, setInfoSuccess] = useState(false);
-  const [currentPw,   setCurrentPw]   = useState("");
-  const [newPw,       setNewPw]       = useState("");
-  const [confirmPw,   setConfirmPw]   = useState("");
-  const [show,        setShow]        = useState({ current: false, new: false, confirm: false });
-  const [pwError,     setPwError]     = useState("");
-  const [pwSuccess,   setPwSuccess]   = useState(false);
+  const [currentPw, setCurrentPw] = useState("");
+  const [newPw, setNewPw] = useState("");
+  const [confirmPw, setConfirmPw] = useState("");
+  const [show, setShow] = useState({ current: false, new: false, confirm: false });
+  const [pwError, setPwError] = useState("");
+  const [pwSuccess, setPwSuccess] = useState(false);
   const trapRef = useFocusTrap(true);
   useEscapeKey(onClose);
 
-  const modalBg     = darkMode ? "#0f1f3d" : "#ffffff";
+  const modalBg = darkMode ? "#0f1f3d" : "#ffffff";
   const modalBorder = darkMode ? "#1a3a6b" : "#f1f5f9";
-  const headingCol  = darkMode ? "#f1f5f9" : "#0f172a";
-  const labelCol    = darkMode ? "#94a3b8" : "#64748b";
-  const inputBg     = darkMode ? "#0a1628" : "#ffffff";
-  const inputText   = darkMode ? "#f1f5f9" : "#1e293b";
+  const headingCol = darkMode ? "#f1f5f9" : "#0f172a";
+  const labelCol = darkMode ? "#94a3b8" : "#64748b";
+  const inputBg = darkMode ? "#0a1628" : "#ffffff";
+  const inputText = darkMode ? "#f1f5f9" : "#1e293b";
   const inputBorder = darkMode ? "#1a3a6b" : "#e2e8f0";
-  const iconCol     = darkMode ? "#64748b" : "#94a3b8";
-  const mutedCol    = darkMode ? "#64748b" : "#64748b";
+  const iconCol = darkMode ? "#64748b" : "#94a3b8";
+  const mutedCol = darkMode ? "#64748b" : "#64748b";
 
   const inputStyle = {
     backgroundColor: inputBg,
@@ -252,9 +252,9 @@ function EditModal({ user, onSave, onClose, darkMode }) {
   const handlePasswordSave = () => {
     setPwError("");
     if (!currentPw || !newPw || !confirmPw) return setPwError("All fields are required.");
-    if (currentPw !== user.password)         return setPwError("Current password is incorrect.");
-    if (newPw.length < 8)                    return setPwError("New password must be at least 8 characters.");
-    if (newPw !== confirmPw)                 return setPwError("Passwords do not match.");
+    if (currentPw !== user.password) return setPwError("Current password is incorrect.");
+    if (newPw.length < 8) return setPwError("New password must be at least 8 characters.");
+    if (newPw !== confirmPw) return setPwError("Passwords do not match.");
     onSave({ password: newPw });
     setPwSuccess(true);
     setTimeout(() => { setPwSuccess(false); onClose(); }, 1500);
@@ -312,8 +312,8 @@ function EditModal({ user, onSave, onClose, darkMode }) {
           {tab === "info" && (
             <div className="flex flex-col gap-4">
               {[
-                { lbl: "Full Name", id: "edit-name",  val: name,  set: setName,  type: "text",  ph: "Your full name" },
-                { lbl: "Email",     id: "edit-email", val: email, set: setEmail, type: "email", ph: "your@email.com" },
+                { lbl: "Full Name", id: "edit-name", val: name, set: setName, type: "text", ph: "Your full name" },
+                { lbl: "Email", id: "edit-email", val: email, set: setEmail, type: "email", ph: "your@email.com" },
               ].map(({ lbl, id, val, set, type, ph }) => (
                 <div key={id} className="flex flex-col gap-1">
                   <label htmlFor={id} className="text-xs font-semibold uppercase tracking-wider" style={{ color: labelCol }}>
@@ -376,7 +376,7 @@ function EditModal({ user, onSave, onClose, darkMode }) {
                 placeholder="Confirm new password"
                 show={show} setShow={setShow} inputStyle={inputStyle} iconCol={iconCol} labelCol={labelCol}
               />
-              {pwError   && <p role="alert"  className="text-xs text-red-500 font-medium">{pwError}</p>}
+              {pwError && <p role="alert" className="text-xs text-red-500 font-medium">{pwError}</p>}
               {pwSuccess && <p role="status" className="text-xs text-green-500 font-medium">Password updated successfully!</p>}
               <div className="flex gap-3 mt-2">
                 <button
@@ -488,8 +488,8 @@ function QuickAction({ to, icon, label, sub, onClick, darkMode }) {
 /* ─── Profile Page ─────────────────────────────────────────────────────── */
 export default function Profile({ darkMode = false }) {
   const { currentUser, updateUser } = useAuth();
-  const [showModal,            setShowModal]            = useState(false);
-  const [showIDCard,           setShowIDCard]           = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [showIDCard, setShowIDCard] = useState(false);
   const [showInstructorIDCard, setShowInstructorIDCard] = useState(false);
 
   if (!currentUser) return null;
@@ -498,45 +498,45 @@ export default function Profile({ darkMode = false }) {
 
   const enrolledCourses = Array.isArray(currentUser.enrolledCourses)
     ? courses.filter((c) => currentUser.enrolledCourses.includes(c.id)) : [];
-  const createdCourses  = courses.filter((c) => c.instructorId === currentUser.id);
+  const createdCourses = courses.filter((c) => c.instructorId === currentUser.id);
 
-  const lessonCount    = (course) => Array.isArray(course.modules)
+  const lessonCount = (course) => Array.isArray(course.modules)
     ? course.modules.reduce((a, id) => a + (modules.find((m) => m.id === id)?.lessons.length || 0), 0) : 0;
-  const progress       = (course) => currentUser.progress?.[course.id] ?? 0;
+  const progress = (course) => currentUser.progress?.[course.id] ?? 0;
 
-  const enrolledCount  = enrolledCourses.length;
-  const createdCount   = createdCourses.length;
-  const finished       = enrolledCourses.filter((c) => progress(c) === 100).length;
-  const avgProgress    = enrolledCourses.length
+  const enrolledCount = enrolledCourses.length;
+  const createdCount = createdCourses.length;
+  const finished = enrolledCourses.filter((c) => progress(c) === 100).length;
+  const avgProgress = enrolledCourses.length
     ? Math.round(enrolledCourses.reduce((s, c) => s + progress(c), 0) / enrolledCourses.length) : 0;
-  const totalModules   = createdCourses.reduce((a, c) => a + (Array.isArray(c.modules) ? c.modules.length : 0), 0);
-  const totalLessons   = createdCourses.reduce((a, c) => a + lessonCount(c), 0);
-  const totalStudents  = createdCourses.reduce((a, c) => a + (c.studentsCount || 0), 0);
-  const avgRating      = createdCourses.length
+  const totalModules = createdCourses.reduce((a, c) => a + (Array.isArray(c.modules) ? c.modules.length : 0), 0);
+  const totalLessons = createdCourses.reduce((a, c) => a + lessonCount(c), 0);
+  const totalStudents = createdCourses.reduce((a, c) => a + (c.studentsCount || 0), 0);
+  const avgRating = createdCourses.length
     ? (createdCourses.reduce((a, c) => a + (c.rating || 0), 0) / createdCourses.length).toFixed(1) : "—";
-  const progressVal    = isInstructor ? Math.min(createdCount * 18, 100) : avgProgress;
+  const progressVal = isInstructor ? Math.min(createdCount * 18, 100) : avgProgress;
   const completedHours = enrolledCourses.reduce((s, c) => s + (progress(c) * c.duration) / 100, 0).toFixed(1);
 
-  const lvl      = getLevel(LEVELS, avgProgress);
-  const exp      = getLevel(INSTRUCTOR_LEVELS, createdCount);
+  const lvl = getLevel(LEVELS, avgProgress);
+  const exp = getLevel(INSTRUCTOR_LEVELS, createdCount);
   const levelTag = isInstructor ? exp : lvl;
-  const badges   = isInstructor ? mkInstructorBadges(createdCount, totalLessons) : mkStudentBadges(finished, enrolledCount, avgProgress);
-  const earned   = badges.filter((b) => b.earned).length;
+  const badges = isInstructor ? mkInstructorBadges(createdCount, totalLessons) : mkStudentBadges(finished, enrolledCount, avgProgress);
+  const earned = badges.filter((b) => b.earned).length;
 
-  const pageBg      = darkMode ? "#060f1e"  : "#F4F8FD";
-  const cardBg      = darkMode ? "#0f1f3d"  : "#ffffff";
-  const cardBorder  = darkMode ? "#1a3a6b"  : "#e2e8f0";
-  const headingCol  = darkMode ? "#f1f5f9"  : "#0f172a";
-  const subCol      = darkMode ? "#94a3b8"  : "#475569";
-  const mutedCol    = darkMode ? "#64748b"  : "#94a3b8";
-  const dividerCol  = darkMode ? "#1a3a6b"  : "#e2e8f0";
-  const progressBg  = darkMode ? "#1a3a6b"  : "#f1f5f9";
-  const sectionLbl  = darkMode ? "#64748b"  : "#64748b";
+  const pageBg = darkMode ? "#060f1e" : "#F4F8FD";
+  const cardBg = darkMode ? "#0f1f3d" : "#ffffff";
+  const cardBorder = darkMode ? "#1a3a6b" : "#e2e8f0";
+  const headingCol = darkMode ? "#f1f5f9" : "#0f172a";
+  const subCol = darkMode ? "#94a3b8" : "#475569";
+  const mutedCol = darkMode ? "#64748b" : "#94a3b8";
+  const dividerCol = darkMode ? "#1a3a6b" : "#e2e8f0";
+  const progressBg = darkMode ? "#1a3a6b" : "#f1f5f9";
+  const sectionLbl = darkMode ? "#64748b" : "#64748b";
 
   const infoRows = [
-    { icon: <Mail     className="h-5 w-5 text-[#1976D2]" />, text: currentUser.email },
+    { icon: <Mail className="h-5 w-5 text-[#1976D2]" />, text: currentUser.email },
     { icon: <Calendar className="h-5 w-5 text-[#1976D2]" />, text: `Joined: ${currentUser.joinedDate ? new Date(currentUser.joinedDate).toLocaleDateString("en-US", { month: "long", year: "numeric" }) : "Unknown"}` },
-    { icon: <User     className="h-5 w-5 text-[#1976D2]" />, text: currentUser.role, cls: "capitalize" },
+    { icon: <User className="h-5 w-5 text-[#1976D2]" />, text: currentUser.role, cls: "capitalize" },
   ];
 
   return (
@@ -586,7 +586,7 @@ export default function Profile({ darkMode = false }) {
             <div className="flex items-center gap-2">
               <span aria-hidden="true">
                 {isInstructor
-                  ? <Star  className={`h-5 w-5 ${exp.colorClass}`} />
+                  ? <Star className={`h-5 w-5 ${exp.colorClass}`} />
                   : <Flame className={`h-5 w-5 ${lvl.colorClass}`} />}
               </span>
               <span className={`text-sm font-semibold px-2 py-0.5 rounded-full ${levelTag.colorClass} ${levelTag.bgClass}`}>
@@ -604,9 +604,9 @@ export default function Profile({ darkMode = false }) {
           <IDCardModal
             user={currentUser} subtitle="Student Identity Card" idPrefix="STU" badge={lvl}
             stats={[
-              { label: "Enrolled",  value: enrolledCount,     color: "text-[#1976D2]" },
-              { label: "Completed", value: finished,          color: "text-green-500" },
-              { label: "Progress",  value: `${avgProgress}%`, color: "text-amber-500" },
+              { label: "Enrolled", value: enrolledCount, color: "text-[#1976D2]" },
+              { label: "Completed", value: finished, color: "text-green-500" },
+              { label: "Progress", value: `${avgProgress}%`, color: "text-amber-500" },
             ]}
             onClose={() => setShowIDCard(false)}
             darkMode={darkMode}
@@ -616,9 +616,9 @@ export default function Profile({ darkMode = false }) {
           <IDCardModal
             user={currentUser} subtitle="Instructor Identity Card" idPrefix="INS" badge={exp}
             stats={[
-              { label: "Courses",  value: createdCount,  color: "text-[#1976D2]" },
+              { label: "Courses", value: createdCount, color: "text-[#1976D2]" },
               { label: "Students", value: totalStudents, color: "text-green-500" },
-              { label: "Rating",   value: avgRating,     color: "text-yellow-400" },
+              { label: "Rating", value: avgRating, color: "text-yellow-400" },
             ]}
             onClose={() => setShowInstructorIDCard(false)}
             darkMode={darkMode}
@@ -639,12 +639,12 @@ export default function Profile({ darkMode = false }) {
               <div className="flex flex-col gap-2 mt-4 w-full">
                 {isInstructor ? (
                   <>
-                    <StatRow darkMode={darkMode} icon={<Layers   className="w-4 h-4 text-purple-500" />} label="Total Modules" value={totalModules} valueClass="text-purple-500" />
-                    <StatRow darkMode={darkMode} icon={<BookOpen className="w-4 h-4 text-[#1976D2]"  />} label="Total Lessons" value={totalLessons} valueClass="text-[#1976D2]" />
+                    <StatRow darkMode={darkMode} icon={<Layers className="w-4 h-4 text-purple-500" />} label="Total Modules" value={totalModules} valueClass="text-purple-500" />
+                    <StatRow darkMode={darkMode} icon={<BookOpen className="w-4 h-4 text-[#1976D2]" />} label="Total Lessons" value={totalLessons} valueClass="text-[#1976D2]" />
                   </>
                 ) : (
                   <>
-                    <StatRow darkMode={darkMode} icon={<Award className="w-4 h-4 text-green-500" />} label="Completed"     value={finished}             valueClass="text-green-500"  small />
+                    <StatRow darkMode={darkMode} icon={<Award className="w-4 h-4 text-green-500" />} label="Completed" value={finished} valueClass="text-green-500" small />
                     <StatRow darkMode={darkMode} icon={<Clock className="w-4 h-4 text-[#1976D2]" />} label="Hours Learned" value={`${completedHours}h`} valueClass="text-[#1976D2]" small />
                   </>
                 )}
@@ -655,8 +655,8 @@ export default function Profile({ darkMode = false }) {
               <article className="flex-1 rounded-2xl p-6 shadow-md flex flex-col min-h-[140px]" style={{ backgroundColor: cardBg, border: `1px solid ${cardBorder}` }}>
                 <div className="text-base font-bold uppercase tracking-[0.14em] mb-2 text-center mt-3" style={{ color: subCol }}>Your Impact</div>
                 <div className="flex flex-col justify-center flex-1 gap-1.5 mt-7">
-                  <StatRow darkMode={darkMode} icon={<Users className="w-4 h-4 text-green-500"  />} label="Total Students" value={totalStudents} valueClass="text-green-500" />
-                  <StatRow darkMode={darkMode} icon={<Star  className="w-4 h-4 text-yellow-400" />} label="Avg Rating"     value={avgRating}     valueClass="text-yellow-400" />
+                  <StatRow darkMode={darkMode} icon={<Users className="w-4 h-4 text-green-500" />} label="Total Students" value={totalStudents} valueClass="text-green-500" />
+                  <StatRow darkMode={darkMode} icon={<Star className="w-4 h-4 text-yellow-400" />} label="Avg Rating" value={avgRating} valueClass="text-yellow-400" />
                 </div>
               </article>
             ) : (
@@ -686,14 +686,14 @@ export default function Profile({ darkMode = false }) {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {isInstructor ? (
               <>
-                <QuickAction darkMode={darkMode} to="/management"  icon={<BarChart2  className="w-5 h-5" />} label="Management Panel"  sub="Manage your courses" />
-                <QuickAction darkMode={darkMode} to="/courses"     icon={<BookOpen   className="w-5 h-5" />} label="Browse Courses"    sub="See all published courses" />
+                <QuickAction darkMode={darkMode} to="/management" icon={<BarChart2 className="w-5 h-5" />} label="Management Panel" sub="Manage your courses" />
+                <QuickAction darkMode={darkMode} to="/courses" icon={<BookOpen className="w-5 h-5" />} label="Browse Courses" sub="See all published courses" />
                 <QuickAction darkMode={darkMode} onClick={() => setShowInstructorIDCard(true)} icon={<CreditCard className="w-5 h-5" />} label="Instructor ID Card" sub="View your digital ID" />
               </>
             ) : (
               <>
-                <QuickAction darkMode={darkMode} to="/enrollments" icon={<Layers    className="w-5 h-5" />} label="My Enrollments" sub="Track your learning" />
-                <QuickAction darkMode={darkMode} to="/courses"     icon={<BookOpen  className="w-5 h-5" />} label="Browse Courses"  sub="Discover new courses" />
+                <QuickAction darkMode={darkMode} to="/enrollments" icon={<Layers className="w-5 h-5" />} label="My Enrollments" sub="Track your learning" />
+                <QuickAction darkMode={darkMode} to="/courses" icon={<BookOpen className="w-5 h-5" />} label="Browse Courses" sub="Discover new courses" />
                 <QuickAction darkMode={darkMode} onClick={() => setShowIDCard(true)} icon={<CreditCard className="w-5 h-5" />} label="Student ID Card" sub="View your digital ID" />
               </>
             )}

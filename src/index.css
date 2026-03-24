@@ -10,10 +10,23 @@
 }
 
 @keyframes floatIcon {
-  0%   { transform: translateY(0px) rotate(0deg);     opacity: 0;    }
-  15%  { opacity: 0.45; }
-  85%  { opacity: 0.35; }
-  100% { transform: translateY(-500px) rotate(15deg); opacity: 0;    }
+  0% {
+    transform: translateY(0px) rotate(0deg);
+    opacity: 0;
+  }
+
+  15% {
+    opacity: 0.45;
+  }
+
+  85% {
+    opacity: 0.35;
+  }
+
+  100% {
+    transform: translateY(-500px) rotate(15deg);
+    opacity: 0;
+  }
 }
 
 .float-icon {
@@ -25,13 +38,25 @@
 }
 
 @media (max-width: 480px) {
-  .float-icon svg { width: 20px !important; height: 20px !important; }
-  .float-icon { animation-duration: 12s !important; }
+  .float-icon svg {
+    width: 20px !important;
+    height: 20px !important;
+  }
+
+  .float-icon {
+    animation-duration: 12s !important;
+  }
 }
 
 @media (min-width: 481px) and (max-width: 768px) {
-  .float-icon svg { width: 28px !important; height: 28px !important; }
-  .float-icon { animation-duration: 10s !important; }
+  .float-icon svg {
+    width: 28px !important;
+    height: 28px !important;
+  }
+
+  .float-icon {
+    animation-duration: 10s !important;
+  }
 }
 
 /* Ensure root container fills the screen and is not cut off */
@@ -55,12 +80,15 @@ a {
   color: #646cff;
   text-decoration: inherit;
 }
+
 a:hover {
   color: #535bf2;
 }
+
 a:visited {
   color: #1976D2;
 }
+
 body {
   margin: 0;
   min-width: 320px;
@@ -84,19 +112,23 @@ button {
   cursor: pointer;
   transition: border-color 0.25s;
 }
+
 button:focus,
 button:focus-visible {
   outline: none;
   box-shadow: none;
 }
+
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
     background-color: #ffffff;
   }
+
   a:hover {
     color: #747bff;
   }
+
   button {
     background-color: #f9f9f9;
   }

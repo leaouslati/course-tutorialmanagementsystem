@@ -11,9 +11,9 @@ const categoryOptions = ["Programming", "Web Development", "Design", "Mathematic
 
 const badge = (difficulty, darkMode) => {
   const map = {
-    Beginner:     darkMode ? "bg-green-900 text-green-200 border border-green-700"   : "bg-green-100 text-green-800",
+    Beginner: darkMode ? "bg-green-900 text-green-200 border border-green-700" : "bg-green-100 text-green-800",
     Intermediate: darkMode ? "bg-yellow-900 text-yellow-200 border border-yellow-700" : "bg-yellow-100 text-yellow-800",
-    Advanced:     darkMode ? "bg-red-900 text-red-200 border border-red-700"         : "bg-red-100 text-red-800",
+    Advanced: darkMode ? "bg-red-900 text-red-200 border border-red-700" : "bg-red-100 text-red-800",
   };
   return map[difficulty] || (darkMode ? "bg-slate-800 text-slate-300 border border-slate-600" : "bg-slate-100 text-slate-600");
 };
@@ -31,16 +31,16 @@ function CourseModal({ open, onClose, onSave, initial, isEditing, darkMode }) {
   const [errors, setErrors] = useState({});
   const titleId = "course-modal-title";
 
-  const cardBg    = darkMode ? "#0f1f3d" : "#ffffff";
-  const headingCol= darkMode ? "#f1f5f9" : "#111827";
-  const subCol    = darkMode ? "#94a3b8" : "#4b5563";
-  const inputBg   = darkMode ? "#0a1628" : "#ffffff";
+  const cardBg = darkMode ? "#0f1f3d" : "#ffffff";
+  const headingCol = darkMode ? "#f1f5f9" : "#111827";
+  const subCol = darkMode ? "#94a3b8" : "#4b5563";
+  const inputBg = darkMode ? "#0a1628" : "#ffffff";
   const inputText = darkMode ? "#f1f5f9" : "#1f2937";
   const borderCol = darkMode ? "#1a3a6b" : "#e2e8f0";
-  const labelCol  = darkMode ? "#94a3b8" : "#111827";
-  const cancelBg  = darkMode ? "transparent" : "#f9fafb";
+  const labelCol = darkMode ? "#94a3b8" : "#111827";
+  const cancelBg = darkMode ? "transparent" : "#f9fafb";
   const cancelBorder = darkMode ? "#1a3a6b" : "#e5e7eb";
-  const cancelText= darkMode ? "#94a3b8" : "#374151";
+  const cancelText = darkMode ? "#94a3b8" : "#374151";
 
   useEffect(() => { setForm(initial || emptyForm); setErrors({}); }, [initial, open]);
   useEffect(() => {
@@ -56,9 +56,9 @@ function CourseModal({ open, onClose, onSave, initial, isEditing, darkMode }) {
 
   const validate = () => {
     const e = {};
-    if (!form.title.trim())            e.title            = "Title is required.";
+    if (!form.title.trim()) e.title = "Title is required.";
     if (!form.shortDescription.trim()) e.shortDescription = "Short description is required.";
-    if (!form.description.trim())      e.description      = "Full description is required.";
+    if (!form.description.trim()) e.description = "Full description is required.";
     return e;
   };
 
@@ -188,14 +188,14 @@ function CourseModal({ open, onClose, onSave, initial, isEditing, darkMode }) {
 /* ─── Delete Confirm Modal ──────────────────────────────────────────────── */
 function DeleteModal({ open, onClose, onConfirm, title, darkMode }) {
   const titleId = "delete-modal-title";
-  const descId  = "delete-modal-desc";
-  const cardBg  = darkMode ? "#0f1f3d" : "#ffffff";
+  const descId = "delete-modal-desc";
+  const cardBg = darkMode ? "#0f1f3d" : "#ffffff";
   const headingCol = darkMode ? "#f1f5f9" : "#111827";
-  const bodyText   = darkMode ? "#cbd5e1" : "#6b7280";
-  const nameCol    = darkMode ? "#f1f5f9" : "#374151";
-  const cancelBg   = darkMode ? "transparent" : "#f9fafb";
+  const bodyText = darkMode ? "#cbd5e1" : "#6b7280";
+  const nameCol = darkMode ? "#f1f5f9" : "#374151";
+  const cancelBg = darkMode ? "transparent" : "#f9fafb";
   const cancelBorder = darkMode ? "#1a3a6b" : "#e5e7eb";
-  const cancelText   = darkMode ? "#94a3b8" : "#374151";
+  const cancelText = darkMode ? "#94a3b8" : "#374151";
 
   useEffect(() => {
     if (!open) return;
@@ -244,25 +244,25 @@ function DeleteModal({ open, onClose, onConfirm, title, darkMode }) {
 
 /* ─── Main Page ─────────────────────────────────────────────────────────── */
 export default function ManageCourses({ darkMode = false }) {
-  const [courses, setCourses]           = useState([...initialCourses]);
-  const [search, setSearch]             = useState("");
-  const [toast, setToast]               = useState({ text: "", type: "success" });
-  const [modalOpen, setModalOpen]       = useState(false);
-  const [editingCourse, setEditing]     = useState(null);
+  const [courses, setCourses] = useState([...initialCourses]);
+  const [search, setSearch] = useState("");
+  const [toast, setToast] = useState({ text: "", type: "success" });
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editingCourse, setEditing] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
 
   // ── Color tokens (exact match to your other pages) ──
-  const pageBg     = darkMode ? "#060f1e" : "#F4F8FD";
-  const cardBg     = darkMode ? "#0f1f3d" : "#ffffff";
+  const pageBg = darkMode ? "#060f1e" : "#F4F8FD";
+  const cardBg = darkMode ? "#0f1f3d" : "#ffffff";
   const cardBorder = darkMode ? "#1a3a6b" : "transparent";
   const headingCol = darkMode ? "#f1f5f9" : "#111827";
-  const subCol     = darkMode ? "#94a3b8" : "#4b5563";
-  const mutedCol   = darkMode ? "#64748b" : "#94a3b8";
-  const bodyText   = darkMode ? "#cbd5e1" : "#4b5563";
-  const inputBg    = darkMode ? "#0f1f3d" : "#ffffff";
-  const inputText  = darkMode ? "#f1f5f9" : "#1f2937";
-  const inputBorder= darkMode ? "#1a3a6b" : "transparent";
-  const countText  = darkMode ? "#94a3b8" : "#4b5563";
+  const subCol = darkMode ? "#94a3b8" : "#4b5563";
+  const mutedCol = darkMode ? "#64748b" : "#94a3b8";
+  const bodyText = darkMode ? "#cbd5e1" : "#4b5563";
+  const inputBg = darkMode ? "#0f1f3d" : "#ffffff";
+  const inputText = darkMode ? "#f1f5f9" : "#1f2937";
+  const inputBorder = darkMode ? "#1a3a6b" : "transparent";
+  const countText = darkMode ? "#94a3b8" : "#4b5563";
 
   const filteredCourses = useMemo(() => {
     const q = search.toLowerCase().trim();
@@ -278,9 +278,9 @@ export default function ManageCourses({ darkMode = false }) {
     return () => clearTimeout(t);
   }, [toast.text]);
 
-  const notify    = (text, type = "success") => setToast({ text, type });
-  const openAdd   = () => { setEditing(null); setModalOpen(true); };
-  const openEdit  = (course) => { setEditing(course); setModalOpen(true); };
+  const notify = (text, type = "success") => setToast({ text, type });
+  const openAdd = () => { setEditing(null); setModalOpen(true); };
+  const openEdit = (course) => { setEditing(course); setModalOpen(true); };
   const closeModal = () => setModalOpen(false);
 
   const handleSave = (form) => {
@@ -395,7 +395,7 @@ export default function ManageCourses({ darkMode = false }) {
         ) : (
           <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 list-none p-0" aria-label="Course catalog">
             {filteredCourses.map((course) => {
-              const diff = badge(course.difficulty, darkMode);              return (
+              const diff = badge(course.difficulty, darkMode); return (
                 <li key={course.id}>
                   <article
                     className="flex flex-col rounded-xl overflow-hidden h-full transition-all duration-300"

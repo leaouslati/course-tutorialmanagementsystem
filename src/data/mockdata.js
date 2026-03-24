@@ -621,22 +621,22 @@ export const courses = [
 
 // Modules
 export const modules = [
-	{ id: 'm1',  title: 'JavaScript Fundamentals', order: 1,  lessons: ['l1', 'l2'] },
-	{ id: 'm2',  title: 'React Introduction',      order: 2,  lessons: ['l3', 'l6'] },
-	{ id: 'm3',  title: 'CSS Mastery',             order: 3,  lessons: ['l4'] },
-	{ id: 'm4',  title: 'Node.js Basics',          order: 4,  lessons: ['l5'] },
-	{ id: 'm5',  title: 'Math Foundations',        order: 5,  lessons: ['l7', 'l8', 'l9'] },
-	{ id: 'm6',  title: 'English Basics',          order: 6,  lessons: ['l10', 'l11', 'l12'] },
-	{ id: 'm7',  title: 'Python Basics',           order: 7,  lessons: ['l13', 'l14', 'l15'] },
-	{ id: 'm8',  title: 'SQL Fundamentals',        order: 8,  lessons: ['l16', 'l17'] },
-	{ id: 'm9',  title: 'Git Essentials',          order: 9,  lessons: ['l18', 'l19'] },
-	{ id: 'm10', title: 'UI/UX Core Concepts',     order: 10, lessons: ['l20', 'l21', 'l22'] },
-	{ id: 'm11', title: 'Data Science Pipeline',   order: 11, lessons: ['l23', 'l24', 'l25'] },
-	{ id: 'm12', title: 'Responsive Layouts',      order: 12, lessons: ['l4', 'l22'] },
+	{ id: 'm1', title: 'JavaScript Fundamentals', order: 1, lessons: ['l1', 'l2'] },
+	{ id: 'm2', title: 'React Introduction', order: 2, lessons: ['l3', 'l6'] },
+	{ id: 'm3', title: 'CSS Mastery', order: 3, lessons: ['l4'] },
+	{ id: 'm4', title: 'Node.js Basics', order: 4, lessons: ['l5'] },
+	{ id: 'm5', title: 'Math Foundations', order: 5, lessons: ['l7', 'l8', 'l9'] },
+	{ id: 'm6', title: 'English Basics', order: 6, lessons: ['l10', 'l11', 'l12'] },
+	{ id: 'm7', title: 'Python Basics', order: 7, lessons: ['l13', 'l14', 'l15'] },
+	{ id: 'm8', title: 'SQL Fundamentals', order: 8, lessons: ['l16', 'l17'] },
+	{ id: 'm9', title: 'Git Essentials', order: 9, lessons: ['l18', 'l19'] },
+	{ id: 'm10', title: 'UI/UX Core Concepts', order: 10, lessons: ['l20', 'l21', 'l22'] },
+	{ id: 'm11', title: 'Data Science Pipeline', order: 11, lessons: ['l23', 'l24', 'l25'] },
+	{ id: 'm12', title: 'Responsive Layouts', order: 12, lessons: ['l4', 'l22'] },
 
 	// ── New modules (added only) ───────────────────────────────────────────────
-	{ id: 'm13', title: 'Numbers and Operations',  order: 13, lessons: ['l26', 'l27', 'l28'] },
-	{ id: 'm14', title: 'Equations and Data',      order: 14, lessons: ['l29', 'l30'] },
-	{ id: 'm15', title: 'Reading and Writing',     order: 15, lessons: ['l31', 'l32', 'l33'] },
-	{ id: 'm16', title: 'Grammar in Practice',     order: 16, lessons: ['l34', 'l35'] },
+	{ id: 'm13', title: 'Numbers and Operations', order: 13, lessons: ['l26', 'l27', 'l28'] },
+	{ id: 'm14', title: 'Equations and Data', order: 14, lessons: ['l29', 'l30'] },
+	{ id: 'm15', title: 'Reading and Writing', order: 15, lessons: ['l31', 'l32', 'l33'] },
+	{ id: 'm16', title: 'Grammar in Practice', order: 16, lessons: ['l34', 'l35'] },
 ];

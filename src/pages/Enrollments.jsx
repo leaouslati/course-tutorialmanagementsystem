@@ -7,7 +7,7 @@ import { useAuth } from "../pages/AuthContext";
 function Enrollments({ darkMode = false }) {
   const { currentUser } = useAuth();
 
-  const [enrolled,  setEnrolled]  = useState(
+  const [enrolled, setEnrolled] = useState(
     Array.isArray(currentUser?.enrolledCourses) ? currentUser.enrolledCourses : []
   );
   const [confirmId, setConfirmId] = useState(null);
@@ -57,17 +57,17 @@ function Enrollments({ darkMode = false }) {
 
   const confirmCourse = courses.find((c) => c.id === confirmId);
 
-  const pageBg      = darkMode ? "#060f1e" : "#F4F8FD";
-  const cardBg      = darkMode ? "#0f1f3d" : "#ffffff";
-  const cardBorder  = darkMode ? "#1a3a6b" : "transparent";
-  const headingCol  = darkMode ? "#f1f5f9" : "#111827";
-  const subCol      = darkMode ? "#94a3b8" : "#4b5563";
-  const mutedCol    = darkMode ? "#64748b" : "#94a3b8";
-  const bodyText    = darkMode ? "#cbd5e1" : "#4b5563";
-  const labelText   = darkMode ? "#94a3b8" : "#374151";
-  const dividerCol  = darkMode ? "#1a3a6b" : "#f1f5f9";
-  const progressBg  = darkMode ? "#1a3a6b" : "#e5e7eb";
-  const modalBg     = darkMode ? "#0f1f3d" : "#ffffff";
+  const pageBg = darkMode ? "#060f1e" : "#F4F8FD";
+  const cardBg = darkMode ? "#0f1f3d" : "#ffffff";
+  const cardBorder = darkMode ? "#1a3a6b" : "transparent";
+  const headingCol = darkMode ? "#f1f5f9" : "#111827";
+  const subCol = darkMode ? "#94a3b8" : "#4b5563";
+  const mutedCol = darkMode ? "#64748b" : "#94a3b8";
+  const bodyText = darkMode ? "#cbd5e1" : "#4b5563";
+  const labelText = darkMode ? "#94a3b8" : "#374151";
+  const dividerCol = darkMode ? "#1a3a6b" : "#f1f5f9";
+  const progressBg = darkMode ? "#1a3a6b" : "#e5e7eb";
+  const modalBg = darkMode ? "#0f1f3d" : "#ffffff";
   const modalBorder = darkMode ? "#1a3a6b" : "#f1f5f9";
 
   return (
@@ -200,11 +200,11 @@ function Enrollments({ darkMode = false }) {
             aria-label="Enrolled courses"
           >
             {enrolledCourses.map((course) => {
-              const progress    = computeProgress(course);
-              const lessons     = countLessons(course);
-              const status      = getStatus(progress);
-              const remaining   = Math.round(course.duration * (1 - progress / 100));
-              const barColor    = progress === 100 ? "#22C55E" : "#1976D2";
+              const progress = computeProgress(course);
+              const lessons = countLessons(course);
+              const status = getStatus(progress);
+              const remaining = Math.round(course.duration * (1 - progress / 100));
+              const barColor = progress === 100 ? "#22C55E" : "#1976D2";
               const actionLabel = progress === 100 ? "Review" : progress > 0 ? "Continue" : "Start";
               const moduleCount = Array.isArray(course.modules) ? course.modules.length : 0;
 

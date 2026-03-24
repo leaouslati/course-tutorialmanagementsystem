@@ -20,11 +20,11 @@ const LessonModal = ({ lesson, moduleName, onClose, darkMode }) => {
       'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
     );
     const first = focusable[0];
-    const last  = focusable[focusable.length - 1];
-    const trap  = (e) => {
+    const last = focusable[focusable.length - 1];
+    const trap = (e) => {
       if (e.key !== "Tab") return;
       if (e.shiftKey) { if (document.activeElement === first) { e.preventDefault(); last.focus(); } }
-      else            { if (document.activeElement === last)  { e.preventDefault(); first.focus(); } }
+      else { if (document.activeElement === last) { e.preventDefault(); first.focus(); } }
     };
     el.addEventListener("keydown", trap);
     first?.focus();
@@ -128,8 +128,8 @@ const StatusCircle = ({ completed, locked, darkMode }) => (
       backgroundColor: completed
         ? "#22c55e"
         : locked
-        ? darkMode ? "#1a3a6b" : "#f1f5f9"
-        : darkMode ? "#0f1f3d" : "#ffffff",
+          ? darkMode ? "#1a3a6b" : "#f1f5f9"
+          : darkMode ? "#0f1f3d" : "#ffffff",
     }}
   >
     {completed && (
@@ -149,14 +149,14 @@ const StatusCircle = ({ completed, locked, darkMode }) => (
 const ModuleAccordion = ({ modules = [], enrolled = false, courseId, darkMode = false }) => {
   const { updateProgress } = useAuth();
 
-  const [openModule,    setOpenModule]    = useState(null);
-  const [activeLesson,  setActiveLesson]  = useState(null);
+  const [openModule, setOpenModule] = useState(null);
+  const [activeLesson, setActiveLesson] = useState(null);
   const [activeModName, setActiveModName] = useState("");
-  const [completed,     setCompleted]     = useState({});
+  const [completed, setCompleted] = useState({});
 
   const totalLessons = modules.reduce((sum, m) => sum + (m.lessons?.length ?? 0), 0);
-  const isCompleted  = (lessonId) => !!completed[lessonId];
-  const isUnlocked   = (lessons, index) => index === 0 || isCompleted(lessons[index - 1].id);
+  const isCompleted = (lessonId) => !!completed[lessonId];
+  const isUnlocked = (lessons, index) => index === 0 || isCompleted(lessons[index - 1].id);
   const toggleModule = (id) => setOpenModule((prev) => (prev === id ? null : id));
 
   const openLesson = (lesson, moduleName) => {
@@ -185,23 +185,23 @@ const ModuleAccordion = ({ modules = [], enrolled = false, courseId, darkMode = 
     );
   }
 
-  const wrapperBorder  = darkMode ? "#1a3a6b"  : "#bfdbfe";  
-  const accordionBg    = darkMode ? "#192e55"  : "#F4F8FD";   
-  const lessonListBg   = darkMode ? "#0a1628"  : "#ffffff";   
-  const lessonBorder   = darkMode ? "#1a3a6b"  : "#f1f5f9";  
-  const listTopBorder  = darkMode ? "#1a3a6b"  : "#dbeafe";   
-  const moduleTitle    = darkMode ? "#f1f5f9"  : "#0f172a";
-  const lessonText     = darkMode ? "#cbd5e1"  : "#334155";
-  const mutedText      = darkMode ? "#94a3b8"  : "#94a3b8";
+  const wrapperBorder = darkMode ? "#1a3a6b" : "#bfdbfe";
+  const accordionBg = darkMode ? "#192e55" : "#F4F8FD";
+  const lessonListBg = darkMode ? "#0a1628" : "#ffffff";
+  const lessonBorder = darkMode ? "#1a3a6b" : "#f1f5f9";
+  const listTopBorder = darkMode ? "#1a3a6b" : "#dbeafe";
+  const moduleTitle = darkMode ? "#f1f5f9" : "#0f172a";
+  const lessonText = darkMode ? "#cbd5e1" : "#334155";
+  const mutedText = darkMode ? "#94a3b8" : "#94a3b8";
 
   return (
     <>
       <section aria-label="Course modules" className="flex flex-col gap-2.5">
         {modules.map((module, index) => {
-          const isOpen      = openModule === module.id;
+          const isOpen = openModule === module.id;
           const lessonCount = module.lessons?.length ?? 0;
-          const headingId   = `module-heading-${module.id}`;
-          const panelId     = `module-panel-${module.id}`;
+          const headingId = `module-heading-${module.id}`;
+          const panelId = `module-panel-${module.id}`;
 
           return (
             <div
@@ -268,9 +268,9 @@ const ModuleAccordion = ({ modules = [], enrolled = false, courseId, darkMode = 
                 >
                   {module.lessons?.length > 0 ? (
                     module.lessons.map((lesson, lessonIndex) => {
-                      const isDone   = isCompleted(lesson.id);
+                      const isDone = isCompleted(lesson.id);
                       const unlocked = isUnlocked(module.lessons, lessonIndex);
-                      const locked   = enrolled && !unlocked;
+                      const locked = enrolled && !unlocked;
 
                       return (
                         <li
@@ -286,8 +286,8 @@ const ModuleAccordion = ({ modules = [], enrolled = false, courseId, darkMode = 
                                 color: isDone
                                   ? "#94a3b8"
                                   : locked
-                                  ? "#94a3b8"
-                                  : lessonText,
+                                    ? "#94a3b8"
+                                    : lessonText,
                                 textDecoration: isDone ? "line-through" : "none",
                               }}
                             >
@@ -335,9 +335,9 @@ const ModuleAccordion = ({ modules = [], enrolled = false, courseId, darkMode = 
                                   className="min-h-[44px] px-3 sm:px-4 text-xs sm:text-sm font-medium text-white rounded-lg shadow transition focus:outline-none whitespace-nowrap"
                                   style={{ backgroundColor: isDone ? "#22c55e" : "#1976D2" }}
                                   onMouseEnter={(e) =>
-                                    (e.currentTarget.style.backgroundColor = isDone
-                                      ? "#16a34a"
-                                      : darkMode ? "#1565C0" : "#2196F3")
+                                  (e.currentTarget.style.backgroundColor = isDone
+                                    ? "#16a34a"
+                                    : darkMode ? "#1565C0" : "#2196F3")
                                   }
                                   onMouseLeave={(e) =>
                                     (e.currentTarget.style.backgroundColor = isDone ? "#22c55e" : "#1976D2")

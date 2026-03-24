@@ -22,8 +22,8 @@ const toastStyle = `
 `;
 
 export default function CourseDetails({ darkMode = false }) {
-  const { id }         = useParams();
-  const navigate       = useNavigate();
+  const { id } = useParams();
+  const navigate = useNavigate();
   const { currentUser, login } = useAuth();
 
   const course = courses.find(c => c.id.toString() === id);
@@ -31,9 +31,9 @@ export default function CourseDetails({ darkMode = false }) {
   const enrolledIds = Array.isArray(currentUser?.enrolledCourses)
     ? currentUser.enrolledCourses : [];
 
-  const [enrolled,  setEnrolled]  = useState(() => enrolledIds.includes(course?.id));
+  const [enrolled, setEnrolled] = useState(() => enrolledIds.includes(course?.id));
   const [showPopup, setShowPopup] = useState(false);
-  const [saved,     setSaved]     = useState(false);
+  const [saved, setSaved] = useState(false);
 
   if (!course) {
     return (
@@ -60,7 +60,7 @@ export default function CourseDetails({ darkMode = false }) {
     );
   }
 
-  const instructor    = users.find(u => u.id === course.instructorId);
+  const instructor = users.find(u => u.id === course.instructorId);
   const courseModules = (course.modules || [])
     .map(mid => {
       const mod = modules.find(m => m.id === mid);
@@ -98,24 +98,24 @@ export default function CourseDetails({ darkMode = false }) {
   };
 
   const detailStats = [
-    { icon: <Layers        className="w-4 h-4 text-[#1976D2]" />, label: "Modules",  value: totalModules },
-    { icon: <FileText      className="w-4 h-4 text-[#1976D2]" />, label: "Lessons",  value: totalLessons },
-    { icon: <Tag           className="w-4 h-4 text-[#1976D2]" />, label: "Category", value: course.category || "General" },
-    { icon: <GraduationCap className="w-4 h-4 text-[#1976D2]" />, label: "Level",    value: course.difficulty },
+    { icon: <Layers className="w-4 h-4 text-[#1976D2]" />, label: "Modules", value: totalModules },
+    { icon: <FileText className="w-4 h-4 text-[#1976D2]" />, label: "Lessons", value: totalLessons },
+    { icon: <Tag className="w-4 h-4 text-[#1976D2]" />, label: "Category", value: course.category || "General" },
+    { icon: <GraduationCap className="w-4 h-4 text-[#1976D2]" />, label: "Level", value: course.difficulty },
   ];
 
   // ── shared color tokens (match CourseCard dark palette) ──────────────────
-  const pageBg    = darkMode ? "#060f1e"  : "#F4F8FD";
-  const cardBg    = darkMode ? "#0f1f3d"  : "#ffffff";
-  const cardBorder= darkMode ? "#1a3a6b"  : "#e5e7eb";
-  const statTileBg= darkMode ? "#0a1628"  : "#F4F8FD";
-  const statBorder= darkMode ? "#1a3a6b"  : "#f1f5f9";
-  const headingCol= darkMode ? "#f1f5f9"  : "#111827";
-  const subCol    = darkMode ? "#94a3b8"  : "#6b7280";
-  const bodyText  = darkMode ? "#cbd5e1"  : "#4b5563";
-  const divider   = darkMode ? "#1a3a6b"  : "#f1f5f9";
-  const backLink  = darkMode ? "#94a3b8"  : "#6b7280";
-  const iconTileBg= darkMode ? "rgba(25,118,210,0.15)" : "#E3F2FD";
+  const pageBg = darkMode ? "#060f1e" : "#F4F8FD";
+  const cardBg = darkMode ? "#0f1f3d" : "#ffffff";
+  const cardBorder = darkMode ? "#1a3a6b" : "#e5e7eb";
+  const statTileBg = darkMode ? "#0a1628" : "#F4F8FD";
+  const statBorder = darkMode ? "#1a3a6b" : "#f1f5f9";
+  const headingCol = darkMode ? "#f1f5f9" : "#111827";
+  const subCol = darkMode ? "#94a3b8" : "#6b7280";
+  const bodyText = darkMode ? "#cbd5e1" : "#4b5563";
+  const divider = darkMode ? "#1a3a6b" : "#f1f5f9";
+  const backLink = darkMode ? "#94a3b8" : "#6b7280";
+  const iconTileBg = darkMode ? "rgba(25,118,210,0.15)" : "#E3F2FD";
 
   return (
     <>
@@ -148,7 +148,7 @@ export default function CourseDetails({ darkMode = false }) {
           >
             {saved
               ? <BookmarkCheck size={17} className="text-white" aria-hidden="true" />
-              : <Bookmark      size={17} className="text-white" aria-hidden="true" />}
+              : <Bookmark size={17} className="text-white" aria-hidden="true" />}
           </button>
         </div>
 
@@ -257,8 +257,8 @@ export default function CourseDetails({ darkMode = false }) {
                   disabled={enrolled}
                   aria-label={
                     !currentUser ? "Log in to enroll in this course"
-                    : enrolled    ? `Already enrolled in ${course.title}`
-                    : `Enroll in ${course.title}`
+                      : enrolled ? `Already enrolled in ${course.title}`
+                        : `Enroll in ${course.title}`
                   }
                   className="mt-auto w-full py-3 rounded-xl text-white font-semibold text-sm shadow transition-all duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 disabled:cursor-not-allowed disabled:opacity-80"
                   style={{ backgroundColor: enrolled ? "#22c55e" : "#1976D2" }}

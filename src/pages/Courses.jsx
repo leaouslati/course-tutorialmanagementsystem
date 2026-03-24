@@ -8,11 +8,11 @@ import { useAuth } from "../pages/AuthContext";
 function Courses({ darkMode = false }) {
   const { currentUser } = useAuth();
   const [searchParams] = useSearchParams();
-  const [search,      setSearch]      = useState("");
-  const [sortRating,  setSortRating]  = useState("");
-  const [sortTime,    setSortTime]    = useState("");
-  const [difficulty,  setDifficulty]  = useState("");
-  const [category,    setCategory]    = useState("");
+  const [search, setSearch] = useState("");
+  const [sortRating, setSortRating] = useState("");
+  const [sortTime, setSortTime] = useState("");
+  const [difficulty, setDifficulty] = useState("");
+  const [category, setCategory] = useState("");
 
   useEffect(() => {
     const cat = searchParams.get("category");
@@ -28,16 +28,16 @@ function Courses({ darkMode = false }) {
   };
 
 
-  const pageBg       = darkMode ? "#060f1e" : "#F4F8FD";
-  const cardBg       = darkMode ? "#0f1f3d" : "#ffffff";
-  const cardBorder   = darkMode ? "#1a3a6b" : "transparent";
-  const headingCol   = darkMode ? "#f1f5f9" : "#111827";
-  const subCol       = darkMode ? "#94a3b8" : "#4b5563";
-  const inputText    = darkMode ? "#f1f5f9" : "#1f2937";
+  const pageBg = darkMode ? "#060f1e" : "#F4F8FD";
+  const cardBg = darkMode ? "#0f1f3d" : "#ffffff";
+  const cardBorder = darkMode ? "#1a3a6b" : "transparent";
+  const headingCol = darkMode ? "#f1f5f9" : "#111827";
+  const subCol = darkMode ? "#94a3b8" : "#4b5563";
+  const inputText = darkMode ? "#f1f5f9" : "#1f2937";
   const inputPlaceholder = darkMode ? "#64748b" : "#9ca3af";
-  const countText    = darkMode ? "#94a3b8" : "#4b5563";
+  const countText = darkMode ? "#94a3b8" : "#4b5563";
 
- 
+
   const btnBase = {
     backgroundColor: cardBg,
     color: darkMode ? "#94a3b8" : "#424242",
@@ -57,12 +57,12 @@ function Courses({ darkMode = false }) {
   let filteredCourses = courses.filter((c) =>
     c.title.toLowerCase().includes(search.toLowerCase())
   );
-  if (difficulty)        filteredCourses = filteredCourses.filter((c) => c.difficulty === difficulty);
-  if (category)          filteredCourses = filteredCourses.filter((c) => c.category === category);
-  if (sortRating === "asc")  filteredCourses = [...filteredCourses].sort((a, b) => a.rating - b.rating);
+  if (difficulty) filteredCourses = filteredCourses.filter((c) => c.difficulty === difficulty);
+  if (category) filteredCourses = filteredCourses.filter((c) => c.category === category);
+  if (sortRating === "asc") filteredCourses = [...filteredCourses].sort((a, b) => a.rating - b.rating);
   if (sortRating === "desc") filteredCourses = [...filteredCourses].sort((a, b) => b.rating - a.rating);
-  if (sortTime === "asc")    filteredCourses = [...filteredCourses].sort((a, b) => a.duration - b.duration);
-  if (sortTime === "desc")   filteredCourses = [...filteredCourses].sort((a, b) => b.duration - a.duration);
+  if (sortTime === "asc") filteredCourses = [...filteredCourses].sort((a, b) => a.duration - b.duration);
+  if (sortTime === "desc") filteredCourses = [...filteredCourses].sort((a, b) => b.duration - a.duration);
 
   return (
     <div

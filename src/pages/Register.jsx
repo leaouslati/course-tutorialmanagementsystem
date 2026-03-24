@@ -9,22 +9,22 @@ export default function Register({ darkMode = false }) {
   const { login } = useAuth();
   const [form, setForm] = useState({ name: "", email: "", password: "", confirm: "", role: "" });
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirm,  setShowConfirm]  = useState(false);
-  const [errors,  setErrors]  = useState({});
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [errors, setErrors] = useState({});
   const [success, setSuccess] = useState(false);
 
   // ── color tokens ──────────────────────────────────────────────────────
-  const cardBg      = darkMode ? "#0f1f3d" : "#ffffff";
-  const cardBorder  = darkMode ? "#1a3a6b" : "rgba(255,255,255,0.2)";
-  const headingCol  = "#ffffff";
-  const subCol      = darkMode ? "#94a3b8" : "#bfdbfe";
-  const labelCol    = darkMode ? "#94a3b8" : "#475569";
-  const inputBg     = darkMode ? "#0a1628" : "#ffffff";
-  const inputText   = darkMode ? "#f1f5f9" : "#1e293b";
+  const cardBg = darkMode ? "#0f1f3d" : "#ffffff";
+  const cardBorder = darkMode ? "#1a3a6b" : "rgba(255,255,255,0.2)";
+  const headingCol = "#ffffff";
+  const subCol = darkMode ? "#94a3b8" : "#bfdbfe";
+  const labelCol = darkMode ? "#94a3b8" : "#475569";
+  const inputBg = darkMode ? "#0a1628" : "#ffffff";
+  const inputText = darkMode ? "#f1f5f9" : "#1e293b";
   const inputBorder = darkMode ? "#1a3a6b" : "#cbd5e1";
-  const iconCol     = darkMode ? "#64748b" : "#94a3b8";
-  const footerCol   = darkMode ? "#64748b" : "#bfdbfe";
-  const linkSubCol  = darkMode ? "#64748b" : "#64748b";
+  const iconCol = darkMode ? "#64748b" : "#94a3b8";
+  const footerCol = darkMode ? "#64748b" : "#bfdbfe";
+  const linkSubCol = darkMode ? "#64748b" : "#64748b";
 
   const heroBg = darkMode
     ? "linear-gradient(135deg, #020b18 0%, #041530 25%, #0a2550 50%, #0d3272 65%, #1048a0 85%, #1565C0 100%)"
@@ -37,17 +37,17 @@ export default function Register({ darkMode = false }) {
 
   const validate = () => {
     const e = {};
-    if (!form.name.trim())               e.name     = "Full name is required.";
-    else if (form.name.trim().length < 2) e.name    = "Name must be at least 2 characters.";
-    if (!form.email.trim())              e.email    = "Email is required.";
+    if (!form.name.trim()) e.name = "Full name is required.";
+    else if (form.name.trim().length < 2) e.name = "Name must be at least 2 characters.";
+    if (!form.email.trim()) e.email = "Email is required.";
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = "Enter a valid email address.";
-    if (!form.password)                  e.password = "Password is required.";
-    else if (form.password.length < 8)   e.password = "Password must be at least 8 characters.";
+    if (!form.password) e.password = "Password is required.";
+    else if (form.password.length < 8) e.password = "Password must be at least 8 characters.";
     else if (!/[A-Za-z]/.test(form.password) || !/[0-9]/.test(form.password))
       e.password = "Password must include letters and numbers.";
-    if (!form.confirm)                   e.confirm  = "Please confirm your password.";
+    if (!form.confirm) e.confirm = "Please confirm your password.";
     else if (form.confirm !== form.password) e.confirm = "Passwords do not match.";
-    if (!form.role)                      e.role     = "Please select a role.";
+    if (!form.role) e.role = "Please select a role.";
     return e;
   };
 
@@ -303,8 +303,8 @@ export default function Register({ darkMode = false }) {
                 </legend>
                 <div className="grid grid-cols-2 gap-3 mt-1">
                   {[
-                    { value: "student",    label: "Student",    icon: <GraduationCap className="w-5 h-5" />, sub: "I want to learn" },
-                    { value: "instructor", label: "Instructor", icon: <BookOpen      className="w-5 h-5" />, sub: "I want to teach" },
+                    { value: "student", label: "Student", icon: <GraduationCap className="w-5 h-5" />, sub: "I want to learn" },
+                    { value: "instructor", label: "Instructor", icon: <BookOpen className="w-5 h-5" />, sub: "I want to teach" },
                   ].map(({ value, label, icon, sub }) => {
                     const isSelected = form.role === value;
                     return (

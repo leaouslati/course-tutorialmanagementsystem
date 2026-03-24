@@ -6,26 +6,26 @@ import { useAuth } from "./AuthContext";
 
 /* ─── Forgot Password Modal ───────────────────────────────────────────── */
 function ForgotPasswordModal({ onClose, darkMode }) {
-  const [step,      setStep]      = useState("email");
-  const [email,     setEmail]     = useState("");
-  const [emailError,setEmailError]= useState("");
-  const [newPw,     setNewPw]     = useState("");
+  const [step, setStep] = useState("email");
+  const [email, setEmail] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [newPw, setNewPw] = useState("");
   const [confirmPw, setConfirmPw] = useState("");
-  const [showNew,   setShowNew]   = useState(false);
-  const [showConfirm,setShowConfirm]=useState(false);
-  const [pwErrors,  setPwErrors]  = useState({});
-  const [done,      setDone]      = useState(false);
+  const [showNew, setShowNew] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [pwErrors, setPwErrors] = useState({});
+  const [done, setDone] = useState(false);
 
   // color tokens
-  const modalBg     = darkMode ? "#0f1f3d" : "#ffffff";
+  const modalBg = darkMode ? "#0f1f3d" : "#ffffff";
   const modalBorder = darkMode ? "#1a3a6b" : "#f1f5f9";
-  const headingCol  = darkMode ? "#f1f5f9" : "#0f172a";
-  const bodyText    = darkMode ? "#94a3b8" : "#64748b";
-  const labelCol    = darkMode ? "#94a3b8" : "#475569";
-  const inputBg     = darkMode ? "#0a1628" : "#ffffff";
-  const inputText   = darkMode ? "#f1f5f9" : "#1e293b";
+  const headingCol = darkMode ? "#f1f5f9" : "#0f172a";
+  const bodyText = darkMode ? "#94a3b8" : "#64748b";
+  const labelCol = darkMode ? "#94a3b8" : "#475569";
+  const inputBg = darkMode ? "#0a1628" : "#ffffff";
+  const inputText = darkMode ? "#f1f5f9" : "#1e293b";
   const inputBorder = darkMode ? "#1a3a6b" : "#cbd5e1";
-  const iconCol     = darkMode ? "#64748b" : "#94a3b8";
+  const iconCol = darkMode ? "#64748b" : "#94a3b8";
 
   const EyeBtn = ({ show, onToggle, label }) => (
     <button
@@ -40,19 +40,19 @@ function ForgotPasswordModal({ onClose, darkMode }) {
   );
 
   const handleEmailSubmit = () => {
-    if (!email.trim())                              { setEmailError("Email is required."); return; }
+    if (!email.trim()) { setEmailError("Email is required."); return; }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setEmailError("Enter a valid email address."); return; }
-    if (!users.find(u => u.email === email))        { setEmailError("No account found with this email."); return; }
+    if (!users.find(u => u.email === email)) { setEmailError("No account found with this email."); return; }
     setEmailError("");
     setStep("reset");
   };
 
   const handleReset = () => {
     const e = {};
-    if (!newPw)                 e.newPw     = "Password is required.";
-    else if (newPw.length < 8)  e.newPw     = "Password must be at least 8 characters.";
+    if (!newPw) e.newPw = "Password is required.";
+    else if (newPw.length < 8) e.newPw = "Password must be at least 8 characters.";
     else if (!/[A-Za-z]/.test(newPw) || !/[0-9]/.test(newPw)) e.newPw = "Must include letters and numbers.";
-    if (!confirmPw)             e.confirmPw = "Please confirm your password.";
+    if (!confirmPw) e.confirmPw = "Please confirm your password.";
     else if (confirmPw !== newPw) e.confirmPw = "Passwords do not match.";
     if (Object.keys(e).length > 0) { setPwErrors(e); return; }
     localStorage.setItem(`pw_override_${email}`, newPw);
@@ -259,31 +259,31 @@ function ForgotPasswordModal({ onClose, darkMode }) {
 
 /* ─── Login Page ──────────────────────────────────────────────────────── */
 export default function Login({ darkMode = false }) {
-  const navigate  = useNavigate();
-  const location  = useLocation();
+  const navigate = useNavigate();
+  const location = useLocation();
   const { login } = useAuth();
 
-  const [form,         setForm]         = useState({ email: "", password: "" });
+  const [form, setForm] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
-  const [errors,       setErrors]       = useState({});
-  const [authError,    setAuthError]    = useState("");
-  const [rememberMe,   setRememberMe]   = useState(false);
-  const [success,      setSuccess]      = useState(false);
-  const [loading,      setLoading]      = useState(false);
-  const [showForgot,   setShowForgot]   = useState(false);
+  const [errors, setErrors] = useState({});
+  const [authError, setAuthError] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [showForgot, setShowForgot] = useState(false);
 
   // color tokens
-  const cardBg      = darkMode ? "#0f1f3d"  : "#ffffff";
-  const cardBorder  = darkMode ? "#1a3a6b"  : "rgba(255,255,255,0.2)";
-  const headingCol  = darkMode ? "#f1f5f9"  : "#ffffff";
-  const subCol      = darkMode ? "#94a3b8"  : "#bfdbfe";
-  const labelCol    = darkMode ? "#94a3b8"  : "#475569";
-  const inputBg     = darkMode ? "#0a1628"  : "#ffffff";
-  const inputText   = darkMode ? "#f1f5f9"  : "#1e293b";
-  const inputBorder = darkMode ? "#1a3a6b"  : "#cbd5e1";
-  const iconCol     = darkMode ? "#64748b"  : "#94a3b8";
-  const checkboxCol = darkMode ? "#94a3b8"  : "#475569";
-  const footerCol   = darkMode ? "#64748b"  : "#bfdbfe";
+  const cardBg = darkMode ? "#0f1f3d" : "#ffffff";
+  const cardBorder = darkMode ? "#1a3a6b" : "rgba(255,255,255,0.2)";
+  const headingCol = darkMode ? "#f1f5f9" : "#ffffff";
+  const subCol = darkMode ? "#94a3b8" : "#bfdbfe";
+  const labelCol = darkMode ? "#94a3b8" : "#475569";
+  const inputBg = darkMode ? "#0a1628" : "#ffffff";
+  const inputText = darkMode ? "#f1f5f9" : "#1e293b";
+  const inputBorder = darkMode ? "#1a3a6b" : "#cbd5e1";
+  const iconCol = darkMode ? "#64748b" : "#94a3b8";
+  const checkboxCol = darkMode ? "#94a3b8" : "#475569";
+  const footerCol = darkMode ? "#64748b" : "#bfdbfe";
 
   const heroBg = darkMode
     ? "linear-gradient(135deg, #020b18 0%, #041530 25%, #0a2550 50%, #0d3272 65%, #1048a0 85%, #1565C0 100%)"
@@ -314,10 +314,10 @@ export default function Login({ darkMode = false }) {
 
   const validate = () => {
     const e = {};
-    if (!form.email.trim())                                   e.email    = "Email is required.";
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email    = "Enter a valid email address.";
-    if (!form.password)                                       e.password = "Password is required.";
-    else if (form.password.length < 8)                        e.password = "Password must be at least 8 characters.";
+    if (!form.email.trim()) e.email = "Email is required.";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = "Enter a valid email address.";
+    if (!form.password) e.password = "Password is required.";
+    else if (form.password.length < 8) e.password = "Password must be at least 8 characters.";
     return e;
   };
 

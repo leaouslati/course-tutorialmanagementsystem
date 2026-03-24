@@ -7,21 +7,21 @@ function CourseCard({ course, darkMode = false }) {
   const instructor = users.find((user) => user.id === course.instructorId);
   const isNew = new Date() - new Date(course.createdAt) < 1000 * 60 * 60 * 24 * 90;
 
-  const cardBg     = darkMode ? "#0f1f3d" : "#ffffff";
+  const cardBg = darkMode ? "#0f1f3d" : "#ffffff";
   const cardBorder = darkMode ? "#1a3a6b" : "#e5e7eb";
   const headingColor = darkMode ? "#f1f5f9" : "#111827";
-  const subColor   = darkMode ? "#94a3b8" : "#6b7280";
-  const bodyText   = darkMode ? "#cbd5e1" : "#4b5563";
-  const statColor  = darkMode ? "#94a3b8" : "#6b7280";
+  const subColor = darkMode ? "#94a3b8" : "#6b7280";
+  const bodyText = darkMode ? "#cbd5e1" : "#4b5563";
+  const statColor = darkMode ? "#94a3b8" : "#6b7280";
 
 
   const difficultyColors = {
-    Beginner:     darkMode ? "bg-green-900 text-green-200 border border-green-700"   : "bg-green-100 text-green-800",
+    Beginner: darkMode ? "bg-green-900 text-green-200 border border-green-700" : "bg-green-100 text-green-800",
     Intermediate: darkMode ? "bg-yellow-900 text-yellow-200 border border-yellow-700" : "bg-yellow-100 text-yellow-800",
-    Advanced:     darkMode ? "bg-red-900 text-red-200 border border-red-700"         : "bg-red-100 text-red-800",
+    Advanced: darkMode ? "bg-red-900 text-red-200 border border-red-700" : "bg-red-100 text-red-800",
   };
 
-  const newBadge  = darkMode
+  const newBadge = darkMode
     ? "bg-[#0f1f3d] text-blue-200 border border-[#1a3a6b]"
     : "bg-white/90 text-gray-800";
 
