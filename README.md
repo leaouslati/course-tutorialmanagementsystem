@@ -68,7 +68,13 @@ Access the live application here:  add link
 ### Member 3: Intissar Souleiman
 
 ### Member 4: Reem Nassif
-
+- Responsible for: Register Page & Manage Courses Page
+- Contributions:
+   - Designed and implemented the user registration form with input validation and role selection.
+   - Integrated authentication logic with automatic login and navigation after successful registration.
+   - Developed the Manage Courses page with full CRUD functionality (add, edit, delete courses).
+   - Implemented search and dynamic updates to manage courses efficiently within the interface. 
+   - Integrated advanced features such as user authentication, role management, and dynamic course handling.
 
 ## Mock Data Explanation 
 - Responsible for: Creating mock data for users, courses, modules, and lessons.
