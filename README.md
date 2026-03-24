@@ -51,7 +51,7 @@ Access the live application here: [https://course-tutorialmanagementsystem-qwlvy
 ### Homepage in Dark Mode
 ![Homepage in Dark Mode](./screenshots/homepage-dark-mode.png)
 
-### Course page filterng searching and checking courses
+### Course page filtering searching and checking courses
 ![Course Page](./screenshots/Course-page.png)
 
 ### Enrollments page
@@ -112,34 +112,38 @@ Access the live application here: [https://course-tutorialmanagementsystem-qwlvy
 ### Member 3: Intissar Soulaiman
 - Responsible for: Navbar, Profile Page, and Enrollments Page.
 - Contributions:
-   - Built the Navbar component and organized it inside the components folder, including the navigation menu, page links, and theme toggle button. Also updated it so the Enrollments link only appears when the user is logged in.
+   - Built the Navbar component and organized it inside the components folder, including the navigation menu, page links, and theme toggle button. Also updated it so the Enrollments link only appears when the student is logged in, and Manage Courses when the instructor is logged in .
+  
    - Designed and implemented the Profile Page with user information, quick actions, badges, ID card modal, and edit profile modal. Added responsive layouts so the page works well on mobile, tablet, and desktop screens.
+     
    - Developed the Enrollments Page to display each student’s enrolled courses with progress bars, course status, module and lesson counts, and continue actions. Also added unenroll confirmation handling and responsive card layouts
+     
    - Expanded and structured the mock data in mockdata.js by adding more courses, users, lessons, and modules, with different progress values to make testing more realistic and to support dynamic rendering across the app.
+     
    - Continuously tested the pages during development to make sure the layouts, navigation, and course data were working correctly.
 
 ### Member 4: Reem Nassif
 - Responsible for: Register Page & Manage Courses Page
 - Contributions:
    - Designed and implemented the user registration form with input validation and role selection.
-   - Integrated authentication logic with automatic login and navigation after successful registration.
-   - Developed the Manage Courses page with full CRUD functionality (add, edit, delete courses).
-   - Implemented search and dynamic updates to manage courses efficiently within the interface. 
+     
+   - Integrated authentication logic with automatic login and navigation after successful registration
+     
+   - Developed the Manage Courses page with full CRUD functionality (add, edit, delete courses)
+     
+   - Implemented search and dynamic updates to manage courses efficiently within the interface.
+     
    - Integrated advanced features such as user authentication, role management, and dynamic course handling.
 
 ## Mock Data Explanation 
-- Responsible for: Creating mock data for users, courses, modules, and lessons.
-- Users:
-   - Includes students and instructors with unique IDs, names, emails, roles, and avatars.
-   - Tracks enrolled courses, created courses (for instructors), progress in courses, and join dates.
-- Lessons:
-   - Each lesson has an ID, title, content description, duration (minutes), and a video URL.
-   - Covers programming, web development, design, math, and language topics.
-- Courses:
-   - Each course includes ID, title, short and full descriptions, instructor, category, difficulty, image, duration, rating, student count, and associated modules.
-   - Designed to support course listing, filtering, searching, and detailed views.
-- Modules:
-   - Modules group lessons together, with a unique ID, title, order, and a list of lesson IDs.
-   - Examples: JavaScript Fundamentals, React Introduction, CSS Mastery, Node.js Basics, Math Foundations, English Basics.
-- Purpose:
-   - Provides structured, realistic data for testing and development of CourseCard, CourseDetails, Courses pages, and module/lesson functionality.
+- Mock data is used to simulate user login and determine whether the user is a student or instructor.
+  
+- It allows dynamic display of courses, modules, and lessons across different pages.
+  
+- User progress and enrollments are updated using mock data to simulate real learning interactions.
+  
+- Course data enables searching, filtering, and navigation without a backend.
+  
+- Manage Courses uses mock data to simulate adding, editing, and deleting courses.
+  
+- All interactions are handled locally in mockdata.js to mimic a real course management system during development and testing.
