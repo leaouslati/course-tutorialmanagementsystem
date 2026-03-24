@@ -96,10 +96,10 @@ function FeatureCard({ feature, darkMode }) {
                 <span className="text-[9px] text-slate-400 select-none flex-shrink-0">tap to flip</span>
               </div>
             ) : (
-              <ul className="space-y-1.5 w-full h-full overflow-y-auto flex flex-col items-center justify-center">
-                {feature.backDesc.split("|").map((item, idx) => (
-                  <li key={idx} className="flex items-center gap-2 justify-center">
-                    <span className="text-[#1976D2] flex-shrink-0 mt-0.5 text-xs" aria-hidden="true">✔</span>
+             <ul className="space-y-1.5 w-full h-full overflow-y-auto flex flex-col items-start justify-center px-3">
+  {feature.backDesc.split("|").map((item, idx) => (
+    <li key={idx} className="flex items-center gap-2">
+      <span className="text-[#1976D2] flex-shrink-0 text-xs" aria-hidden="true">✔</span>
                     <span className={`text-xs font-medium leading-snug ${darkMode ? "text-slate-300" : "text-gray-700"}`}>
                       {item.trim()}
                     </span>
