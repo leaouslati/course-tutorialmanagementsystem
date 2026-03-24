@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { courses, users, modules } from "../data/mockdata.js";
+import { courses, users, modules, lessons } from "../data/mockdata.js";
 import { useAuth } from "./AuthContext.jsx";
 import {
   Check, RotateCcw, Clock, Users, Star,
@@ -55,10 +55,26 @@ export default function CourseDetails() {
   }
 
   const instructor    = users.find(u => u.id === course.instructorId);
-  const courseModules = (course.modules || [])
-    .map(mid => modules.find(m => m.id === mid))
-    .filter(Boolean);
-
+const courseModules = (course.modules || [])
+  .map(mid => {
+    const mod = modules.find(m => m.id === mid);
+    if (!mod) return null;
+    return {
+      ...mod,
+      lessons: (mod.lessons || []).map(lid => {
+        const l = lessons.find(l => l.id === lid);
+        if (!l) return null;
+        return {
+          ...l,
+          type: l.videoUrl ? 'video' : 'text',
+          duration: l.duration + ' min',
+          url: l.videoUrl
+            ?.replace('watch?v=', 'embed/'),
+        };
+      }).filter(Boolean),
+    };
+  })
+  .filter(Boolean);
   const totalLessons = courseModules.reduce((a, m) => a + (m?.lessons?.length || 0), 0);
   const totalModules = courseModules.length;
 
@@ -197,7 +213,7 @@ export default function CourseDetails() {
                              focus-visible:outline focus-visible:outline-2
                              focus-visible:outline-offset-2 focus-visible:outline-blue-500
                              disabled:cursor-not-allowed disabled:opacity-80"
-                  style={{ backgroundColor: enrolled ? "#4caf50" : "#1976D2" }}
+                  style={{ backgroundColor: enrolled ? "#22c55e" : "#1976D2" }}
                   onMouseEnter={e => { if (!enrolled) e.currentTarget.style.backgroundColor = "#2196F3"; }}
                   onMouseLeave={e => { if (!enrolled) e.currentTarget.style.backgroundColor = "#1976D2"; }}
                 >
@@ -240,7 +256,7 @@ export default function CourseDetails() {
                   </p>
                 </div>
               </header>
-              <ModuleAccordion modules={courseModules} />
+              <ModuleAccordion modules={courseModules} enrolled={enrolled} courseId={course.id} />
             </section>
           )}
 
