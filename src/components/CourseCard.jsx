@@ -18,7 +18,6 @@ function CourseCard({ course }) {
       className="bg-white rounded-xl shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col overflow-hidden h-full"
       aria-labelledby={`course-title-${course.id}`}
     >
-      {/* ── Thumbnail ── */}
       <div className="relative h-40 sm:h-44 bg-gray-200 flex-shrink-0">
         <img
           src={course.image}
@@ -38,10 +37,10 @@ function CourseCard({ course }) {
         )}
       </div>
 
-      {/* ── Body ── */}
+     
       <div className="p-4 sm:p-5 flex flex-col flex-1 gap-2 justify-between">
 
-        {/* Difficulty badge */}
+      
         <span
           className={`self-start text-xs font-semibold px-2.5 py-0.5 rounded-full ${difficultyColors[course.difficulty]}`}
           aria-label={`Difficulty: ${course.difficulty}`}
@@ -49,7 +48,7 @@ function CourseCard({ course }) {
           {course.difficulty}
         </span>
 
-        {/* Title */}
+       
         <h2
           id={`course-title-${course.id}`}
           className="text-base sm:text-lg font-bold text-gray-900 leading-snug line-clamp-2"
@@ -57,16 +56,13 @@ function CourseCard({ course }) {
           {course.title}
         </h2>
 
-        {/* Instructor */}
         <p className="text-xs sm:text-sm text-gray-500 font-medium truncate">
           {instructor ? instructor.name : "Unknown Instructor"}
         </p>
 
-        {/* Description */}
            <p className="text-xs sm:text-sm text-gray-600 line-clamp-2 leading-relaxed min-h-[2.5rem]">
       {course.shortDescription}
     </p>
-        {/* ── Stats ── */}
         <div
           className="flex items-center gap-3 sm:gap-4 text-xs sm:text-sm text-gray-500 mt-1"
           aria-label="Course statistics"
@@ -87,7 +83,6 @@ function CourseCard({ course }) {
           </div>
         </div>
 
-        {/* ── CTA ── */}
         <div className="mt-auto pt-3">
      <Link
   to={`/courses/${course.id}`}
