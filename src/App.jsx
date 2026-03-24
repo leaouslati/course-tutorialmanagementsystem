@@ -12,19 +12,22 @@ import './index.css';
 
 function App() {
   return (
-    <>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/courses" element={<Courses />} />
-        <Route path="/enrollments" element={<Enrollments />} />
-        <Route path="/manage-courses" element={<ManageCourses />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/courses/:id" element={<CourseDetails />} />
-      </Routes>
+    <div className="min-h-screen flex flex-col">
+      {/* Main content grows to fill available space */}
+      <main className="flex-1">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/courses" element={<Courses />} />
+          <Route path="/enrollments" element={<Enrollments />} />
+          <Route path="/manage-courses" element={<ManageCourses />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/courses/:id" element={<CourseDetails />} />
+        </Routes>
+      </main>
       <Footer />
-    </>
+    </div>
   );
 }
 
