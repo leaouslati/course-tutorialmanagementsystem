@@ -3,7 +3,7 @@
 ## Team Members:
 - Lea Ouslati
 - Reem Antar
-- Intissar Souleiman
+- Intissar Soulaiman
 - Reem Nassif
 
 
@@ -65,7 +65,14 @@ Access the live application here:  add link
    - Created the Courses page with search, filters, and sorting options. We thought carefully about filtering and searching: users can filter by difficulty or category, search by course title, and sort by rating or duration making it simple to quickly find the course that fits their needs.
    - Defined and structured the modules dataset in mockdata.js, including module IDs, titles, order, and lesson references, enabling dynamic rendering of course modules across the platform.
 
-### Member 3: Intissar Souleiman
+### Member 3: Intissar Soulaiman
+- Responsible for: Navbar, Profile Page, and Enrollments Page.
+- Contributions:
+   - Built the Navbar component and organized it inside the components folder, including the navigation menu, page links, and theme toggle button. Also updated it so the Enrollments link only appears when the user is logged in.
+   - Designed and implemented the Profile Page with user information, quick actions, badges, ID card modal, and edit profile modal. Added responsive layouts so the page works well on mobile, tablet, and desktop screens.
+   - Developed the Enrollments Page to display each student’s enrolled courses with progress bars, course status, module and lesson counts, and continue actions. Also added unenroll confirmation handling and responsive card layouts
+   - Expanded and structured the mock data in mockdata.js by adding more courses, users, lessons, and modules, with different progress values to make testing more realistic and to support dynamic rendering across the app.
+   - Continuously tested the pages during development to make sure the layouts, navigation, and course data were working correctly.
 
 ### Member 4: Reem Nassif
 - Responsible for: Register Page & Manage Courses Page
