@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo, useState } from "react";
-import Navbar from "../components/Navbar";
 import { courses as initialCourses } from "../data/mockdata";
 import {
   PlusCircle, Edit, Trash2, CheckCircle, AlertCircle,
@@ -305,7 +304,6 @@ export default function ManageCourses() {
 
   return (
     <div className="min-h-screen bg-[#F4F8FD] text-gray-900">
-      <Navbar />
 
       {/* Toast — aria-live so screen readers announce it */}
       <div
