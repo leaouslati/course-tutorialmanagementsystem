@@ -81,6 +81,36 @@ function StatRow({ icon, label, value, valueClass, small = false, darkMode }) {
   );
 }
 
+// ── PwField moved OUTSIDE EditModal to prevent remount on every keystroke ──
+function PwField({ label, fieldId, value, onChange, showKey, placeholder, show, setShow, inputStyle, iconCol, labelCol }) {
+  return (
+    <div className="flex flex-col gap-1">
+      <label htmlFor={fieldId} className="text-xs font-semibold uppercase tracking-wider" style={{ color: labelCol }}>
+        {label}
+      </label>
+      <div className="relative">
+        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: iconCol }} aria-hidden="true" />
+        <input
+          id={fieldId}
+          type={show[showKey] ? "text" : "password"}
+          value={value}
+          onChange={onChange}
+          placeholder={placeholder}
+          style={{ ...inputStyle, paddingLeft: "2.5rem", paddingRight: "2.5rem" }}
+        />
+        <button
+          type="button"
+          onClick={() => setShow((s) => ({ ...s, [showKey]: !s[showKey] }))}
+          aria-label={show[showKey] ? `Hide ${label}` : `Show ${label}`}
+          className="absolute right-3 top-1/2 -translate-y-1/2"
+          style={{ background: "none", border: "none", padding: 0, color: iconCol }}
+        >
+          {show[showKey] ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+        </button>
+      </div>
+    </div>
+  );
+}
 
 function IDCardModal({ user, subtitle, idPrefix, badge, stats, onClose, darkMode }) {
   const trapRef = useFocusTrap(true);
@@ -103,7 +133,6 @@ function IDCardModal({ user, subtitle, idPrefix, badge, stats, onClose, darkMode
             border: `1px solid ${darkMode ? "#1a3a6b" : "#e2e8f0"}`,
           }}
         >
-          {/* Card header — gradient always same */}
           <div className="h-20 bg-gradient-to-r from-[#0D47A1] via-[#1565C0] to-[#1976D2] flex items-center px-6 gap-3">
             <BookOpen className="w-6 h-6 text-white/80" aria-hidden="true" />
             <div>
@@ -116,7 +145,6 @@ function IDCardModal({ user, subtitle, idPrefix, badge, stats, onClose, darkMode
             </div>
           </div>
 
-          {/* Avatar + info */}
           <div className="px-6 py-5 flex items-start gap-5">
             <div
               aria-hidden="true"
@@ -131,10 +159,7 @@ function IDCardModal({ user, subtitle, idPrefix, badge, stats, onClose, darkMode
               </span>
             </div>
             <div className="flex-1 min-w-0">
-              <h3
-                className="text-lg font-extrabold leading-tight"
-                style={{ color: darkMode ? "#f1f5f9" : "#0f172a" }}
-              >
+              <h3 className="text-lg font-extrabold leading-tight" style={{ color: darkMode ? "#f1f5f9" : "#0f172a" }}>
                 {user.name}
               </h3>
               <p className="text-xs mt-0.5 truncate" style={{ color: darkMode ? "#64748b" : "#64748b" }}>
@@ -151,7 +176,6 @@ function IDCardModal({ user, subtitle, idPrefix, badge, stats, onClose, darkMode
             </div>
           </div>
 
-          {/* Stats row */}
           <div
             className="grid border-t"
             style={{
@@ -162,10 +186,7 @@ function IDCardModal({ user, subtitle, idPrefix, badge, stats, onClose, darkMode
             {stats.map(({ label, value, color }) => (
               <div key={label} className="py-4 text-center">
                 <p className={`text-xl font-extrabold ${color}`}>{value}</p>
-                <p
-                  className="text-[10px] uppercase tracking-wider mt-0.5"
-                  style={{ color: darkMode ? "#64748b" : "#94a3b8" }}
-                >
+                <p className="text-[10px] uppercase tracking-wider mt-0.5" style={{ color: darkMode ? "#64748b" : "#94a3b8" }}>
                   {label}
                 </p>
               </div>
@@ -173,7 +194,6 @@ function IDCardModal({ user, subtitle, idPrefix, badge, stats, onClose, darkMode
           </div>
         </div>
 
-        {/* Close button */}
         <button
           onClick={onClose}
           className="w-full rounded-xl py-2.5 px-6 text-sm font-semibold text-white transition"
@@ -187,7 +207,6 @@ function IDCardModal({ user, subtitle, idPrefix, badge, stats, onClose, darkMode
     </div>
   );
 }
-
 
 function EditModal({ user, onSave, onClose, darkMode }) {
   const [tab,         setTab]         = useState("info");
@@ -241,34 +260,6 @@ function EditModal({ user, onSave, onClose, darkMode }) {
     setTimeout(() => { setPwSuccess(false); onClose(); }, 1500);
   };
 
-  const PwField = ({ label, fieldId, value, onChange, showKey, placeholder }) => (
-    <div className="flex flex-col gap-1">
-      <label htmlFor={fieldId} className="text-xs font-semibold uppercase tracking-wider" style={{ color: labelCol }}>
-        {label}
-      </label>
-      <div className="relative">
-        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: iconCol }} aria-hidden="true" />
-        <input
-          id={fieldId}
-          type={show[showKey] ? "text" : "password"}
-          value={value}
-          onChange={onChange}
-          placeholder={placeholder}
-          style={{ ...inputStyle, paddingLeft: "2.5rem", paddingRight: "2.5rem" }}
-        />
-        <button
-          type="button"
-          onClick={() => setShow((s) => ({ ...s, [showKey]: !s[showKey] }))}
-          aria-label={show[showKey] ? `Hide ${label}` : `Show ${label}`}
-          className="absolute right-3 top-1/2 -translate-y-1/2"
-          style={{ background: "none", border: "none", padding: 0, color: iconCol }}
-        >
-          {show[showKey] ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-        </button>
-      </div>
-    </div>
-  );
-
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4"
@@ -280,10 +271,7 @@ function EditModal({ user, onSave, onClose, darkMode }) {
         style={{ backgroundColor: modalBg, border: `1px solid ${modalBorder}` }}
       >
         {/* Header */}
-        <div
-          className="flex items-center justify-between px-6 py-4 border-b"
-          style={{ borderColor: modalBorder }}
-        >
+        <div className="flex items-center justify-between px-6 py-4 border-b" style={{ borderColor: modalBorder }}>
           <h3 id="edit-modal-title" className="text-lg font-bold" style={{ color: headingCol }}>
             Account Settings
           </h3>
@@ -300,10 +288,7 @@ function EditModal({ user, onSave, onClose, darkMode }) {
         </div>
 
         {/* Tabs */}
-        <div
-          className="flex gap-2 px-6 py-4 border-b"
-          style={{ borderColor: modalBorder }}
-        >
+        <div className="flex gap-2 px-6 py-4 border-b" style={{ borderColor: modalBorder }}>
           {["info", "password"].map((id) => (
             <button
               key={id}
@@ -314,12 +299,8 @@ function EditModal({ user, onSave, onClose, darkMode }) {
                   ? { backgroundColor: "#1976D2", color: "#ffffff" }
                   : { backgroundColor: darkMode ? "#0a1628" : "#F4F8FD", color: darkMode ? "#94a3b8" : "#64748b" }
               }
-              onMouseEnter={(e) => {
-                if (tab !== id) e.currentTarget.style.backgroundColor = darkMode ? "#1a3a6b" : "#E3F2FD";
-              }}
-              onMouseLeave={(e) => {
-                if (tab !== id) e.currentTarget.style.backgroundColor = darkMode ? "#0a1628" : "#F4F8FD";
-              }}
+              onMouseEnter={(e) => { if (tab !== id) e.currentTarget.style.backgroundColor = darkMode ? "#1a3a6b" : "#E3F2FD"; }}
+              onMouseLeave={(e) => { if (tab !== id) e.currentTarget.style.backgroundColor = darkMode ? "#0a1628" : "#F4F8FD"; }}
             >
               {id === "info" ? "Profile Info" : "Change Password"}
             </button>
@@ -353,11 +334,7 @@ function EditModal({ user, onSave, onClose, darkMode }) {
                 <button
                   onClick={onClose}
                   className="flex-1 rounded-xl py-2.5 text-sm font-semibold transition"
-                  style={{
-                    backgroundColor: "transparent",
-                    border: `1px solid ${darkMode ? "#1a3a6b" : "#cbd5e1"}`,
-                    color: darkMode ? "#94a3b8" : "#475569",
-                  }}
+                  style={{ backgroundColor: "transparent", border: `1px solid ${darkMode ? "#1a3a6b" : "#cbd5e1"}`, color: darkMode ? "#94a3b8" : "#475569" }}
                   onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = darkMode ? "#1a3a6b" : "#f8fafc")}
                   onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
                 >
@@ -381,20 +358,31 @@ function EditModal({ user, onSave, onClose, darkMode }) {
               <p className="text-xs" style={{ color: mutedCol }}>
                 Password must be at least 8 characters with a mix of letters and numbers.
               </p>
-              <PwField label="Current Password"    fieldId="pw-current" value={currentPw} onChange={(e) => setCurrentPw(e.target.value)} showKey="current" placeholder="Enter current password" />
-              <PwField label="New Password"         fieldId="pw-new"     value={newPw}     onChange={(e) => setNewPw(e.target.value)}     showKey="new"     placeholder="Enter new password" />
-              <PwField label="Confirm New Password" fieldId="pw-confirm" value={confirmPw} onChange={(e) => setConfirmPw(e.target.value)} showKey="confirm" placeholder="Confirm new password" />
+              <PwField
+                label="Current Password" fieldId="pw-current" value={currentPw}
+                onChange={(e) => setCurrentPw(e.target.value)} showKey="current"
+                placeholder="Enter current password"
+                show={show} setShow={setShow} inputStyle={inputStyle} iconCol={iconCol} labelCol={labelCol}
+              />
+              <PwField
+                label="New Password" fieldId="pw-new" value={newPw}
+                onChange={(e) => setNewPw(e.target.value)} showKey="new"
+                placeholder="Enter new password"
+                show={show} setShow={setShow} inputStyle={inputStyle} iconCol={iconCol} labelCol={labelCol}
+              />
+              <PwField
+                label="Confirm New Password" fieldId="pw-confirm" value={confirmPw}
+                onChange={(e) => setConfirmPw(e.target.value)} showKey="confirm"
+                placeholder="Confirm new password"
+                show={show} setShow={setShow} inputStyle={inputStyle} iconCol={iconCol} labelCol={labelCol}
+              />
               {pwError   && <p role="alert"  className="text-xs text-red-500 font-medium">{pwError}</p>}
               {pwSuccess && <p role="status" className="text-xs text-green-500 font-medium">Password updated successfully!</p>}
               <div className="flex gap-3 mt-2">
                 <button
                   onClick={onClose}
                   className="flex-1 rounded-xl py-2.5 text-sm font-semibold transition"
-                  style={{
-                    backgroundColor: "transparent",
-                    border: `1px solid ${darkMode ? "#1a3a6b" : "#cbd5e1"}`,
-                    color: darkMode ? "#94a3b8" : "#475569",
-                  }}
+                  style={{ backgroundColor: "transparent", border: `1px solid ${darkMode ? "#1a3a6b" : "#cbd5e1"}`, color: darkMode ? "#94a3b8" : "#475569" }}
                   onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = darkMode ? "#1a3a6b" : "#f8fafc")}
                   onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
                 >
@@ -418,37 +406,24 @@ function EditModal({ user, onSave, onClose, darkMode }) {
   );
 }
 
-
 function BadgeCard({ icon, title, desc, earned, bg, border, darkMode }) {
   return (
     <div
       className="rounded-xl border-2 p-4 flex items-start gap-4 transition-all duration-200"
       style={{
-        backgroundColor: earned
-          ? darkMode ? "#0f1f3d" : "#ffffff"
-          : darkMode ? "#0a1628" : "#f8fafc",
-        borderColor: earned
-          ? darkMode ? "#1e3f7a" : undefined
-          : darkMode ? "#1a3a6b" : "#e2e8f0",
+        backgroundColor: earned ? darkMode ? "#0f1f3d" : "#ffffff" : darkMode ? "#0a1628" : "#f8fafc",
+        borderColor: earned ? darkMode ? "#1e3f7a" : undefined : darkMode ? "#1a3a6b" : "#e2e8f0",
         borderStyle: earned ? "solid" : "dashed",
         opacity: earned ? 1 : darkMode ? 0.4 : 0.5,
         filter: earned ? "none" : "grayscale(1)",
       }}
     >
-      <div
-        aria-hidden="true"
-        className={`flex-shrink-0 w-14 h-14 rounded-2xl flex items-center justify-center ${earned ? bg : "bg-slate-100"}`}
-      >
+      <div aria-hidden="true" className={`flex-shrink-0 w-14 h-14 rounded-2xl flex items-center justify-center ${earned ? bg : "bg-slate-100"}`}>
         <span className="[&>svg]:w-8 [&>svg]:h-8">{icon}</span>
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between gap-2">
-          <p
-            className="text-sm font-semibold"
-            style={{ color: darkMode ? "#f1f5f9" : "#1e293b" }}
-          >
-            {title}
-          </p>
+          <p className="text-sm font-semibold" style={{ color: darkMode ? "#f1f5f9" : "#1e293b" }}>{title}</p>
           {earned
             ? <span className="text-[10px] font-bold text-green-500 bg-green-500/10 px-2 py-0.5 rounded-full whitespace-nowrap border border-green-500/20">Earned</span>
             : <span className="text-[10px] font-medium uppercase tracking-wider" style={{ color: darkMode ? "#475569" : "#94a3b8" }}>Locked</span>}
@@ -474,7 +449,7 @@ function QuickAction({ to, icon, label, sub, onClick, darkMode }) {
     cursor: "pointer",
   };
 
-  const inner = (hovered) => (
+  const inner = () => (
     <>
       <div
         aria-hidden="true"
@@ -500,22 +475,12 @@ function QuickAction({ to, icon, label, sub, onClick, darkMode }) {
   const [hovered, setHovered] = useState(false);
 
   return to ? (
-    <Link
-      to={to}
-      style={hovered ? hoverStyle : style}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
-      {inner(hovered)}
+    <Link to={to} style={hovered ? hoverStyle : style} onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
+      {inner()}
     </Link>
   ) : (
-    <button
-      onClick={onClick}
-      style={hovered ? hoverStyle : style}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
-      {inner(hovered)}
+    <button onClick={onClick} style={hovered ? hoverStyle : style} onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
+      {inner()}
     </button>
   );
 }
@@ -558,7 +523,6 @@ export default function Profile({ darkMode = false }) {
   const badges   = isInstructor ? mkInstructorBadges(createdCount, totalLessons) : mkStudentBadges(finished, enrolledCount, avgProgress);
   const earned   = badges.filter((b) => b.earned).length;
 
-  // ── color tokens ──────────────────────────────────────────────────────
   const pageBg      = darkMode ? "#060f1e"  : "#F4F8FD";
   const cardBg      = darkMode ? "#0f1f3d"  : "#ffffff";
   const cardBorder  = darkMode ? "#1a3a6b"  : "#e2e8f0";
@@ -576,10 +540,7 @@ export default function Profile({ darkMode = false }) {
   ];
 
   return (
-    <div
-      className="w-full min-h-screen transition-colors duration-300"
-      style={{ backgroundColor: pageBg }}
-    >
+    <div className="w-full min-h-screen transition-colors duration-300" style={{ backgroundColor: pageBg }}>
       <main className="w-full min-h-screen px-4 sm:px-6 lg:px-8 py-6 flex flex-col items-center gap-8">
 
         {/* ── Profile Header Card ── */}
@@ -590,11 +551,7 @@ export default function Profile({ darkMode = false }) {
         >
           <div className="px-6 sm:px-8 pt-8 pb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex items-center gap-5">
-              <div
-                aria-hidden="true"
-                className="flex-shrink-0 h-20 w-20 rounded-2xl flex items-center justify-center"
-                style={{ backgroundColor: darkMode ? "#0a1628" : "#E3F2FD" }}
-              >
+              <div aria-hidden="true" className="flex-shrink-0 h-20 w-20 rounded-2xl flex items-center justify-center" style={{ backgroundColor: darkMode ? "#0a1628" : "#E3F2FD" }}>
                 <span className="text-3xl font-extrabold text-[#1976D2]">
                   {currentUser.name?.charAt(0)?.toUpperCase() ?? "U"}
                 </span>
@@ -619,10 +576,7 @@ export default function Profile({ darkMode = false }) {
             </button>
           </div>
 
-          <div
-            className="px-6 sm:px-8 pb-8 grid grid-cols-1 sm:grid-cols-2 gap-3 border-t-2 pt-5"
-            style={{ borderColor: dividerCol }}
-          >
+          <div className="px-6 sm:px-8 pb-8 grid grid-cols-1 sm:grid-cols-2 gap-3 border-t-2 pt-5" style={{ borderColor: dividerCol }}>
             {infoRows.map(({ icon, text, cls = "" }, i) => (
               <div key={i} className="flex items-center gap-2">
                 <span aria-hidden="true">{icon}</span>
@@ -675,15 +629,8 @@ export default function Profile({ darkMode = false }) {
         <section aria-labelledby="stats-heading" className="w-full max-w-5xl">
           <h3 id="stats-heading" className="sr-only">Your stats</h3>
           <div className="flex flex-col sm:flex-row gap-6">
-
-            <article
-              className="flex-1 rounded-2xl p-6 shadow-md flex flex-col min-h-[140px]"
-              style={{ backgroundColor: cardBg, border: `1px solid ${cardBorder}` }}
-            >
-              <div
-                className="text-sm font-semibold uppercase tracking-[0.14em] mb-1"
-                style={{ color: mutedCol }}
-              >
+            <article className="flex-1 rounded-2xl p-6 shadow-md flex flex-col min-h-[140px]" style={{ backgroundColor: cardBg, border: `1px solid ${cardBorder}` }}>
+              <div className="text-sm font-semibold uppercase tracking-[0.14em] mb-1" style={{ color: mutedCol }}>
                 {isInstructor ? "Created Courses" : "Enrolled Courses"}
               </div>
               <p className="mt-1 text-3xl font-bold" style={{ color: headingCol }}>
@@ -705,41 +652,25 @@ export default function Profile({ darkMode = false }) {
             </article>
 
             {isInstructor ? (
-              <article
-                className="flex-1 rounded-2xl p-6 shadow-md flex flex-col min-h-[140px]"
-                style={{ backgroundColor: cardBg, border: `1px solid ${cardBorder}` }}
-              >
-                <div className="text-base font-bold uppercase tracking-[0.14em] mb-2 text-center mt-3" style={{ color: subCol }}>
-                  Your Impact
-                </div>
+              <article className="flex-1 rounded-2xl p-6 shadow-md flex flex-col min-h-[140px]" style={{ backgroundColor: cardBg, border: `1px solid ${cardBorder}` }}>
+                <div className="text-base font-bold uppercase tracking-[0.14em] mb-2 text-center mt-3" style={{ color: subCol }}>Your Impact</div>
                 <div className="flex flex-col justify-center flex-1 gap-1.5 mt-7">
                   <StatRow darkMode={darkMode} icon={<Users className="w-4 h-4 text-green-500"  />} label="Total Students" value={totalStudents} valueClass="text-green-500" />
                   <StatRow darkMode={darkMode} icon={<Star  className="w-4 h-4 text-yellow-400" />} label="Avg Rating"     value={avgRating}     valueClass="text-yellow-400" />
                 </div>
               </article>
             ) : (
-              <article
-                className="flex-1 rounded-2xl p-6 shadow-md flex flex-col min-h-[140px]"
-                style={{ backgroundColor: cardBg, border: `1px solid ${cardBorder}` }}
-              >
-                <div className="text-sm font-semibold uppercase tracking-[0.14em] mb-2 text-center" style={{ color: mutedCol }}>
-                  Overall Progress
-                </div>
+              <article className="flex-1 rounded-2xl p-6 shadow-md flex flex-col min-h-[140px]" style={{ backgroundColor: cardBg, border: `1px solid ${cardBorder}` }}>
+                <div className="text-sm font-semibold uppercase tracking-[0.14em] mb-2 text-center" style={{ color: mutedCol }}>Overall Progress</div>
                 <div className="flex flex-col items-center justify-center flex-1 gap-3">
                   <p className="text-3xl font-bold" style={{ color: headingCol }}>{progressVal}%</p>
                   <div
-                    role="progressbar"
-                    aria-valuenow={progressVal}
-                    aria-valuemin={0}
-                    aria-valuemax={100}
+                    role="progressbar" aria-valuenow={progressVal} aria-valuemin={0} aria-valuemax={100}
                     aria-label="Overall course progress"
                     className="w-full h-4 rounded-full overflow-hidden"
                     style={{ backgroundColor: progressBg }}
                   >
-                    <div
-                      className="h-full rounded-full transition-all duration-700 bg-[#1976D2]"
-                      style={{ width: `${progressVal}%` }}
-                    />
+                    <div className="h-full rounded-full transition-all duration-700 bg-[#1976D2]" style={{ width: `${progressVal}%` }} />
                   </div>
                 </div>
               </article>
@@ -749,24 +680,20 @@ export default function Profile({ darkMode = false }) {
 
         {/* ── Quick Actions ── */}
         <section aria-labelledby="actions-heading" className="w-full max-w-5xl">
-          <h3
-            id="actions-heading"
-            className="text-base font-bold uppercase tracking-widest mb-4"
-            style={{ color: sectionLbl }}
-          >
+          <h3 id="actions-heading" className="text-base font-bold uppercase tracking-widest mb-4" style={{ color: sectionLbl }}>
             Quick Actions
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {isInstructor ? (
               <>
-                <QuickAction darkMode={darkMode} to="/management" icon={<BarChart2  className="w-5 h-5" />} label="Management Panel"  sub="Manage your courses" />
-                <QuickAction darkMode={darkMode} to="/courses"    icon={<BookOpen   className="w-5 h-5" />} label="Browse Courses"    sub="See all published courses" />
+                <QuickAction darkMode={darkMode} to="/management"  icon={<BarChart2  className="w-5 h-5" />} label="Management Panel"  sub="Manage your courses" />
+                <QuickAction darkMode={darkMode} to="/courses"     icon={<BookOpen   className="w-5 h-5" />} label="Browse Courses"    sub="See all published courses" />
                 <QuickAction darkMode={darkMode} onClick={() => setShowInstructorIDCard(true)} icon={<CreditCard className="w-5 h-5" />} label="Instructor ID Card" sub="View your digital ID" />
               </>
             ) : (
               <>
-                <QuickAction darkMode={darkMode} to="/enrollments" icon={<Layers   className="w-5 h-5" />} label="My Enrollments" sub="Track your learning" />
-                <QuickAction darkMode={darkMode} to="/courses"     icon={<BookOpen className="w-5 h-5" />} label="Browse Courses"  sub="Discover new courses" />
+                <QuickAction darkMode={darkMode} to="/enrollments" icon={<Layers    className="w-5 h-5" />} label="My Enrollments" sub="Track your learning" />
+                <QuickAction darkMode={darkMode} to="/courses"     icon={<BookOpen  className="w-5 h-5" />} label="Browse Courses"  sub="Discover new courses" />
                 <QuickAction darkMode={darkMode} onClick={() => setShowIDCard(true)} icon={<CreditCard className="w-5 h-5" />} label="Student ID Card" sub="View your digital ID" />
               </>
             )}
@@ -776,16 +703,10 @@ export default function Profile({ darkMode = false }) {
         {/* ── Badges ── */}
         <section aria-labelledby="badges-heading" className="w-full max-w-5xl mb-8">
           <div className="flex items-center justify-between mb-4">
-            <h3
-              id="badges-heading"
-              className="text-base font-bold uppercase tracking-widest"
-              style={{ color: sectionLbl }}
-            >
+            <h3 id="badges-heading" className="text-base font-bold uppercase tracking-widest" style={{ color: sectionLbl }}>
               Badges
             </h3>
-            <span className="text-xs" style={{ color: mutedCol }}>
-              {earned} of {badges.length} earned
-            </span>
+            <span className="text-xs" style={{ color: mutedCol }}>{earned} of {badges.length} earned</span>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {badges.map((badge, i) => (
