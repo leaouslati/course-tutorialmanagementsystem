@@ -58,7 +58,12 @@ Access the live application here:  add link
     - Managed and organized the GitHub repository to ensure working on branches and merging when needed 
 
 ### Member 2: Reem Antar 
-
+- Responsible for: CourseCard, CourseDetails, and Courses pages
+- Contributions:
+   - Built the CourseCard component to showcase courses with key info like title, instructor, difficulty, duration, and ratings, including dynamic badges for new or recently updated courses.
+   - Designed the CourseDetails page, allowing users to explore full course info, view modules and lessons, enroll in courses, and receive real-time notifications for actions.
+   - Created the Courses page with search, filters, and sorting options. We thought carefully about filtering and searching: users can filter by difficulty or category, search by course title, and sort by rating or duration making it simple to quickly find the course that fits their needs.
+   - Defined and structured the modules dataset in mockdata.js, including module IDs, titles, order, and lesson references, enabling dynamic rendering of course modules across the platform.
 
 ### Member 3: Intissar Souleiman
 
@@ -66,3 +71,18 @@ Access the live application here:  add link
 
 
 ## Mock Data Explanation 
+- Responsible for: Creating mock data for users, courses, modules, and lessons.
+- Users:
+   - Includes students and instructors with unique IDs, names, emails, roles, and avatars.
+   - Tracks enrolled courses, created courses (for instructors), progress in courses, and join dates.
+- Lessons:
+   - Each lesson has an ID, title, content description, duration (minutes), and a video URL.
+   - Covers programming, web development, design, math, and language topics.
+- Courses:
+   - Each course includes ID, title, short and full descriptions, instructor, category, difficulty, image, duration, rating, student count, and associated modules.
+   - Designed to support course listing, filtering, searching, and detailed views.
+- Modules:
+   - Modules group lessons together, with a unique ID, title, order, and a list of lesson IDs.
+   - Examples: JavaScript Fundamentals, React Introduction, CSS Mastery, Node.js Basics, Math Foundations, English Basics.
+- Purpose:
+   - Provides structured, realistic data for testing and development of CourseCard, CourseDetails, Courses pages, and module/lesson functionality.

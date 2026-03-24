@@ -72,10 +72,10 @@ function Courses() {
           </p>
         </header>
 
-        {/* ── Filters ── */}
+       
         <div className="flex flex-col gap-3 sm:gap-4 mb-5 sm:mb-6">
 
-          {/* Search */}
+        
           <div className="relative w-full">
             <Search
               className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400"
@@ -92,7 +92,6 @@ function Courses() {
             />
           </div>
 
-          {/* Difficulty + sort + reset — stacked on mobile, single row on desktop */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3">
             <div className="flex flex-wrap gap-2">
               {["", "Beginner", "Intermediate", "Advanced"].map((level) => (
@@ -140,7 +139,6 @@ function Courses() {
           </div>
           </div>
 
-          {/* Course count */}
           {courses.length > 0 && (
             <p className="text-xs sm:text-sm text-gray-600" aria-live="polite">
               Showing <span className="font-semibold">{filteredCourses.length}</span> of{" "}
@@ -149,7 +147,6 @@ function Courses() {
           )}
         </div>
 
-        {/* ── Course grid ── */}
         <section aria-label="Course listings">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
             {courses.length === 0 ? (

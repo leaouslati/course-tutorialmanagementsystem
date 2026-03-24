@@ -88,7 +88,7 @@ export default function CourseDetails() {
 
       <main className="min-h-screen bg-[#F4F8FD] dark:bg-slate-900 w-full px-4 sm:px-6 lg:px-8 py-6 pb-12 transition-colors duration-300">
 
-        {/* ── Top bar ── */}
+        
         <div className="mb-4 max-w-5xl mx-auto flex items-center justify-between">
           <Link
             to="/courses"
@@ -117,7 +117,6 @@ export default function CourseDetails() {
 
         <div className="max-w-5xl mx-auto space-y-4">
 
-          {/* ── Single unified card ── */}
           <article
             aria-labelledby="course-title"
             className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm overflow-hidden border border-gray-200 dark:border-slate-700 mb-8 transition-colors duration-300"
@@ -133,10 +132,8 @@ export default function CourseDetails() {
                 />
               </div>
 
-              {/* Info */}
               <div className="flex-1 p-5 sm:p-7 flex flex-col gap-4">
 
-                {/* Instructor + title */}
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-widest text-[#1976D2] mb-1">
                     {instructor ? instructor.name : "Unknown Instructor"}
@@ -150,12 +147,10 @@ export default function CourseDetails() {
                   </h1>
                 </div>
 
-                {/* Description */}
                 <p className="text-sm sm:text-base text-gray-600 dark:text-slate-300 leading-relaxed">
                   {course.description || course.shortDescription}
                 </p>
 
-                {/* Detail stats */}
                 <dl className="grid grid-cols-2 gap-2 sm:gap-3">
                   {detailStats.map(({ icon, label, value }) => (
                     <div
@@ -171,7 +166,6 @@ export default function CourseDetails() {
                   ))}
                 </dl>
 
-                {/* Quick numbers */}
                 <div
                   className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs text-gray-500 dark:text-slate-400 border-t border-slate-100 dark:border-slate-600 pt-3"
                   aria-label="Course statistics"
@@ -190,7 +184,6 @@ export default function CourseDetails() {
                   </span>
                 </div>
 
-                {/* Enroll button */}
                 <button
                   onClick={handleEnroll}
                   disabled={enrolled}
@@ -224,7 +217,7 @@ export default function CourseDetails() {
             </div>
           </article>
 
-          {/* ── Modules ── */}
+          
           {courseModules.length > 0 && (
             <section
               aria-labelledby="modules-heading"
