@@ -3,7 +3,7 @@ import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { Sun, Moon, UserPlus, LogOut, BookOpen } from "lucide-react";
 import { useAuth } from "../pages/AuthContext";
 
-export default function Navbar({ darkMode = false, toggleTheme = () => {} }) {
+export default function Navbar({ darkMode = false, toggleTheme = () => { } }) {
   const { currentUser, logout } = useAuth();
   const user = currentUser;
 
@@ -20,17 +20,14 @@ export default function Navbar({ darkMode = false, toggleTheme = () => {} }) {
     { name: "Home", path: "/" },
     { name: "Courses", path: "/courses" },
   ];
-
   const studentLinks = [
     { name: "My Enrollments", path: "/enrollments" },
     { name: "Profile", path: "/profile" },
   ];
-
   const instructorLinks = [
     { name: "Manage Courses", path: "/manage-courses" },
     { name: "Profile", path: "/profile" },
   ];
-
   const navLinks = [
     ...publicLinks,
     ...(isLoggedIn ? (role === "instructor" ? instructorLinks : studentLinks) : []),
@@ -38,8 +35,7 @@ export default function Navbar({ darkMode = false, toggleTheme = () => {} }) {
 
   useEffect(() => {
     const handler = (e) => {
-      if (menuRef.current && !menuRef.current.contains(e.target))
-        setMenuOpen(false);
+      if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false);
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
@@ -65,150 +61,59 @@ export default function Navbar({ darkMode = false, toggleTheme = () => {} }) {
 
   useEffect(() => setMenuOpen(false), [location.pathname]);
 
-  const handleLogout = () => {
-    logout();
-    navigate("/");
-  };
+  const handleLogout = () => { logout(); navigate("/"); };
 
-  // Colors based on darkMode
-  const bg = darkMode ? "#111827" : "#ffffff";
-  const border = darkMode ? "#1f2937" : "#e5e7eb";
-  const textPrimary = darkMode ? "#f9fafb" : "#1f2937";
-  const chipBg = darkMode ? "#1f2937" : "#f9fafb";
-  const chipBorder = darkMode ? "#374151" : "#e5e7eb";
-  const iconBg = darkMode ? "#1f2937" : "#ffffff";
-  const iconBorder = darkMode ? "#374151" : "#e5e7eb";
-  const mobileActiveBg = darkMode ? "#1e3a5f" : "#eff6ff";
-
-  const btnBase = {
-    display: "inline-flex",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: "6px",
-    height: "36px",
-    borderRadius: "10px",
-    fontSize: "14px",
-    fontWeight: "600",
-    fontFamily: "'Inter', sans-serif",
-    cursor: "pointer",
-    lineHeight: "1",
-    padding: "0 16px",
-    transition: "background-color 0.2s ease",
-    boxSizing: "border-box",
-  };
-
-  const btnPrimary = {
-    ...btnBase,
-    backgroundColor: "#1976D2",
-    color: "#ffffff",
-    border: "none",
-  };
-
-  const btnOutline = {
-    ...btnBase,
-    backgroundColor: "transparent",
-    color: "#1976D2",
-    border: "1.5px solid #1976D2",
-  };
-
-  const btnIcon = {
+  const iconBtn = {
     display: "inline-flex",
     alignItems: "center",
     justifyContent: "center",
     width: "36px",
     height: "36px",
     borderRadius: "10px",
-    border: `1px solid ${iconBorder}`,
-    backgroundColor: iconBg,
+    border: `1px solid ${darkMode ? "#374151" : "#e5e7eb"}`,
+    backgroundColor: darkMode ? "#1f2937" : "#ffffff",
     cursor: "pointer",
-    padding: "0",
-    color: "#1976D2",
+    padding: 0,
     flexShrink: 0,
-    boxSizing: "border-box",
     transition: "background-color 0.2s ease",
   };
-
-  const navLinkStyle = (isActive) => ({
-    fontSize: "16px",
-    fontWeight: "500",
-    fontFamily: "'Inter', sans-serif",
-    textDecoration: "none",
-    whiteSpace: "nowrap",
-    color: "#1976D2",
-    paddingBottom: "3px",
-    borderBottom: isActive ? "2.5px solid #1976D2" : "2.5px solid transparent",
-    transition: "border-color 0.2s ease",
-    boxSizing: "border-box",
-  });
 
   return (
     <nav
       ref={menuRef}
       role="navigation"
       aria-label="Main navigation"
-      style={{
-        position: "sticky",
-        top: 0,
-        zIndex: 50,
-        backgroundColor: bg,
-        borderBottom: `1px solid ${border}`,
-        boxShadow: scrolled ? "0 2px 8px rgba(0,0,0,0.08)" : "none",
-        transition: "box-shadow 0.3s ease, background-color 0.3s ease, border-color 0.3s ease",
-        fontFamily: "'Inter', sans-serif",
-      }}
+      className={[
+        "sticky top-0 z-50 transition-all duration-300 border-b",
+        darkMode ? "bg-[#0d1b2e] border-gray-800" : "bg-white border-gray-200",
+        scrolled ? "shadow-[0_2px_8px_rgba(0,0,0,0.08)]" : "",
+      ].join(" ")}
     >
       {/* ── Main bar ── */}
-      <div style={{
-        display: "flex",
-        alignItems: "center",
-        padding: "0 24px",
-        height: "64px",
-        maxWidth: "1280px",
-        margin: "0 auto",
-        width: "100%",
-        boxSizing: "border-box",
-      }}>
+      <div className="flex md:grid md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center h-16 px-4 sm:px-6 w-full">
 
         {/* Logo */}
         <NavLink
           to="/"
           aria-label="CourseHub home"
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
-            fontSize: "20px",
-            fontWeight: "700",
-            fontFamily: "'Inter', sans-serif",
-            color: "#1976D2",
-            textDecoration: "none",
-            whiteSpace: "nowrap",
-            flexShrink: 0,
-          }}
+          className="flex items-center gap-2 text-[#1976D2] font-bold text-xl no-underline shrink-0 whitespace-nowrap"
         >
           <BookOpen size={22} strokeWidth={2.5} color="#1976D2" />
           CourseHub
         </NavLink>
 
-        {/* Desktop nav links — centered */}
-        <ul
-          className="hidden md:flex"
-          style={{
-            flex: 1,
-            alignItems: "center",
-            justifyContent: "center",
-            gap: "32px",
-            margin: 0,
-            padding: 0,
-            listStyle: "none",
-          }}
-        >
+        {/* Desktop nav links */}
+        <ul role="list" className="hidden md:flex items-center justify-center gap-8 m-0 p-0 list-none min-w-0">
           {navLinks.map((link) => (
             <li key={link.name}>
               <NavLink
                 to={link.path}
                 aria-current={location.pathname === link.path ? "page" : undefined}
-                style={({ isActive }) => navLinkStyle(isActive)}
+                className="text-base font-medium no-underline whitespace-nowrap text-[#1976D2] transition-all duration-200"
+                style={({ isActive }) => ({
+                  paddingBottom: "3px",
+                  borderBottom: isActive ? "2.5px solid #1976D2" : "2.5px solid transparent",
+                })}
               >
                 {link.name}
               </NavLink>
@@ -217,15 +122,15 @@ export default function Navbar({ darkMode = false, toggleTheme = () => {} }) {
         </ul>
 
         {/* Desktop actions */}
-        <div
-          className="hidden md:flex"
-          style={{ alignItems: "center", gap: "8px", flexShrink: 0, marginLeft: "auto" }}
-        >
+        <div className="hidden md:flex items-center gap-2 shrink-0 justify-end">
+
           {/* Theme toggle */}
           <button
             onClick={toggleTheme}
-            style={btnIcon}
             aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"}
+            style={iconBtn}
+            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = darkMode ? "#374151" : "#f3f4f6")}
+            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = darkMode ? "#1f2937" : "#ffffff")}
           >
             {darkMode
               ? <Sun size={17} strokeWidth={2} color="#1976D2" />
@@ -238,41 +143,28 @@ export default function Navbar({ darkMode = false, toggleTheme = () => {} }) {
               <div
                 role="status"
                 aria-label={`Logged in as ${user?.name}, ${role}`}
+                className="flex items-center gap-2 h-9 px-3 rounded-[10px] shrink-0"
                 style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "8px",
-                  height: "36px",
-                  borderRadius: "10px",
-                  border: `1px solid ${chipBorder}`,
-                  backgroundColor: chipBg,
-                  padding: "0 12px",
-                  flexShrink: 0,
-                  boxSizing: "border-box",
+                  border: `1px solid ${darkMode ? "#374151" : "#e5e7eb"}`,
+                  backgroundColor: darkMode ? "#1f2937" : "#f9fafb",
                 }}
               >
-                <div style={{
-                  width: "22px", height: "22px", borderRadius: "50%",
-                  backgroundColor: "#1976D2", display: "flex", alignItems: "center",
-                  justifyContent: "center", color: "white", fontSize: "11px",
-                  fontWeight: "700", flexShrink: 0,
-                }}>
+                <div className="w-[22px] h-[22px] rounded-full bg-[#1976D2] flex items-center justify-center text-white text-[11px] font-bold shrink-0">
                   {user?.name?.[0]?.toUpperCase() ?? (role === "instructor" ? "I" : "S")}
                 </div>
-                <span style={{
-                  fontSize: "14px", fontWeight: "600", color: textPrimary,
-                  maxWidth: "100px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-                }}>
+                <span className={`text-sm font-semibold max-w-[100px] overflow-hidden text-ellipsis whitespace-nowrap ${darkMode ? "text-gray-100" : "text-gray-800"}`}>
                   {user?.name ?? "Account"}
                 </span>
               </div>
 
+              {/* Logout */}
               <button
                 onClick={handleLogout}
-                style={btnPrimary}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#1565C0"}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#1976D2"}
                 aria-label="Log out"
+                className="flex items-center justify-center gap-1.5 h-9 px-4 rounded-[10px] text-sm font-semibold text-white cursor-pointer transition-colors duration-200"
+                style={{ backgroundColor: "#1976D2", border: "none" }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#1565C0")}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#1976D2")}
               >
                 <LogOut size={15} />
                 Logout
@@ -280,19 +172,24 @@ export default function Navbar({ darkMode = false, toggleTheme = () => {} }) {
             </>
           ) : (
             <>
+              {/* Login */}
               <button
                 onClick={() => navigate("/login")}
-                style={btnOutline}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = darkMode ? "#1e3a5f" : "#e3f0fb"}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "transparent"}
+                className="flex items-center justify-center h-9 px-4 rounded-[10px] text-sm font-semibold text-[#1976D2] cursor-pointer transition-colors duration-200"
+                style={{ border: "1.5px solid #1976D2", backgroundColor: "transparent" }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = darkMode ? "#1e3a5f" : "#e3f0fb")}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
               >
                 Login
               </button>
+
+              {/* Sign up */}
               <button
                 onClick={() => navigate("/register")}
-                style={btnPrimary}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#1565C0"}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#1976D2"}
+                className="flex items-center justify-center gap-1.5 h-9 px-4 rounded-[10px] text-sm font-semibold text-white cursor-pointer transition-colors duration-200"
+                style={{ backgroundColor: "#1976D2", border: "none" }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = darkMode ? "#1565C0" : "#2196F3")}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#1976D2")}
               >
                 <UserPlus size={15} />
                 Sign Up
@@ -301,35 +198,39 @@ export default function Navbar({ darkMode = false, toggleTheme = () => {} }) {
           )}
         </div>
 
-        {/* Mobile icons — far right */}
-        <div
-          className="flex md:hidden"
-          style={{ alignItems: "center", gap: "8px", marginLeft: "auto" }}
-        >
+        {/* Mobile icons */}
+        <div className="flex md:hidden items-center gap-2 ml-auto">
+
+          {/* Theme toggle */}
           <button
             onClick={toggleTheme}
-            style={btnIcon}
             aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"}
+            style={iconBtn}
+            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = darkMode ? "#374151" : "#f3f4f6")}
+            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = darkMode ? "#1f2937" : "#ffffff")}
           >
             {darkMode
               ? <Sun size={17} strokeWidth={2} color="#1976D2" />
               : <Moon size={17} strokeWidth={2} color="#1976D2" />}
           </button>
 
+          {/* Hamburger */}
           <button
             onClick={() => setMenuOpen((o) => !o)}
-            style={btnIcon}
             aria-label={menuOpen ? "Close menu" : "Open menu"}
             aria-expanded={menuOpen}
             aria-controls="mobile-menu"
+            style={iconBtn}
+            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = darkMode ? "#374151" : "#f3f4f6")}
+            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = darkMode ? "#1f2937" : "#ffffff")}
           >
             {menuOpen ? (
               <span style={{ color: "#1976D2", fontSize: "18px", lineHeight: 1, fontWeight: 400 }}>✕</span>
             ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: "5px", alignItems: "center" }}>
-                <span style={{ display: "block", width: "16px", height: "2px", backgroundColor: "#1976D2", borderRadius: "2px" }} />
-                <span style={{ display: "block", width: "16px", height: "2px", backgroundColor: "#1976D2", borderRadius: "2px" }} />
-                <span style={{ display: "block", width: "16px", height: "2px", backgroundColor: "#1976D2", borderRadius: "2px" }} />
+              <div className="flex flex-col gap-[5px] items-center">
+                <span className="block w-4 h-0.5 bg-[#1976D2] rounded-sm" />
+                <span className="block w-4 h-0.5 bg-[#1976D2] rounded-sm" />
+                <span className="block w-4 h-0.5 bg-[#1976D2] rounded-sm" />
               </div>
             )}
           </button>
@@ -339,44 +240,23 @@ export default function Navbar({ darkMode = false, toggleTheme = () => {} }) {
       {/* ── Mobile Menu ── */}
       <div
         id="mobile-menu"
-        className="md:hidden"
-        aria-hidden={!menuOpen}
-        style={{
-          overflow: "hidden",
-          maxHeight: menuOpen ? "520px" : "0",
-          opacity: menuOpen ? 1 : 0,
-          transition: "max-height 0.3s ease-in-out, opacity 0.25s ease-in-out",
-        }}
+        className="md:hidden overflow-hidden transition-all duration-300 ease-in-out"
+        aria-hidden={menuOpen ? "false" : "true"}
+        {...(!menuOpen && { inert: "" })}
+        style={{ maxHeight: menuOpen ? "600px" : "0", opacity: menuOpen ? 1 : 0 }}
       >
-        <div style={{
-          borderTop: `1px solid ${border}`,
-          backgroundColor: bg,
-          padding: "12px 16px 16px",
-          display: "flex",
-          flexDirection: "column",
-          gap: "4px",
-          transition: "background-color 0.3s ease",
-        }}>
+        <div className={`border-t px-4 pb-4 pt-3 flex flex-col gap-1 transition-colors duration-300 ${darkMode ? "bg-[#0d1b2e] border-gray-800" : "bg-white border-gray-200"}`}>
 
-          <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: "2px" }}>
+          <ul role="list" className="list-none m-0 p-0 flex flex-col gap-0.5">
             {navLinks.map((link) => (
               <li key={link.name}>
                 <NavLink
                   to={link.path}
                   aria-current={location.pathname === link.path ? "page" : undefined}
+                  className="block rounded-[10px] px-4 py-[11px] text-base font-medium no-underline text-[#1976D2] transition-colors duration-150"
                   style={({ isActive }) => ({
-                    display: "block",
-                    borderRadius: "10px",
-                    padding: "11px 16px",
-                    fontSize: "16px",
-                    fontWeight: "500",
-                    fontFamily: "'Inter', sans-serif",
-                    textDecoration: "none",
-                    color: "#1976D2",
-                    backgroundColor: isActive ? mobileActiveBg : "transparent",
+                    backgroundColor: isActive ? (darkMode ? "#1e3a5f" : "#eff6ff") : "transparent",
                     borderLeft: isActive ? "3px solid #1976D2" : "3px solid transparent",
-                    transition: "background-color 0.15s ease",
-                    boxSizing: "border-box",
                   })}
                 >
                   {link.name}
@@ -385,28 +265,19 @@ export default function Navbar({ darkMode = false, toggleTheme = () => {} }) {
             ))}
           </ul>
 
-          <div style={{ margin: "10px 0", borderTop: `1px solid ${border}` }} />
+          <div className={`my-2.5 border-t ${darkMode ? "border-gray-800" : "border-gray-200"}`} />
 
           {isLoggedIn ? (
-            <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "10px", padding: "2px 4px" }}>
-                <div style={{
-                  width: "38px", height: "38px", borderRadius: "50%",
-                  backgroundColor: "#1976D2", display: "flex", alignItems: "center",
-                  justifyContent: "center", color: "white", fontSize: "15px",
-                  fontWeight: "700", flexShrink: 0,
-                }}>
+            <div className="flex flex-col gap-2.5">
+              <div className="flex items-center gap-2.5 px-1 py-0.5">
+                <div className="w-[38px] h-[38px] rounded-full bg-[#1976D2] flex items-center justify-center text-white text-[15px] font-bold shrink-0">
                   {user?.name?.[0]?.toUpperCase() ?? (role === "instructor" ? "I" : "S")}
                 </div>
                 <div>
-                  <p style={{ margin: 0, fontSize: "14px", fontWeight: "600", color: textPrimary, fontFamily: "'Inter', sans-serif" }}>
+                  <p className={`m-0 text-sm font-semibold ${darkMode ? "text-gray-100" : "text-gray-800"}`}>
                     {user?.name ?? "Account"}
                   </p>
-                  <p style={{
-                    margin: 0, fontSize: "12px", fontWeight: "500",
-                    color: role === "instructor" ? "#9333ea" : "#3b82f6",
-                    textTransform: "capitalize", fontFamily: "'Inter', sans-serif",
-                  }}>
+                  <p className="m-0 text-xs font-medium capitalize" style={{ color: role === "instructor" ? "#9333ea" : "#3b82f6" }}>
                     {role}
                   </p>
                 </div>
@@ -414,29 +285,32 @@ export default function Navbar({ darkMode = false, toggleTheme = () => {} }) {
 
               <button
                 onClick={handleLogout}
-                style={{ ...btnPrimary, width: "100%", height: "42px", borderRadius: "10px", fontSize: "15px" }}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#1565C0"}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#1976D2"}
+                className="flex items-center justify-center gap-1.5 w-full h-[42px] rounded-[10px] text-[15px] font-semibold text-white cursor-pointer transition-colors duration-200"
+                style={{ backgroundColor: "#1976D2", border: "none" }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#1565C0")}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#1976D2")}
               >
                 <LogOut size={15} />
                 Logout
               </button>
             </div>
           ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+            <div className="flex flex-col gap-2">
               <button
                 onClick={() => { navigate("/login"); setMenuOpen(false); }}
-                style={{ ...btnOutline, width: "100%", height: "42px", borderRadius: "10px", fontSize: "15px" }}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = darkMode ? "#1e3a5f" : "#e3f0fb"}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "transparent"}
+                className="flex items-center justify-center w-full h-[42px] rounded-[10px] text-[15px] font-semibold text-[#1976D2] cursor-pointer transition-colors duration-200"
+                style={{ border: "1.5px solid #1976D2", backgroundColor: "transparent" }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = darkMode ? "#1e3a5f" : "#e3f0fb")}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
               >
                 Login
               </button>
               <button
                 onClick={() => { navigate("/register"); setMenuOpen(false); }}
-                style={{ ...btnPrimary, width: "100%", height: "42px", borderRadius: "10px", fontSize: "15px" }}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#1565C0"}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#1976D2"}
+                className="flex items-center justify-center gap-1.5 w-full h-[42px] rounded-[10px] text-[15px] font-semibold text-white cursor-pointer transition-colors duration-200"
+                style={{ backgroundColor: "#1976D2", border: "none" }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = darkMode ? "#1565C0" : "#2196F3")}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#1976D2")}
               >
                 <UserPlus size={15} />
                 Sign Up

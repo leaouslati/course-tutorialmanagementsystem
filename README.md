@@ -52,18 +52,30 @@ Access the live application here:  add link
 ### Member 1: Lea Ouslati
 - Responsible for: Homepage & Login Page
 - Contributions:
-    - Set up React Router to handle app navigation between pages.
-    - Designed and implemented the Homepage, including layout, featured courses, navigation links, and    related statistics
+    - Set up React Router to manage navigation between different pages of the application.
+
+    - Designed and implemented the Homepage, including layout structure, featured courses section,   navigation links, and key platform statistics.
+
     - Developed the Login Page with form validation and integration with mock user data.
-    - Managed and organized the GitHub repository to ensure working on branches and merging when needed 
+
+    - Implemented user authentication logic on the Login Page, including input validation, error handling, and redirecting users to the Homepage after successful login.
+    
+    - Managed and organized the GitHub repository, including creating branches, handling commits, and merging changes when needed to maintain a clean workflow.
 
 ### Member 2: Reem Antar 
 - Responsible for: CourseCard, CourseDetails, and Courses pages
 - Contributions:
    - Built the CourseCard component to showcase courses with key info like title, instructor, difficulty, duration, and ratings, including dynamic badges for new or recently updated courses.
+
    - Designed the CourseDetails page, allowing users to explore full course info, view modules and lessons, enroll in courses, and receive real-time notifications for actions.
-   - Created the Courses page with search, filters, and sorting options. We thought carefully about filtering and searching: users can filter by difficulty or category, search by course title, and sort by rating or duration making it simple to quickly find the course that fits their needs.
-   - Defined and structured the modules dataset in mockdata.js, including module IDs, titles, order, and lesson references, enabling dynamic rendering of course modules across the platform.
+
+   - Created the Courses page with search, filters, and sorting options. 
+
+   - Filtering and searching include: users can filter by difficulty or category, search by course title, and sort by rating or duration making it simple to quickly find the course that fits their needs.
+
+   - Defined and structured the modules dataset in mockdata.js
+
+   - Chose the color palette and styling rules for these pages, ensuring a consistent and user-friendly interface across the website
 
 ### Member 3: Intissar Soulaiman
 - Responsible for: Navbar, Profile Page, and Enrollments Page.

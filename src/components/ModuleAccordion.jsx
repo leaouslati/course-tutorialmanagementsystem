@@ -2,8 +2,8 @@ import React, { useState, useEffect, useRef } from "react";
 import { ChevronDown, Lock } from "lucide-react";
 import { useAuth } from "../pages/AuthContext";
 
-/* ─── Video Modal ─────────────────────────────────────────────────────── */
-const LessonModal = ({ lesson, moduleName, onClose }) => {
+
+const LessonModal = ({ lesson, moduleName, onClose, darkMode }) => {
   const embedUrl = lesson.url || lesson.videoUrl?.replace("watch?v=", "embed/");
   const modalRef = useRef(null);
 
@@ -42,19 +42,32 @@ const LessonModal = ({ lesson, moduleName, onClose }) => {
         role="dialog"
         aria-modal="true"
         aria-labelledby="lesson-modal-title"
-        className="w-full max-w-2xl rounded-2xl bg-white border border-slate-200 shadow-2xl overflow-hidden"
+        className="w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden"
+        style={{
+          backgroundColor: darkMode ? "#0f1f3d" : "#ffffff",
+          border: `1px solid ${darkMode ? "#1a3a6b" : "#e2e8f0"}`,
+        }}
       >
-        <div className="flex items-start justify-between gap-3 px-4 sm:px-5 py-3 sm:py-4 border-b border-slate-100">
+        {/* Modal Header */}
+        <div
+          className="flex items-start justify-between gap-3 px-4 sm:px-5 py-3 sm:py-4 border-b"
+          style={{ borderColor: darkMode ? "#1a3a6b" : "#f1f5f9" }}
+        >
           <div className="min-w-0">
-            <p className="text-xs text-slate-400 mb-0.5">{moduleName}</p>
+            <p className="text-xs mb-0.5" style={{ color: darkMode ? "#94a3b8" : "#94a3b8" }}>
+              {moduleName}
+            </p>
             <h2
               id="lesson-modal-title"
-              className="text-sm font-bold text-slate-900 leading-snug break-words"
+              className="text-sm font-bold leading-snug break-words"
+              style={{ color: darkMode ? "#f1f5f9" : "#0f172a" }}
             >
               {lesson.title}
             </h2>
             {lesson.duration && (
-              <p className="text-xs text-slate-400 mt-0.5">{lesson.duration}</p>
+              <p className="text-xs mt-0.5" style={{ color: darkMode ? "#94a3b8" : "#94a3b8" }}>
+                {lesson.duration}
+              </p>
             )}
           </div>
           <button
@@ -62,13 +75,14 @@ const LessonModal = ({ lesson, moduleName, onClose }) => {
             aria-label="Close lesson"
             className="shrink-0 w-11 h-11 rounded-xl text-white cursor-pointer flex items-center justify-center transition focus:outline-none"
             style={{ backgroundColor: "#1976D2" }}
-            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#2196F3")}
+            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = darkMode ? "#1565C0" : "#2196F3")}
             onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#1976D2")}
           >
             <span aria-hidden="true" style={{ fontSize: 18, fontWeight: 700, lineHeight: 1 }}>✕</span>
           </button>
         </div>
 
+        {/* Video */}
         <div className="w-full bg-slate-900 aspect-video">
           {embedUrl ? (
             <iframe
@@ -85,9 +99,18 @@ const LessonModal = ({ lesson, moduleName, onClose }) => {
           )}
         </div>
 
+        {/* Lesson Content */}
         {lesson.content && (
-          <div className="px-4 sm:px-5 py-3 sm:py-4 border-t border-slate-100">
-            <p className="text-sm text-slate-500 leading-relaxed m-0">{lesson.content}</p>
+          <div
+            className="px-4 sm:px-5 py-3 sm:py-4 border-t"
+            style={{ borderColor: darkMode ? "#1a3a6b" : "#f1f5f9" }}
+          >
+            <p
+              className="text-sm leading-relaxed m-0"
+              style={{ color: darkMode ? "#cbd5e1" : "#64748b" }}
+            >
+              {lesson.content}
+            </p>
           </div>
         )}
       </div>
@@ -95,19 +118,19 @@ const LessonModal = ({ lesson, moduleName, onClose }) => {
   );
 };
 
-/* ─── Status Circle ───────────────────────────────────────────────────── */
-const StatusCircle = ({ completed, locked }) => (
+const StatusCircle = ({ completed, locked, darkMode }) => (
   <span
     role="img"
     aria-label={completed ? "Completed" : locked ? "Locked" : "Not started"}
-    className={[
-      "shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all duration-300",
-      completed
-        ? "border-green-500 bg-green-500"
+    className="shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all duration-300"
+    style={{
+      borderColor: completed ? "#22c55e" : locked ? "#cbd5e1" : "#1976D2",
+      backgroundColor: completed
+        ? "#22c55e"
         : locked
-        ? "border-slate-300 bg-slate-100"
-        : "border-[#1976D2] bg-white",
-    ].join(" ")}
+        ? darkMode ? "#1a3a6b" : "#f1f5f9"
+        : darkMode ? "#0f1f3d" : "#ffffff",
+    }}
   >
     {completed && (
       <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
@@ -123,28 +146,17 @@ const StatusCircle = ({ completed, locked }) => (
   </span>
 );
 
-/* ─── Main Component ──────────────────────────────────────────────────── */
-const ModuleAccordion = ({ modules = [], enrolled = false, courseId }) => {
+const ModuleAccordion = ({ modules = [], enrolled = false, courseId, darkMode = false }) => {
   const { updateProgress } = useAuth();
 
   const [openModule,    setOpenModule]    = useState(null);
   const [activeLesson,  setActiveLesson]  = useState(null);
   const [activeModName, setActiveModName] = useState("");
+  const [completed,     setCompleted]     = useState({});
 
-  // Local completed set — just lesson ids e.g. { 'l1': true, 'l2': true }
-  const [completed, setCompleted] = useState({});
-
-  // Total lessons across all modules — needed for progress %
   const totalLessons = modules.reduce((sum, m) => sum + (m.lessons?.length ?? 0), 0);
-
-  const isCompleted = (lessonId) => !!completed[lessonId];
-
-  // Lesson is unlocked if it's the first one, or the previous one is completed
-  const isUnlocked = (lessons, index) => {
-    if (index === 0) return true;
-    return isCompleted(lessons[index - 1].id);
-  };
-
+  const isCompleted  = (lessonId) => !!completed[lessonId];
+  const isUnlocked   = (lessons, index) => index === 0 || isCompleted(lessons[index - 1].id);
   const toggleModule = (id) => setOpenModule((prev) => (prev === id ? null : id));
 
   const openLesson = (lesson, moduleName) => {
@@ -156,8 +168,6 @@ const ModuleAccordion = ({ modules = [], enrolled = false, courseId }) => {
     if (activeLesson) {
       const updatedCompleted = { ...completed, [activeLesson.id]: true };
       setCompleted(updatedCompleted);
-
-      // Sync progress % to user object in AuthContext → localStorage
       const doneLessons = Object.keys(updatedCompleted).length;
       updateProgress(courseId, doneLessons, totalLessons);
     }
@@ -166,11 +176,23 @@ const ModuleAccordion = ({ modules = [], enrolled = false, courseId }) => {
 
   if (modules.length === 0) {
     return (
-      <p className="text-center text-slate-400 py-8 text-sm">
+      <p
+        className="text-center py-8 text-sm"
+        style={{ color: darkMode ? "#94a3b8" : "#94a3b8" }}
+      >
         No modules available for this course yet.
       </p>
     );
   }
+
+  const wrapperBorder  = darkMode ? "#1a3a6b"  : "#bfdbfe";  
+  const accordionBg    = darkMode ? "#192e55"  : "#F4F8FD";   
+  const lessonListBg   = darkMode ? "#0a1628"  : "#ffffff";   
+  const lessonBorder   = darkMode ? "#1a3a6b"  : "#f1f5f9";  
+  const listTopBorder  = darkMode ? "#1a3a6b"  : "#dbeafe";   
+  const moduleTitle    = darkMode ? "#f1f5f9"  : "#0f172a";
+  const lessonText     = darkMode ? "#cbd5e1"  : "#334155";
+  const mutedText      = darkMode ? "#94a3b8"  : "#94a3b8";
 
   return (
     <>
@@ -185,25 +207,20 @@ const ModuleAccordion = ({ modules = [], enrolled = false, courseId }) => {
             <div
               key={module.id}
               className="rounded-[17px] p-[1.5px]"
-              style={{ backgroundColor: "#bfdbfe" }}
+              style={{ backgroundColor: wrapperBorder }}
             >
               <div
                 className="rounded-2xl overflow-hidden"
-                style={{ backgroundColor: "#F4F8FD" }}
+                style={{ backgroundColor: accordionBg }}
               >
+                {/* ── Accordion Header ── */}
                 <button
                   id={headingId}
                   onClick={() => toggleModule(module.id)}
                   aria-expanded={isOpen}
                   aria-controls={panelId}
-                  className="accordion-btn w-full flex items-center justify-between gap-3 px-4 sm:px-5 py-3.5 text-left cursor-pointer"
-                  style={{
-                    backgroundColor: "#F4F8FD",
-                    outline: "none",
-                    boxShadow: "none",
-                    border: "none",
-                    WebkitTapHighlightColor: "transparent",
-                  }}
+                  className="w-full flex items-center justify-between gap-3 px-4 sm:px-5 py-3.5 text-left cursor-pointer border-none outline-none focus:outline-none"
+                  style={{ backgroundColor: accordionBg }}
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     <span
@@ -214,10 +231,16 @@ const ModuleAccordion = ({ modules = [], enrolled = false, courseId }) => {
                       {index + 1}
                     </span>
                     <div className="min-w-0">
-                      <div className="text-sm font-bold text-slate-900 break-words whitespace-normal leading-snug">
+                      <div
+                        className="text-sm font-bold break-words whitespace-normal leading-snug"
+                        style={{ color: moduleTitle }}
+                      >
                         {module.title}
                       </div>
-                      <p className="m-0 mt-0.5 text-xs text-blue-400">
+                      <p
+                        className="m-0 mt-0.5 text-xs"
+                        style={{ color: darkMode ? "#60a5fa" : "#3b82f6" }}
+                      >
                         {lessonCount} {lessonCount === 1 ? "lesson" : "lessons"}
                         {module.duration ? ` · ${module.duration}` : ""}
                       </p>
@@ -227,21 +250,21 @@ const ModuleAccordion = ({ modules = [], enrolled = false, courseId }) => {
                   <ChevronDown
                     size={18}
                     aria-hidden="true"
-                    className={[
-                      "shrink-0 text-blue-400 transition-transform duration-300",
-                      isOpen ? "rotate-180" : "rotate-0",
-                    ].join(" ")}
+                    className={`shrink-0 transition-transform duration-300 ${isOpen ? "rotate-180" : "rotate-0"}`}
+                    style={{ color: darkMode ? "#60a5fa" : "#3b82f6" }}
                   />
                 </button>
 
+                {/* ── Lessons List ── */}
                 <ul
                   id={panelId}
                   role="list"
                   aria-labelledby={headingId}
-                  className={[
-                    "list-none m-0 px-3 sm:px-5 py-1.5 flex flex-col border-t border-blue-100 bg-white",
-                    isOpen ? "block" : "hidden",
-                  ].join(" ")}
+                  className={`list-none m-0 px-3 sm:px-5 py-1.5 flex flex-col border-t ${isOpen ? "block" : "hidden"}`}
+                  style={{
+                    backgroundColor: lessonListBg,
+                    borderColor: listTopBorder,
+                  }}
                 >
                   {module.lessons?.length > 0 ? (
                     module.lessons.map((lesson, lessonIndex) => {
@@ -252,20 +275,21 @@ const ModuleAccordion = ({ modules = [], enrolled = false, courseId }) => {
                       return (
                         <li
                           key={lesson.id}
-                          className={[
-                            "flex flex-wrap items-center gap-x-2.5 gap-y-2 py-2.5 border-b border-slate-50 last:border-b-0",
-                            locked ? "opacity-50" : "",
-                          ].join(" ")}
+                          className={`flex flex-wrap items-center gap-x-2.5 gap-y-2 py-2.5 border-b last:border-b-0 ${locked ? "opacity-50" : ""}`}
+                          style={{ borderColor: lessonBorder }}
                         >
                           <div className="flex items-center gap-2.5 flex-1 min-w-0">
-                            <StatusCircle completed={isDone} locked={locked} />
+                            <StatusCircle completed={isDone} locked={locked} darkMode={darkMode} />
                             <span
-                              className={[
-                                "text-[15px] leading-snug transition-all duration-300 break-words",
-                                isDone   ? "line-through text-slate-400"
-                                : locked ? "text-slate-400"
-                                : "text-slate-700",
-                              ].join(" ")}
+                              className="text-[15px] leading-snug transition-all duration-300 break-words"
+                              style={{
+                                color: isDone
+                                  ? "#94a3b8"
+                                  : locked
+                                  ? "#94a3b8"
+                                  : lessonText,
+                                textDecoration: isDone ? "line-through" : "none",
+                              }}
                             >
                               {lesson.title}
                             </span>
@@ -274,7 +298,8 @@ const ModuleAccordion = ({ modules = [], enrolled = false, courseId }) => {
                           <div className="flex items-center gap-2 ml-auto shrink-0">
                             {lesson.duration && (
                               <span
-                                className={`text-xs ${isDone || locked ? "text-slate-300" : "text-slate-400"}`}
+                                className="text-xs"
+                                style={{ color: mutedText }}
                                 aria-label={`Duration: ${lesson.duration}`}
                               >
                                 {lesson.duration}
@@ -282,7 +307,14 @@ const ModuleAccordion = ({ modules = [], enrolled = false, courseId }) => {
                             )}
 
                             {lesson.free && !locked && (
-                              <span className="rounded-full bg-emerald-50 border border-emerald-200 text-emerald-600 text-xs font-semibold px-2 py-0.5">
+                              <span
+                                className="rounded-full text-xs font-semibold px-2 py-0.5"
+                                style={{
+                                  backgroundColor: darkMode ? "rgba(16,185,129,0.15)" : "#ecfdf5",
+                                  border: `1px solid ${darkMode ? "#065f46" : "#a7f3d0"}`,
+                                  color: darkMode ? "#34d399" : "#059669",
+                                }}
+                              >
                                 Free
                               </span>
                             )}
@@ -291,7 +323,8 @@ const ModuleAccordion = ({ modules = [], enrolled = false, courseId }) => {
                               locked ? (
                                 <span
                                   aria-label="Complete the previous lesson to unlock"
-                                  className="min-h-[44px] w-11 flex items-center justify-center text-slate-400"
+                                  className="min-h-[44px] w-11 flex items-center justify-center"
+                                  style={{ color: mutedText }}
                                 >
                                   <Lock size={15} aria-hidden="true" />
                                 </span>
@@ -302,7 +335,9 @@ const ModuleAccordion = ({ modules = [], enrolled = false, courseId }) => {
                                   className="min-h-[44px] px-3 sm:px-4 text-xs sm:text-sm font-medium text-white rounded-lg shadow transition focus:outline-none whitespace-nowrap"
                                   style={{ backgroundColor: isDone ? "#22c55e" : "#1976D2" }}
                                   onMouseEnter={(e) =>
-                                    (e.currentTarget.style.backgroundColor = isDone ? "#16a34a" : "#2196F3")
+                                    (e.currentTarget.style.backgroundColor = isDone
+                                      ? "#16a34a"
+                                      : darkMode ? "#1565C0" : "#2196F3")
                                   }
                                   onMouseLeave={(e) =>
                                     (e.currentTarget.style.backgroundColor = isDone ? "#22c55e" : "#1976D2")
@@ -317,7 +352,10 @@ const ModuleAccordion = ({ modules = [], enrolled = false, courseId }) => {
                       );
                     })
                   ) : (
-                    <li className="py-3 text-sm text-slate-400 italic">
+                    <li
+                      className="py-3 text-sm italic"
+                      style={{ color: mutedText }}
+                    >
                       No lessons in this module yet.
                     </li>
                   )}
@@ -333,6 +371,7 @@ const ModuleAccordion = ({ modules = [], enrolled = false, courseId }) => {
           lesson={activeLesson}
           moduleName={activeModName}
           onClose={closeLesson}
+          darkMode={darkMode}
         />
       )}
     </>
