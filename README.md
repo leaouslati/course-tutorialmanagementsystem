@@ -3,7 +3,7 @@
 ## Team Members:
 - Lea Ouslati
 - Reem Antar
-- Intissar Souleiman
+- Intissar Soulaiman
 - Reem Nassif
 
 
@@ -52,37 +52,70 @@ Access the live application here:  add link
 ### Member 1: Lea Ouslati
 - Responsible for: Homepage & Login Page
 - Contributions:
-    - Set up React Router to handle app navigation between pages.
-    - Designed and implemented the Homepage, including layout, featured courses, navigation links, and    related statistics
+    - Set up React Router to manage navigation between different pages of the application.
+
+    - Designed and implemented the Homepage, including layout structure, featured courses section,   navigation links, and key platform statistics.
+
     - Developed the Login Page with form validation and integration with mock user data.
-    - Managed and organized the GitHub repository to ensure working on branches and merging when needed 
+
+    - Implemented user authentication logic on the Login Page, including input validation, error handling, and redirecting users to the Homepage after successful login.
+    
+    - Managed and organized the GitHub repository, including creating branches, handling commits, and merging changes when needed to maintain a clean workflow.
 
 ### Member 2: Reem Antar 
 - Responsible for: CourseCard, CourseDetails, and Courses pages
 - Contributions:
    - Built the CourseCard component to showcase courses with key info like title, instructor, difficulty, duration, and ratings, including dynamic badges for new or recently updated courses.
-   - Designed the CourseDetails page, allowing users to explore full course info, view modules and lessons, enroll in courses, and receive real-time notifications for actions.
-   - Created the Courses page with search, filters, and sorting options. We thought carefully about filtering and searching: users can filter by difficulty or category, search by course title, and sort by rating or duration making it simple to quickly find the course that fits their needs.
-   - Defined and structured the modules dataset in mockdata.js, including module IDs, titles, order, and lesson references, enabling dynamic rendering of course modules across the platform.
 
-### Member 3: Intissar Souleiman
+   - Designed the CourseDetails page, allowing users to explore full course info, view modules and lessons, enroll in courses, and receive real-time notifications for actions.
+
+   - Created the Courses page with search, filters, and sorting options. 
+
+   - Filtering and searching include: users can filter by difficulty or category, search by course title, and sort by rating or duration making it simple to quickly find the course that fits their needs.
+
+   - Defined and structured the modules dataset in mockdata.js
+
+   - Chose the color palette and styling rules for these pages, ensuring a consistent and user-friendly interface across the website
+
+### Member 3: Intissar Soulaiman
+- Responsible for: Navbar, Profile Page, and Enrollments Page.
+- Contributions:
+   - Built the Navbar component and organized it inside the components folder, including the navigation menu, page links, and theme toggle button. Also updated it so the Enrollments link only appears when the user is logged in.
+
+   - Designed and implemented the Profile Page with user information, quick actions, badges, ID card modal, and edit profile modal. Added responsive layouts so the page works well on mobile, tablet, and desktop screens.
+
+   - Developed the Enrollments Page to display each student’s enrolled courses with progress bars, course status, module and lesson counts, and continue actions. Also added unenroll confirmation handling and responsive card layouts
+
+   - Expanded and structured the mock data in mockdata.js by adding more courses, users, lessons, and modules, with different progress values to make testing more realistic and to support dynamic rendering across the app.
+
+   - Continuously tested the pages during development to make sure the layouts, navigation, and course data were working correctly.
 
 ### Member 4: Reem Nassif
+- Responsible for: Register Page & Manage Courses Page
+- Contributions:
+   - Designed and implemented the user registration form with input validation and role selection.
+
+   - Integrated authentication logic with automatic login and navigation after successful registration.
+
+   - Developed the Manage Courses page with full CRUD functionality (add, edit, delete courses).
+
+   - Implemented search and dynamic updates to manage courses efficiently within the interface. 
+
+   - Integrated advanced features such as user authentication, role management, and dynamic course handling.
 
 
 ## Mock Data Explanation 
-- Responsible for: Creating mock data for users, courses, modules, and lessons.
-- Users:
-   - Includes students and instructors with unique IDs, names, emails, roles, and avatars.
-   - Tracks enrolled courses, created courses (for instructors), progress in courses, and join dates.
-- Lessons:
-   - Each lesson has an ID, title, content description, duration (minutes), and a video URL.
-   - Covers programming, web development, design, math, and language topics.
-- Courses:
-   - Each course includes ID, title, short and full descriptions, instructor, category, difficulty, image, duration, rating, student count, and associated modules.
-   - Designed to support course listing, filtering, searching, and detailed views.
-- Modules:
-   - Modules group lessons together, with a unique ID, title, order, and a list of lesson IDs.
-   - Examples: JavaScript Fundamentals, React Introduction, CSS Mastery, Node.js Basics, Math Foundations, English Basics.
-- Purpose:
-   - Provides structured, realistic data for testing and development of CourseCard, CourseDetails, Courses pages, and module/lesson functionality.
+Responsible for: Using mock data to simulate realistic user interactions across the platform.
+How it’s used:
+
+- When a user logs in, the mock user data determines their role (student or instructor) and displays the relevant dashboard and courses.
+
+- Opening a user profile shows enrolled courses and current progress for each course, allowing testing of progress tracking.
+
+- CourseCard components dynamically render courses with titles, instructors, ratings, and badges (e.g., “new” or “updated”) using mock course data.
+
+- Viewing a CourseDetails page shows the full course description, modules, and lessons, simulating lesson navigation and enrollment actions.
+
+- Searching and filtering courses is powered by mock course categories, difficulties, and ratings, allowing realistic course discovery scenarios.
+
+- Simulates interactions like marking lessons as complete, navigating between modules, and receiving real-time notifications without a live backend.
