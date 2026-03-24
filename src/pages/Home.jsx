@@ -14,20 +14,20 @@ const CATEGORIES = [
 ];
 
 const FLOAT_ICONS = [
-  { Icon: Zap,      left: "20%", top: "5%",     size: 38, duration: "9s",   delay: "0.6s"  },
-  { Icon: Pencil,   left: "45%", top: "3%",     size: 34, duration: "5.5s", delay: "1.8s"  },
-  { Icon: Globe,    left: "72%", top: "6%",     size: 40, duration: "8s",   delay: "0.4s"  },
-  { Icon: Code2,    left: "20%", bottom: "4%",  size: 44, duration: "4.5s", delay: "0.4s"  },
-  { Icon: Star,     left: "45%", bottom: "3%",  size: 38, duration: "10s",  delay: "1.2s"  },
-  { Icon: BookOpen, left: "70%", bottom: "5%",  size: 42, duration: "6.5s", delay: "0.7s"  },
-  { Icon: BookOpen, left: "1%",  bottom: "15%", size: 52, duration: "4s",   delay: "0s"    },
-  { Icon: Star,     left: "7%",  bottom: "50%", size: 44, duration: "11s",  delay: "0.5s"  },
-  { Icon: Zap,      left: "13%", bottom: "8%",  size: 40, duration: "6s",   delay: "1.5s"  },
-  { Icon: Pencil,   left: "4%",  bottom: "72%", size: 36, duration: "14s",  delay: "0.8s"  },
-  { Icon: Code2,    right: "1%", bottom: "15%", size: 56, duration: "5s",   delay: "0.3s"  },
-  { Icon: Globe,    right: "7%", bottom: "50%", size: 48, duration: "12s",  delay: "1s"    },
-  { Icon: BookOpen, right:"13%", bottom: "8%",  size: 54, duration: "7s",   delay: "0.2s"  },
-  { Icon: Star,     right: "4%", bottom: "72%", size: 42, duration: "13s",  delay: "2s"    },
+  { Icon: Zap, left: "20%", top: "5%", size: 38, duration: "9s", delay: "0.6s" },
+  { Icon: Pencil, left: "45%", top: "3%", size: 34, duration: "5.5s", delay: "1.8s" },
+  { Icon: Globe, left: "72%", top: "6%", size: 40, duration: "8s", delay: "0.4s" },
+  { Icon: Code2, left: "20%", bottom: "4%", size: 44, duration: "4.5s", delay: "0.4s" },
+  { Icon: Star, left: "45%", bottom: "3%", size: 38, duration: "10s", delay: "1.2s" },
+  { Icon: BookOpen, left: "70%", bottom: "5%", size: 42, duration: "6.5s", delay: "0.7s" },
+  { Icon: BookOpen, left: "1%", bottom: "15%", size: 52, duration: "4s", delay: "0s" },
+  { Icon: Star, left: "7%", bottom: "50%", size: 44, duration: "11s", delay: "0.5s" },
+  { Icon: Zap, left: "13%", bottom: "8%", size: 40, duration: "6s", delay: "1.5s" },
+  { Icon: Pencil, left: "4%", bottom: "72%", size: 36, duration: "14s", delay: "0.8s" },
+  { Icon: Code2, right: "1%", bottom: "15%", size: 56, duration: "5s", delay: "0.3s" },
+  { Icon: Globe, right: "7%", bottom: "50%", size: 48, duration: "12s", delay: "1s" },
+  { Icon: BookOpen, right: "13%", bottom: "8%", size: 54, duration: "7s", delay: "0.2s" },
+  { Icon: Star, right: "4%", bottom: "72%", size: 42, duration: "13s", delay: "2s" },
 ];
 
 function SectionHeader({ id, title, subtitle, darkMode }) {
@@ -76,11 +76,10 @@ function FeatureCard({ feature, darkMode }) {
         {/* ── Mobile:  */}
         <div className="sm:hidden w-full">
           <div
-            className={`w-full rounded-lg p-3 border overflow-hidden transition-all duration-300 h-[210px] ${
-              darkMode
+            className={`w-full rounded-lg p-3 border overflow-hidden transition-all duration-300 h-[210px] ${darkMode
                 ? "bg-[#0f2347] border-[#1e3f7a] shadow-[0_0_0_1px_rgba(30,63,122,0.5)]"
                 : "bg-white border-transparent shadow-md"
-            }`}
+              }`}
           >
             {!flipped ? (
               <div className="flex flex-col items-center justify-center text-center gap-1.5 h-full overflow-hidden">
@@ -96,10 +95,10 @@ function FeatureCard({ feature, darkMode }) {
                 <span className="text-[9px] text-slate-400 select-none flex-shrink-0">tap to flip</span>
               </div>
             ) : (
-             <ul className="space-y-1.5 w-full h-full overflow-y-auto flex flex-col items-start justify-center px-3">
-  {feature.backDesc.split("|").map((item, idx) => (
-    <li key={idx} className="flex items-center gap-2">
-      <span className="text-[#1976D2] flex-shrink-0 text-xs" aria-hidden="true">✔</span>
+              <ul className="space-y-1.5 w-full h-full overflow-y-auto flex flex-col items-start justify-center px-3">
+                {feature.backDesc.split("|").map((item, idx) => (
+                  <li key={idx} className="flex items-center gap-2">
+                    <span className="text-[#1976D2] flex-shrink-0 text-xs" aria-hidden="true">✔</span>
                     <span className={`text-xs font-medium leading-snug ${darkMode ? "text-slate-300" : "text-gray-700"}`}>
                       {item.trim()}
                     </span>
@@ -121,11 +120,10 @@ function FeatureCard({ feature, darkMode }) {
         >
           {/* Front */}
           <div
-            className={`absolute w-full h-full rounded-lg p-4 sm:p-6 md:p-8 flex flex-col justify-center items-center text-center border transition-all duration-300 ${
-              darkMode
+            className={`absolute w-full h-full rounded-lg p-4 sm:p-6 md:p-8 flex flex-col justify-center items-center text-center border transition-all duration-300 ${darkMode
                 ? "bg-[#0f2347] border-[#1e3f7a] shadow-[0_0_0_1px_rgba(30,63,122,0.5)]"
                 : "bg-white border-transparent shadow-md"
-            }`}
+              }`}
             style={{ backfaceVisibility: "hidden" }}
           >
             <div
@@ -150,11 +148,10 @@ function FeatureCard({ feature, darkMode }) {
 
           {/* Back */}
           <div
-            className={`absolute w-full h-full rounded-lg p-4 sm:p-6 md:p-8 flex flex-col justify-center items-center border transition-all duration-300 ${
-              darkMode
+            className={`absolute w-full h-full rounded-lg p-4 sm:p-6 md:p-8 flex flex-col justify-center items-center border transition-all duration-300 ${darkMode
                 ? "bg-[#0f2347] border-[#1e3f7a] shadow-[0_0_0_1px_rgba(30,63,122,0.5)]"
                 : "bg-white border-transparent shadow-md"
-            }`}
+              }`}
             style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
           >
             <ul className="space-y-2 text-left w-full">
@@ -179,16 +176,16 @@ function FeatureCard({ feature, darkMode }) {
 
 export default function Home({ darkMode = false }) {
   const features = [
-    { icon: <BookOpen className="w-12 h-12 text-[#1976D2] mb-4 mx-auto" />, title: "Expert-Led Courses",  frontDesc: "Learn from industry professionals with years of real-world experience.",           backDesc: "Live sessions with experts | Hands-on projects | Real-world case studies" },
-    { icon: <TrendingUp className="w-12 h-12 text-[#1976D2] mb-4 mx-auto" />, title: "Track Progress",    frontDesc: "Monitor your learning journey with detailed progress tracking and achievements.", backDesc: "Visual dashboards | Progress reminders | Goal setting tools"             },
-    { icon: <Users className="w-12 h-12 text-[#1976D2] mb-4 mx-auto" />,     title: "Community Support", frontDesc: "Connect with other learners, ask questions, and share knowledge.",                backDesc: "Discussion boards | Peer reviews | Group challenges"                     },
-    { icon: <Award className="w-12 h-12 text-[#1976D2] mb-4 mx-auto" />,     title: "Certifications",    frontDesc: "Earn recognized certificates upon course completion for your portfolio.",        backDesc: "Verified certificates | Portfolio showcase | Employer recognition"       },
+    { icon: <BookOpen className="w-12 h-12 text-[#1976D2] mb-4 mx-auto" />, title: "Expert-Led Courses", frontDesc: "Learn from industry professionals with years of real-world experience.", backDesc: "Live sessions with experts | Hands-on projects | Real-world case studies" },
+    { icon: <TrendingUp className="w-12 h-12 text-[#1976D2] mb-4 mx-auto" />, title: "Track Progress", frontDesc: "Monitor your learning journey with detailed progress tracking and achievements.", backDesc: "Visual dashboards | Progress reminders | Goal setting tools" },
+    { icon: <Users className="w-12 h-12 text-[#1976D2] mb-4 mx-auto" />, title: "Community Support", frontDesc: "Connect with other learners, ask questions, and share knowledge.", backDesc: "Discussion boards | Peer reviews | Group challenges" },
+    { icon: <Award className="w-12 h-12 text-[#1976D2] mb-4 mx-auto" />, title: "Certifications", frontDesc: "Earn recognized certificates upon course completion for your portfolio.", backDesc: "Verified certificates | Portfolio showcase | Employer recognition" },
   ];
 
   const [topCourses] = useState(() => [...courses].sort((a, b) => b.rating - a.rating).slice(0, 4));
-  const courseCount   = courses.length;
+  const courseCount = courses.length;
   const totalStudents = courses.reduce((s, c) => s + (c.studentsCount || 0), 0);
-  const avgRating     = (courses.reduce((s, c) => s + (c.rating || 0), 0) / courseCount).toFixed(2);
+  const avgRating = (courses.reduce((s, c) => s + (c.rating || 0), 0) / courseCount).toFixed(2);
 
   const statsRef = useRef(null);
   const [startCount, setStartCount] = useState(false);
@@ -203,9 +200,9 @@ export default function Home({ darkMode = false }) {
   }, []);
 
   const stats = [
-    { label: "Courses Available", value: courseCount - 1,      color: "text-[#1976D2]",  suffix: "+", decimals: 0 },
-    { label: "Active Learners",   value: totalStudents,         color: "text-[#22C55E]",  suffix: "",  decimals: 0 },
-    { label: "Average Rating",    value: parseFloat(avgRating), color: "text-yellow-500", suffix: "",  decimals: 2 },
+    { label: "Courses Available", value: courseCount - 1, color: "text-[#1976D2]", suffix: "+", decimals: 0 },
+    { label: "Active Learners", value: totalStudents, color: "text-[#22C55E]", suffix: "", decimals: 0 },
+    { label: "Average Rating", value: parseFloat(avgRating), color: "text-yellow-500", suffix: "", decimals: 2 },
   ];
 
   const formatStat = (stat) => {
@@ -247,8 +244,8 @@ export default function Home({ darkMode = false }) {
             </p>
             <nav aria-label="Primary actions" className="flex flex-row flex-wrap gap-4 justify-center">
               {[
-                { to: "/courses",  label: "Explore Courses", aria: "Explore our courses" },
-                { to: "/register", label: "Sign Up",         aria: "Sign up for free"    },
+                { to: "/courses", label: "Explore Courses", aria: "Explore our courses" },
+                { to: "/register", label: "Sign Up", aria: "Sign up for free" },
               ].map(({ to, label, aria }) => (
                 <Link key={to} to={to}>
                   <button
@@ -256,7 +253,7 @@ export default function Home({ darkMode = false }) {
                     style={{
                       fontSize: "clamp(0.95rem, 1.5vw, 1.125rem)",
                       backgroundColor: darkMode ? "#5b9bd5" : "#ffffff",
-                       color: darkMode?"#ffffff":"#1976D2",
+                      color: darkMode ? "#ffffff" : "#1976D2",
                     }}
                     aria-label={aria}
                   >
@@ -272,9 +269,8 @@ export default function Home({ darkMode = false }) {
       {/* 2. Categories */}
       <section
         aria-labelledby="categories-heading"
-        className={`py-10 sm:py-14 md:py-20 px-4 sm:px-6 lg:px-8 transition-colors duration-300 ${
-          darkMode ? "bg-[#060f1e]" : "bg-white"
-        }`}
+        className={`py-10 sm:py-14 md:py-20 px-4 sm:px-6 lg:px-8 transition-colors duration-300 ${darkMode ? "bg-[#060f1e]" : "bg-white"
+          }`}
       >
         <div className="max-w-7xl mx-auto">
           <SectionHeader
@@ -292,23 +288,20 @@ export default function Home({ darkMode = false }) {
                     <Link
                       to={`/courses?category=${cat.name}`}
                       aria-label={`${cat.name} — ${count} ${count === 1 ? "course" : "courses"}`}
-                      className={`group block h-full rounded-2xl border transition-all duration-300 p-3 sm:p-5 md:p-6 text-center focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1976D2] active:scale-95 ${
-                        darkMode
+                      className={`group block h-full rounded-2xl border transition-all duration-300 p-3 sm:p-5 md:p-6 text-center focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1976D2] active:scale-95 ${darkMode
                           ? "bg-[#0f2347] border-[#1e3f7a] hover:-translate-y-1 hover:border-[#2d5fc4] hover:shadow-[0_0_24px_4px_rgba(25,118,210,0.35)]"
                           : "bg-white border-slate-100 shadow-sm hover:shadow-lg hover:-translate-y-1 active:border-[#1976D2]"
-                      }`}
+                        }`}
                     >
                       <span role="img" aria-hidden="true" className="text-2xl sm:text-3xl md:text-4xl mb-2 sm:mb-3 block">
                         {cat.icon}
                       </span>
-                      <h3 className={`font-bold text-xs sm:text-sm md:text-base lg:text-lg leading-tight mb-1 ${
-                        darkMode ? "text-slate-100" : "text-gray-900"
-                      }`}>
+                      <h3 className={`font-bold text-xs sm:text-sm md:text-base lg:text-lg leading-tight mb-1 ${darkMode ? "text-slate-100" : "text-gray-900"
+                        }`}>
                         {cat.name}
                       </h3>
-                      <p className={`text-[10px] sm:text-xs md:text-sm font-medium ${
-                        darkMode ? "text-slate-400" : "text-slate-400"
-                      }`}>
+                      <p className={`text-[10px] sm:text-xs md:text-sm font-medium ${darkMode ? "text-slate-400" : "text-slate-400"
+                        }`}>
                         {count} {count === 1 ? "course" : "courses"}
                       </p>
                       <div className="mt-2 sm:mt-3 h-0.5 w-0 group-hover:w-full bg-[#1976D2] transition-all duration-300 rounded-full mx-auto" />
@@ -324,9 +317,8 @@ export default function Home({ darkMode = false }) {
       {/* 3. Featured Courses */}
       <section
         aria-labelledby="featured-heading"
-        className={`py-10 sm:py-14 md:py-20 px-4 sm:px-6 lg:px-8 transition-colors duration-300 ${
-          darkMode ? "bg-[#0a1628]" : "bg-[#F4F8FD]"
-        }`}
+        className={`py-10 sm:py-14 md:py-20 px-4 sm:px-6 lg:px-8 transition-colors duration-300 ${darkMode ? "bg-[#0a1628]" : "bg-[#F4F8FD]"
+          }`}
       >
         <div className="max-w-7xl mx-auto">
           <SectionHeader
@@ -366,9 +358,8 @@ export default function Home({ darkMode = false }) {
       <section
         ref={statsRef}
         aria-labelledby="stats-heading"
-        className={`py-10 sm:py-14 md:py-16 px-4 sm:px-6 lg:px-8 transition-colors duration-300 ${
-          darkMode ? "bg-[#060f1e]" : "bg-white"
-        }`}
+        className={`py-10 sm:py-14 md:py-16 px-4 sm:px-6 lg:px-8 transition-colors duration-300 ${darkMode ? "bg-[#060f1e]" : "bg-white"
+          }`}
       >
         <div className="max-w-7xl mx-auto">
           <SectionHeader id="stats-heading" title="Our Numbers Speak" darkMode={darkMode} />
@@ -376,11 +367,11 @@ export default function Home({ darkMode = false }) {
             {stats.map((stat, idx) => (
               <div key={idx} className="flex flex-col items-center">
                 <dt className={`font-extrabold tracking-tight ${stat.color}`} style={{ fontSize: "clamp(1.5rem, 5vw, 3rem)" }}>
-                  {startCount
-                    ? stat.value >= 1000 && stat.label !== "Average Rating"
-                      ? formatStat(stat)
-                      : <CountUp end={stat.value} duration={1.2} decimals={stat.decimals} suffix={stat.suffix} />
-                    : formatStat(stat)}
+                 {startCount
+  ? stat.value >= 1000 && stat.label !== "Average Rating"
+    ? <CountUp end={stat.value} duration={1.2} decimals={0} formattingFn={(v) => `${(v / 1000).toFixed(1).replace(/\.0$/, "")}k`} />
+    : <CountUp end={stat.value} duration={1.2} decimals={stat.decimals} suffix={stat.suffix} />
+  : formatStat(stat)}
                 </dt>
                 <dd
                   className={`font-medium mt-1 ${darkMode ? "text-slate-400" : "text-gray-500"}`}
@@ -397,9 +388,8 @@ export default function Home({ darkMode = false }) {
       {/* 5. Why Learn With Us */}
       <section
         aria-labelledby="features-heading"
-        className={`py-10 sm:py-14 md:py-20 px-4 sm:px-6 lg:px-8 transition-colors duration-300 ${
-          darkMode ? "bg-[#0a1628]" : "bg-[#F4F8FD]"
-        }`}
+        className={`py-10 sm:py-14 md:py-20 px-4 sm:px-6 lg:px-8 transition-colors duration-300 ${darkMode ? "bg-[#0a1628]" : "bg-[#F4F8FD]"
+          }`}
       >
         <div className="max-w-7xl mx-auto">
           <SectionHeader
@@ -440,7 +430,7 @@ export default function Home({ darkMode = false }) {
                 style={{
                   fontSize: "clamp(0.85rem, 1.5vw, 1rem)",
                   backgroundColor: darkMode ? "#5b9bd5" : "#ffffff",
-                  color: darkMode?"#ffffff":"#1976D2",
+                  color: darkMode ? "#ffffff" : "#1976D2",
                 }}
                 aria-label="Create a free account"
               >
