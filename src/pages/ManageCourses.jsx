@@ -1,99 +1,94 @@
-import React from "react";
-import { users } from "../data/mockdata.js";
-import { Clock, User, Star } from 'lucide-react';
+import React, { useState, useEffect } from "react";
 
-function CourseCard({ course }) {
-const instructor = users.find((user) => user.id === course.instructorId);
-const isNew = new Date() - new Date(course.createdAt) < 1000 * 60 * 60 * 24 * 90; // 90 days
-const difficultyColors = {
-    Beginner: "bg-green-100 text-green-800",
-    Intermediate: "bg-yellow-100 text-yellow-800",
-    Advanced: "bg-red-100 text-red-800",
+const ManageCourses = () => {
+  const [title, setTitle] = useState("");
+  const [courses, setCourses] = useState([]);
+  const [editingId, setEditingId] = useState(null);
+
+  const description = "Admin managed course";
+  const duration = "N/A";
+  const category = "General";
+
+  useEffect(() => {
+    const savedCourses = localStorage.getItem("courses");
+    if (savedCourses) setCourses(JSON.parse(savedCourses));
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("courses", JSON.stringify(courses));
+  }, [courses]);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!title.trim()) return alert("Enter a course title.");
+
+    if (editingId) {
+      // Update
+      setCourses(courses.map(c => c.id === editingId ? { ...c, title: title.trim() } : c));
+      setEditingId(null);
+    } else {
+      // Add
+      setCourses([...courses, { id: Date.now(), title: title.trim(), description, duration, category }]);
+    }
+    setTitle("");
+  };
+
+  const handleEdit = (course) => {
+    setTitle(course.title);
+    setEditingId(course.id);
+  };
+
+  const handleDelete = (id) => setCourses(courses.filter(c => c.id !== id));
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setTitle("");
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col overflow-hidden hover:-translate-y-1 transition-transform h-full min-h-[420px]">
-      {/* Course Image & Badges (New and Updated) */}
-      <div className="relative h-40 bg-gray-200">
-        <img
-          src={course.image}
-          alt={`Cover image for ${course.title}`}
-          className="w-full h-full object-cover rounded-t-xl"
+    <div className="p-6 max-w-3xl mx-auto">
+      <h1 className="text-2xl font-bold mb-6 text-center">Manage Courses</h1>
+
+      <form onSubmit={handleSubmit} className="flex gap-2 mb-6">
+        <input
+          type="text"
+          placeholder="Enter course title..."
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          className="flex-1 border p-2 rounded"
         />
-        {isNew && (
-         <span className="absolute top-3 left-3 bg-gray-100 text-gray-800 text-xs px-3 py-1 rounded-full font-semibold shadow">
-  New
-</span>
-        )}
-        {course.rating > 4.7 && (
-          <span className="absolute top-3 right-3 bg-yellow-100 text-yellow-800 text-xs px-3 py-1 rounded-full font-semibold shadow">
-            Updated
-          </span>
-        )}
-      </div>
-
-      {/* Card Content */}
-      <div className="p-6 flex flex-col flex-1">
-        {/* Difficulty Badge */}
-        <div className="flex items-start w-auto mb-3">
-          <span
-            className={`inline-block px-2 py-0.5 rounded-full text-xs font-semibold ${
-              difficultyColors[course.difficulty]
-            }`}
-          >
-            {course.difficulty}
-          </span>
-        </div>
-
-        {/* Course Title */}
-        <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">
-          {course.title}
-        </h3>
-
-        {/* Instructor */}
-        <p className="text-sm text-gray-500 mb-2 font-medium">
-          {instructor ? instructor.name : "Unknown"}
-        </p>
-
-        {/* Description */}
-        <p className="text-sm text-gray-600 mb-4 line-clamp-2">
-          {course.shortDescription}
-        </p>
-
-        {/* Rating & Students */}
-        <div className="flex items-center gap-4 mb-4 text-sm text-gray-600">
-          <div className="flex items-center gap-1">
-            <Clock className="w-4 h-4 text-blue-500" />
-            <span>{course.duration} min</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <User className="w-4 h-4 text-blue-500" />
-            <span>{course.studentsCount}</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <Star className="w-4 h-4 text-yellow-500" />
-            <span>{course.rating}</span>
-          </div>
-        </div>
-
-       
-        <div className="mt-auto">
-          <button
-  className="w-full py-2 rounded-lg text-white font-semibold text-center shadow transition-colors duration-300 hover:shadow-lg border-none focus:outline-none focus-visible:outline-none focus:ring-0"
-            style={{ backgroundColor: "#1976D2" }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.backgroundColor = "#0094c5")
-            }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.backgroundColor = "#1976D2")
-            }
-          >
-            View Details
+        <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded">
+          {editingId ? "Update" : "Add"}
+        </button>
+        {editingId && (
+          <button type="button" onClick={handleCancelEdit} className="px-4 py-2 bg-gray-400 text-white rounded">
+            Cancel
           </button>
-        </div>
-      </div>
+        )}
+      </form>
+
+      {courses.length === 0 ? (
+        <p className="text-center text-gray-500">No courses added yet.</p>
+      ) : (
+        <ul className="space-y-3">
+          {courses.map((course) => (
+            <li key={course.id} className="flex justify-between items-center p-3 border rounded shadow-sm">
+              <div>
+                <p className="font-semibold">{course.title}</p>
+                <p className="text-sm text-gray-500">{course.description} • {course.duration} • {course.category}</p>
+              </div>
+              <div className="flex gap-2">
+                <button onClick={() => handleEdit(course)} className="px-3 py-1 bg-yellow-500 text-white rounded">Edit</button>
+                <button onClick={() => handleDelete(course.id)} className="px-3 py-1 bg-red-500 text-white rounded">Delete</button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
-}
+};
 
-export default CourseCard; 
+export default ManageCourses;
+
+

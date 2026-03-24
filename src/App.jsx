@@ -5,11 +5,28 @@ import Home from "./pages/Home.jsx";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
 import ManageCourses from "./pages/ManageCourses.jsx";
-// import Enrollments from "./pages/Enrollments.jsx";
-// import Profile from "./pages/Profile.jsx";
+import Enrollments from "./pages/Enrollments.jsx";
+import Profile from "./pages/Profile.jsx";
 import './index.css';
 
 function App() {
+  const [darkMode, setDarkMode] = useState(
+    () => localStorage.getItem("theme") === "dark"
+  );
+
+  useEffect(() => {
+    const root = document.documentElement;
+    if (darkMode) {
+      root.classList.add("dark");
+      localStorage.setItem("theme", "dark");
+    } else {
+      root.classList.remove("dark");
+      localStorage.setItem("theme", "light");
+    }
+  }, [darkMode]);
+
+  const toggleTheme = () => setDarkMode((prev) => !prev);
+
   return (
     <Routes>
       <Route path="/" element={<Home />} />

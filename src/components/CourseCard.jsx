@@ -1,98 +1,110 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { users } from "../data/mockdata.js";
-import { Clock } from 'lucide-react';
-import { useNavigate } from "react-router-dom";
+import { Clock, Users, Star } from "lucide-react";
 
 function CourseCard({ course }) {
-  const navigate = useNavigate();
   const instructor = users.find((user) => user.id === course.instructorId);
   const isNew = new Date() - new Date(course.createdAt) < 1000 * 60 * 60 * 24 * 90;
+
   const difficultyColors = {
-    Beginner: "bg-green-100 text-green-800",
+    Beginner:     "bg-green-100  text-green-800",
     Intermediate: "bg-yellow-100 text-yellow-800",
-    Advanced: "bg-red-100 text-red-800",
+    Advanced:     "bg-red-100    text-red-800",
   };
 
   return (
-    <div
-      className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col overflow-hidden hover:-translate-y-1 transition-transform h-full min-h-[420px] cursor-pointer"
-      onClick={() => navigate(`/courses/${course.id}`)}
+    <article
+      className="bg-white rounded-xl shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col overflow-hidden h-full"
+      aria-labelledby={`course-title-${course.id}`}
     >
-      {/* Course Image & Badges */}
-      <div className="relative h-40 bg-gray-200">
+      {/* ── Thumbnail ── */}
+      <div className="relative h-40 sm:h-44 bg-gray-200 flex-shrink-0">
         <img
           src={course.image}
           alt={`Cover image for ${course.title}`}
-          className="w-full h-full object-cover rounded-t-xl"
+          className="w-full h-full object-cover"
+          loading="lazy"
         />
         {isNew && (
-          <span className="absolute top-3 left-3 bg-gray-100 text-gray-800 text-xs px-3 py-1 rounded-full font-semibold shadow">
+          <span className="absolute top-3 left-3 bg-white/90 text-gray-800 text-xs px-2.5 py-0.5 rounded-full font-semibold shadow-sm">
             New
           </span>
         )}
         {course.rating > 4.7 && (
-          <span className="absolute top-3 right-3 bg-yellow-100 text-yellow-800 text-xs px-3 py-1 rounded-full font-semibold shadow">
+          <span className="absolute top-3 right-3 bg-yellow-100 text-yellow-800 text-xs px-2.5 py-0.5 rounded-full font-semibold shadow-sm">
             Updated
           </span>
         )}
       </div>
 
-      {/* Card Content */}
-      <div className="p-6 flex flex-col flex-1">
-        {/* Difficulty Badge */}
-        <div className="flex items-start w-auto mb-3">
-          <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-semibold ${difficultyColors[course.difficulty]}`}>
-            {course.difficulty}
-          </span>
-        </div>
+      {/* ── Body ── */}
+      <div className="p-4 sm:p-5 flex flex-col flex-1 gap-2 justify-between">
 
-        {/* Course Title */}
-        <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">
+        {/* Difficulty badge */}
+        <span
+          className={`self-start text-xs font-semibold px-2.5 py-0.5 rounded-full ${difficultyColors[course.difficulty]}`}
+          aria-label={`Difficulty: ${course.difficulty}`}
+        >
+          {course.difficulty}
+        </span>
+
+        {/* Title */}
+        <h2
+          id={`course-title-${course.id}`}
+          className="text-base sm:text-lg font-bold text-gray-900 leading-snug line-clamp-2"
+        >
           {course.title}
-        </h3>
+        </h2>
 
         {/* Instructor */}
-        <p className="text-sm text-gray-500 mb-2 font-medium">
-          {instructor ? instructor.name : "Unknown"}
+        <p className="text-xs sm:text-sm text-gray-500 font-medium truncate">
+          {instructor ? instructor.name : "Unknown Instructor"}
         </p>
 
         {/* Description */}
-        <p className="text-sm text-gray-600 mb-4 line-clamp-2">
-          {course.shortDescription}
-        </p>
-
-        {/* Stats */}
-        <div className="flex items-center gap-4 mb-4 text-sm text-gray-600">
-          <div className="flex items-center gap-1">
-            <Clock className="w-4 h-4 text-blue-500" />
+           <p className="text-xs sm:text-sm text-gray-600 line-clamp-2 leading-relaxed min-h-[2.5rem]">
+      {course.shortDescription}
+    </p>
+        {/* ── Stats ── */}
+        <div
+          className="flex items-center gap-3 sm:gap-4 text-xs sm:text-sm text-gray-500 mt-1"
+          aria-label="Course statistics"
+        >
+          <div className="flex items-center gap-1" aria-label={`Duration: ${course.duration} minutes`}>
+            <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-500 flex-shrink-0" aria-hidden="true" />
             <span>{course.duration} min</span>
           </div>
-          <div className="flex items-center gap-1">
-            <span>👥</span>
+
+          <div className="flex items-center gap-1" aria-label={`${course.studentsCount} students enrolled`}>
+            <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-500 flex-shrink-0" aria-hidden="true" />
             <span>{course.studentsCount}</span>
           </div>
-          <div className="flex items-center gap-1">
-            <span>⭐</span>
+
+          <div className="flex items-center gap-1" aria-label={`Rating: ${course.rating} out of 5`}>
+            <Star className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-yellow-400 fill-yellow-400 flex-shrink-0" aria-hidden="true" />
             <span>{course.rating}</span>
           </div>
         </div>
 
-        <div className="mt-auto">
-          <button
-            className="w-full py-2 rounded-lg text-white font-semibold text-center shadow transition-colors duration-300 hover:shadow-lg border-none focus:outline-none focus-visible:outline-none focus:ring-0"
-            style={{ backgroundColor: "#1976D2" }}
-            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#0094c5")}
-            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#1976D2")}
-            onClick={(e) => {
-              e.stopPropagation();
-              navigate(`/courses/${course.id}`);
-            }}
-          >
-            View Details
-          </button>
+        {/* ── CTA ── */}
+        <div className="mt-auto pt-3">
+     <Link
+  to={`/courses/${course.id}`}
+  className="block w-full py-2 rounded-lg text-md font-semibold text-center shadow-sm
+             transition-colors duration-200 focus:outline-none focus-visible:ring-2
+             focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+  style={{ backgroundColor: "#1976D2", color: "#fff" }}
+  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#0094c5")}
+  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#1976D2")}
+  aria-label={`View details for ${course.title}`}
+>
+  View Details
+</Link>
         </div>
+
       </div>
-    </div>
+    </article>
   );
 }
 
