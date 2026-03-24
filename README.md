@@ -1,16 +1,68 @@
-# React + Vite
+# CourseHub
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Team Members:
+- Lea Ouslati
+- Reem Antar
+- Intissar Souleiman
+- Reem Nassif
 
-Currently, two official plugins are available:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Assigned Topic:
+We developed a Course Tutorial Management System to help manage tutorials, courses, and student progress.
 
-## React Compiler
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Primary Data Entities 
+- **Users** – Represents all users of the system, including students and instructors. Each user has a unique ID, name, email, role, enrolled courses, created courses, progress in courses, and other profile information.
 
-## Expanding the ESLint configuration
+- **Courses** – Represents the different courses available in the system. Each course includes details like title, description, category, difficulty level, instructor, duration, rating, number of students, and associated modules.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- **Modules** – Each course is broken into modules. A module contains a set of lessons and has an order to define the learning sequence.
+
+- **Lessons** – Represents the individual lessons within modules. Each lesson includes a title, content description, duration, and a video URL for learning purposes.
+
+
+## Deployed Application
+Access the live application here:  add link
+
+## Setup Instructions for Running Frontend Locally
+1. **Clone the repository:**
+   git clone [https://github.com/leaouslati/course-tutorialmanagementsystem.git]
+   cd course-tutorial-system
+
+2. **Install dependencies:**
+   npm install
+
+3. **Start the development server:**
+   npm run dev
+   
+4. **Open your browser:**
+   localhost: 5173
+   Go to [http://localhost:5173] to view the app.
+
+**Requirements:**
+- Node.js (v16 or higher recommended)
+
+
+## Screenshots of Important Features
+
+
+
+## Team Member Contributions
+
+### Member 1: Lea Ouslati
+- Responsible for: Homepage & Login Page
+- Contributions:
+    - Set up React Router to handle app navigation between pages.
+    - Designed and implemented the Homepage, including layout, featured courses, navigation links, and    related statistics
+    - Developed the Login Page with form validation and integration with mock user data.
+    - Managed and organized the GitHub repository to ensure working on branches and merging when needed 
+
+### Member 2: Reem Antar 
+
+
+### Member 3: Intissar Souleiman
+
+### Member 4: Reem Nassif
+
+
+## Mock Data Explanation 
