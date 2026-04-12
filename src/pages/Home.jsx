@@ -2,8 +2,10 @@ import React, { useState, useEffect, useRef } from "react";
 import { BookOpen, TrendingUp, Users, Award, Code2, Star, Zap, Globe, Pencil } from "lucide-react";
 import { Link } from "react-router-dom";
 import CourseCard from "../components/CourseCard";
+import Button from "../components/Button";
 import { courses } from "../data/mockdata.js";
 import CountUp from "react-countup";
+import { useAuth } from "./AuthContext";
 
 const CATEGORIES = [
   { id: 1, icon: "💻", name: "Programming" },
@@ -175,6 +177,9 @@ function FeatureCard({ feature, darkMode }) {
 }
 
 export default function Home({ darkMode = false }) {
+  const { currentUser } = useAuth();
+  const isLoggedIn = !!currentUser;
+
   const features = [
     { icon: <BookOpen className="w-12 h-12 text-[#1976D2] mb-4 mx-auto" />, title: "Expert-Led Courses", frontDesc: "Learn from industry professionals with years of real-world experience.", backDesc: "Live sessions with experts | Hands-on projects | Real-world case studies" },
     { icon: <TrendingUp className="w-12 h-12 text-[#1976D2] mb-4 mx-auto" />, title: "Track Progress", frontDesc: "Monitor your learning journey with detailed progress tracking and achievements.", backDesc: "Visual dashboards | Progress reminders | Goal setting tools" },
@@ -243,24 +248,35 @@ export default function Home({ darkMode = false }) {
               Learn from industry experts, grow your skills, and advance your career at your own pace.
             </p>
             <nav aria-label="Primary actions" className="flex flex-row flex-wrap gap-4 justify-center">
-              {[
-                { to: "/courses", label: "Explore Courses", aria: "Explore our courses" },
-                { to: "/register", label: "Sign Up", aria: "Sign up for free" },
-              ].map(({ to, label, aria }) => (
-                <Link key={to} to={to}>
-                  <button
-                    className="px-6 py-3 rounded-xl font-bold shadow-lg transition-transform duration-200 hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#1565C0]"
-                    style={{
-                      fontSize: "clamp(0.95rem, 1.5vw, 1.125rem)",
-                      backgroundColor: darkMode ? "#5b9bd5" : "#ffffff",
-                      color: darkMode ? "#ffffff" : "#1976D2",
-                    }}
-                    aria-label={aria}
+              {/* Explore Courses — always visible */}
+              <Link to="/courses">
+                <Button
+                  variant="hero"
+                  size="lg"
+                  darkMode={darkMode}
+                  className="font-bold shadow-lg transition-transform duration-200 hover:scale-105 focus-visible:ring-white focus-visible:ring-offset-[#1565C0]"
+                  style={{ fontSize: "clamp(0.95rem, 1.5vw, 1.125rem)" }}
+                  aria-label="Explore our courses"
+                >
+                  Explore Courses
+                </Button>
+              </Link>
+
+              {/* Sign Up — only visible when not logged in */}
+              {!isLoggedIn && (
+                <Link to="/register">
+                  <Button
+                    variant="hero"
+                    size="lg"
+                    darkMode={darkMode}
+                    className="font-bold shadow-lg transition-transform duration-200 hover:scale-105 focus-visible:ring-white focus-visible:ring-offset-[#1565C0]"
+                    style={{ fontSize: "clamp(0.95rem, 1.5vw, 1.125rem)" }}
+                    aria-label="Sign up for free"
                   >
-                    {label}
-                  </button>
+                    Sign Up
+                  </Button>
                 </Link>
-              ))}
+              )}
             </nav>
           </div>
         </div>
@@ -340,15 +356,16 @@ export default function Home({ darkMode = false }) {
           </div>
           <div className="text-center">
             <Link to="/courses">
-              <button
-                className="w-full sm:w-auto py-2.5 px-8 rounded-lg text-white font-semibold shadow transition-colors duration-300 hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1976D2] focus-visible:ring-offset-2"
-                style={{ fontSize: "clamp(0.85rem, 1.5vw, 1rem)", backgroundColor: "#1976D2" }}
-                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = darkMode ? "#1565C0" : "#2196F3")}
-                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#1976D2")}
+              <Button
+                variant="primary"
+                size="md"
+                darkMode={darkMode}
+                className="w-full sm:w-auto shadow hover:shadow-lg"
+                style={{ fontSize: "clamp(0.85rem, 1.5vw, 1rem)", padding: "0.625rem 2rem" }}
                 aria-label="View all available courses"
               >
                 View All Courses
-              </button>
+              </Button>
             </Link>
           </div>
         </div>
@@ -424,19 +441,33 @@ export default function Home({ darkMode = false }) {
             Join thousands of students already learning and advancing their careers with CourseHub.
           </p>
           <nav aria-label="Call to action" className="flex flex-row flex-wrap gap-4 justify-center pt-1">
-            <Link to="/register">
-              <button
-                className="px-6 py-3 rounded-xl font-bold shadow-lg transition-transform duration-200 hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#1565C0]"
-                style={{
-                  fontSize: "clamp(0.85rem, 1.5vw, 1rem)",
-                  backgroundColor: darkMode ? "#5b9bd5" : "#ffffff",
-                  color: darkMode ? "#ffffff" : "#1976D2",
-                }}
-                aria-label="Create a free account"
-              >
-                Create Free Account
-              </button>
-            </Link>
+            {isLoggedIn ? (
+              <Link to="/courses">
+                <Button
+                  variant="hero"
+                  size="lg"
+                  darkMode={darkMode}
+                  className="font-bold shadow-lg transition-transform duration-200 hover:scale-105 focus-visible:ring-white focus-visible:ring-offset-[#1565C0]"
+                  style={{ fontSize: "clamp(0.85rem, 1.5vw, 1rem)" }}
+                  aria-label="Browse all courses"
+                >
+                  Browse Courses
+                </Button>
+              </Link>
+            ) : (
+              <Link to="/register">
+                <Button
+                  variant="hero"
+                  size="lg"
+                  darkMode={darkMode}
+                  className="font-bold shadow-lg transition-transform duration-200 hover:scale-105 focus-visible:ring-white focus-visible:ring-offset-[#1565C0]"
+                  style={{ fontSize: "clamp(0.85rem, 1.5vw, 1rem)" }}
+                  aria-label="Create a free account"
+                >
+                  Create Free Account
+                </Button>
+              </Link>
+            )}
           </nav>
         </div>
       </section>

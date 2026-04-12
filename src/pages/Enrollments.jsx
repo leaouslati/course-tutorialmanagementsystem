@@ -1,19 +1,32 @@
 import { Link, useNavigate } from "react-router-dom";
 import { courses, users, modules } from "../data/mockdata.js";
-import { LayoutGrid, Clock, X, AlertTriangle } from "lucide-react";
+import { LayoutGrid, Clock, X, AlertTriangle, Bookmark, BookmarkCheck } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "../pages/AuthContext";
+import ProgressBar from "../components/ProgressBar";
+import StatusBadge from "../components/StatusBadge";
+import Button from "../components/Button";
 
 function Enrollments({ darkMode = false }) {
-  const { currentUser } = useAuth();
+  const { currentUser, toggleBookmark, isBookmarked } = useAuth();
 
   const [enrolled, setEnrolled] = useState(
     Array.isArray(currentUser?.enrolledCourses) ? currentUser.enrolledCourses : []
   );
   const [confirmId, setConfirmId] = useState(null);
+  // "all" | "bookmarked"
+  const [bookmarkFilter, setBookmarkFilter] = useState("all");
   const navigate = useNavigate();
 
   const enrolledCourses = courses.filter((c) => enrolled.includes(c.id));
+
+  // Apply bookmark filter
+  const visibleCourses =
+    bookmarkFilter === "bookmarked"
+      ? enrolledCourses.filter((c) => isBookmarked(c.id))
+      : enrolledCourses;
+
+  const bookmarkedCount = enrolledCourses.filter((c) => isBookmarked(c.id)).length;
 
   const handleUnenroll = (courseId) => {
     const updated = enrolled.filter((id) => id !== courseId);
@@ -34,26 +47,7 @@ function Enrollments({ darkMode = false }) {
 
   const computeProgress = (course) => currentUser?.progress?.[course.id] ?? 0;
 
-  const getStatus = (progress) => {
-    if (progress === 100) return {
-      label: "Completed",
-      style: darkMode
-        ? { backgroundColor: "rgba(34,197,94,0.15)", color: "#4ade80", border: "1px solid #166534" }
-        : { backgroundColor: "#dcfce7", color: "#166534", border: "1px solid #86efac" },
-    };
-    if (progress > 0) return {
-      label: "In Progress",
-      style: darkMode
-        ? { backgroundColor: "rgba(234,179,8,0.15)", color: "#facc15", border: "1px solid #854d0e" }
-        : { backgroundColor: "#fef9c3", color: "#854d0e", border: "1px solid #fde047" },
-    };
-    return {
-      label: "Not Started",
-      style: darkMode
-        ? { backgroundColor: "rgba(148,163,184,0.1)", color: "#94a3b8", border: "1px solid #1a3a6b" }
-        : { backgroundColor: "#f1f5f9", color: "#475569", border: "1px solid #cbd5e1" },
-    };
-  };
+  // Status and progress are now handled by <StatusBadge> and <ProgressBar> components.
 
   const confirmCourse = courses.find((c) => c.id === confirmId);
 
@@ -66,9 +60,20 @@ function Enrollments({ darkMode = false }) {
   const bodyText = darkMode ? "#cbd5e1" : "#4b5563";
   const labelText = darkMode ? "#94a3b8" : "#374151";
   const dividerCol = darkMode ? "#1a3a6b" : "#f1f5f9";
-  const progressBg = darkMode ? "#1a3a6b" : "#e5e7eb";
   const modalBg = darkMode ? "#0f1f3d" : "#ffffff";
   const modalBorder = darkMode ? "#1a3a6b" : "#f1f5f9";
+  const filterBase = {
+    backgroundColor: darkMode ? "#0f1f3d" : "#ffffff",
+    color: darkMode ? "#94a3b8" : "#4b5563",
+    border: `1px solid ${darkMode ? "#1a3a6b" : "#e5e7eb"}`,
+    boxShadow: darkMode ? "none" : "0 1px 4px rgba(0,0,0,0.06)",
+  };
+  const filterActive = {
+    backgroundColor: "#1976D2",
+    color: "#ffffff",
+    border: "1px solid #1976D2",
+    boxShadow: "none",
+  };
 
   return (
     <div
@@ -125,28 +130,12 @@ function Enrollments({ darkMode = false }) {
             </div>
 
             <div className="flex gap-3 px-5 pb-5">
-              <button
-                onClick={() => setConfirmId(null)}
-                className="flex-1 rounded-xl py-2.5 text-sm font-semibold transition"
-                style={{
-                  backgroundColor: "transparent",
-                  border: `1px solid ${darkMode ? "#1a3a6b" : "#cbd5e1"}`,
-                  color: darkMode ? "#94a3b8" : "#475569",
-                }}
-                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = darkMode ? "#1a3a6b" : "#f1f5f9")}
-                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
-              >
+              <Button variant="secondary" size="md" darkMode={darkMode} onClick={() => setConfirmId(null)} className="flex-1">
                 Cancel
-              </button>
-              <button
-                onClick={() => handleUnenroll(confirmId)}
-                className="flex-1 rounded-xl py-2.5 text-sm font-semibold text-white transition"
-                style={{ backgroundColor: "#EF4444" }}
-                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#DC2626")}
-                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#EF4444")}
-              >
+              </Button>
+              <Button variant="danger" size="md" darkMode={darkMode} onClick={() => handleUnenroll(confirmId)} className="flex-1">
                 Yes, unenroll
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -168,8 +157,42 @@ function Enrollments({ darkMode = false }) {
           <p className="text-sm" style={{ color: mutedCol }} aria-live="polite">
             {enrolledCourses.length}{" "}
             {enrolledCourses.length === 1 ? "course" : "courses"} enrolled
+            {bookmarkedCount > 0 && (
+              <span> · {bookmarkedCount} bookmarked</span>
+            )}
           </p>
         </header>
+
+        {/* ── Bookmark filter tabs — only shown when enrolled in ≥1 course ── */}
+        {enrolledCourses.length > 0 && (
+          <div className="flex items-center gap-2 mb-5 sm:mb-6" role="group" aria-label="Filter enrolled courses">
+            {[
+              { value: "all", label: "All enrolled" },
+              { value: "bookmarked", label: `Bookmarked (${bookmarkedCount})` },
+            ].map(({ value, label }) => (
+              <button
+                key={value}
+                onClick={() => setBookmarkFilter(value)}
+                aria-pressed={bookmarkFilter === value}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1976D2]"
+                style={bookmarkFilter === value ? filterActive : filterBase}
+                onMouseEnter={(e) => {
+                  if (bookmarkFilter !== value)
+                    e.currentTarget.style.backgroundColor = darkMode ? "#1a3a6b" : "#f0f0f0";
+                }}
+                onMouseLeave={(e) => {
+                  if (bookmarkFilter !== value)
+                    e.currentTarget.style.backgroundColor = filterBase.backgroundColor;
+                }}
+              >
+                {value === "bookmarked" && (
+                  <Bookmark size={13} aria-hidden="true" />
+                )}
+                {label}
+              </button>
+            ))}
+          </div>
+        )}
 
         {/* ── Empty state ── */}
         {enrolledCourses.length === 0 ? (
@@ -183,15 +206,27 @@ function Enrollments({ darkMode = false }) {
             <p className="mb-5 max-w-md mx-auto text-sm sm:text-base" style={{ color: bodyText }}>
               You are not enrolled in any courses yet. Start exploring courses and begin learning.
             </p>
-            <button
-              onClick={() => navigate("/courses")}
-              className="rounded-xl py-2.5 px-6 text-sm font-semibold text-white shadow transition"
-              style={{ backgroundColor: "#1976D2" }}
-              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = darkMode ? "#1565C0" : "#2196F3")}
-              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#1976D2")}
-            >
+            <Button variant="primary" size="md" darkMode={darkMode} onClick={() => navigate("/courses")} className="shadow">
               Browse Courses
-            </button>
+            </Button>
+          </div>
+
+        ) : visibleCourses.length === 0 ? (
+          /* Empty state when bookmark filter has no results */
+          <div
+            className="rounded-xl p-6 sm:p-8 text-center shadow-sm"
+            style={{ backgroundColor: cardBg, border: `1px solid ${cardBorder}` }}
+          >
+            <Bookmark className="mx-auto mb-3 w-8 h-8 opacity-40" style={{ color: mutedCol }} aria-hidden="true" />
+            <h2 className="text-lg sm:text-xl font-semibold mb-2" style={{ color: headingCol }}>
+              No bookmarked courses
+            </h2>
+            <p className="mb-4 max-w-sm mx-auto text-sm" style={{ color: bodyText }}>
+              Open any enrolled course and tap the bookmark icon to save it here.
+            </p>
+            <Button variant="primary" size="md" darkMode={darkMode} onClick={() => setBookmarkFilter("all")} className="shadow">
+              Show all enrolled
+            </Button>
           </div>
 
         ) : (
@@ -199,14 +234,13 @@ function Enrollments({ darkMode = false }) {
             className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6"
             aria-label="Enrolled courses"
           >
-            {enrolledCourses.map((course) => {
+            {visibleCourses.map((course) => {
               const progress = computeProgress(course);
               const lessons = countLessons(course);
-              const status = getStatus(progress);
               const remaining = Math.round(course.duration * (1 - progress / 100));
-              const barColor = progress === 100 ? "#22C55E" : "#1976D2";
               const actionLabel = progress === 100 ? "Review" : progress > 0 ? "Continue" : "Start";
               const moduleCount = Array.isArray(course.modules) ? course.modules.length : 0;
+              const bookmarked = isBookmarked(course.id);
 
               return (
                 <li
@@ -214,9 +248,9 @@ function Enrollments({ darkMode = false }) {
                   className="rounded-xl hover:-translate-y-1 transition-all duration-300 p-4 sm:p-5 flex flex-col gap-3 list-none"
                   style={{
                     backgroundColor: cardBg,
-                    border: `1px solid ${cardBorder}`,
+                    border: `1px solid ${bookmarked ? (darkMode ? "#1e4d91" : "#bfdbfe") : cardBorder}`,
                     boxShadow: darkMode
-                      ? "none"
+                      ? bookmarked ? "0 0 0 1px rgba(25,118,210,0.25)" : "none"
                       : "0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -1px rgba(0,0,0,0.04)",
                   }}
                   onMouseEnter={(e) => {
@@ -226,11 +260,11 @@ function Enrollments({ darkMode = false }) {
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.boxShadow = darkMode
-                      ? "none"
+                      ? bookmarked ? "0 0 0 1px rgba(25,118,210,0.25)" : "none"
                       : "0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -1px rgba(0,0,0,0.04)";
                   }}
                 >
-                  {/* ── Title + status badge ── */}
+                  {/* ── Title + status badge + bookmark icon ── */}
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0 flex-1">
                       <h2
@@ -243,13 +277,32 @@ function Enrollments({ darkMode = false }) {
                         {getInstructorName(course.instructorId)}
                       </p>
                     </div>
-                    <span
-                      className="text-[11px] sm:text-xs px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full whitespace-nowrap font-bold flex-shrink-0 mt-0.5"
-                      style={status.style}
-                      aria-label={`Status: ${status.label}`}
-                    >
-                      {status.label}
-                    </span>
+
+                    <div className="flex items-center gap-1.5 flex-shrink-0 mt-0.5">
+                      {/* Bookmark toggle */}
+                      <button
+                        onClick={() => toggleBookmark(course.id)}
+                        aria-label={bookmarked ? `Remove bookmark from ${course.title}` : `Bookmark ${course.title}`}
+                        aria-pressed={bookmarked}
+                        className="p-1.5 rounded-lg transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1976D2]"
+                        style={{
+                          background: "none",
+                          border: "none",
+                          cursor: "pointer",
+                          color: bookmarked ? "#1976D2" : mutedCol,
+                        }}
+                        onMouseEnter={(e) => (e.currentTarget.style.color = "#1976D2")}
+                        onMouseLeave={(e) => (e.currentTarget.style.color = bookmarked ? "#1976D2" : mutedCol)}
+                        title={bookmarked ? "Remove bookmark" : "Bookmark"}
+                      >
+                        {bookmarked
+                          ? <BookmarkCheck className="w-4 h-4 sm:w-5 sm:h-5" aria-hidden="true" />
+                          : <Bookmark className="w-4 h-4 sm:w-5 sm:h-5" aria-hidden="true" />}
+                      </button>
+
+                      {/* Status badge — reusable component */}
+                      <StatusBadge progress={progress} darkMode={darkMode} />
+                    </div>
                   </div>
 
                   {/* ── Category ── */}
@@ -277,32 +330,8 @@ function Enrollments({ darkMode = false }) {
                     <span>{remaining} min left</span>
                   </div>
 
-                  {/* ── Progress bar ── */}
-                  <div>
-                    <div
-                      className="flex items-center justify-between text-xs sm:text-sm mb-1.5"
-                      style={{ color: bodyText }}
-                    >
-                      <span id={`progress-label-${course.id}`}>Progress</span>
-                      <span className="font-semibold" style={{ color: barColor }}>
-                        {progress}%
-                      </span>
-                    </div>
-                    <div
-                      role="progressbar"
-                      aria-valuenow={progress}
-                      aria-valuemin={0}
-                      aria-valuemax={100}
-                      aria-labelledby={`progress-label-${course.id}`}
-                      className="h-2 sm:h-2.5 w-full rounded-full overflow-hidden"
-                      style={{ backgroundColor: progressBg }}
-                    >
-                      <div
-                        className="h-full rounded-full transition-all duration-700"
-                        style={{ width: `${progress}%`, backgroundColor: barColor }}
-                      />
-                    </div>
-                  </div>
+                  {/* ── Progress bar — reusable component ── */}
+                  <ProgressBar value={progress} courseId={course.id} darkMode={darkMode} />
 
                   {/* ── Actions ── */}
                   <div

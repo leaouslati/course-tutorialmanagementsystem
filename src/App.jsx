@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import Navbar from "./components/Navbar.jsx";
 import Home from "./pages/Home.jsx";
 import Courses from "./pages/Courses.jsx";
@@ -42,6 +42,8 @@ function App() {
         <Route path="/profile" element={<Profile darkMode={darkMode} />} />
         <Route path="/register" element={<Register darkMode={darkMode} />} />
         <Route path="/courses/:id" element={<CourseDetails darkMode={darkMode} />} />
+        {/* Redirect /management → /manage-courses so the old URL doesn't show a blank page */}
+        <Route path="/management" element={<Navigate to="/manage-courses" replace />} />
       </Routes>
     </div>
   );
