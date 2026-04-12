@@ -5,6 +5,7 @@ import {
   Search as SearchIcon, BookOpen, Clock, Star, User, XCircle,
   AlertTriangle,
 } from "lucide-react";
+import Button from "../components/Button";
 
 const difficultyOptions = ["Beginner", "Intermediate", "Advanced"];
 const categoryOptions = ["Programming", "Web Development", "Design", "Mathematics", "Language"];
@@ -64,9 +65,6 @@ function CourseModal({ open, onClose, onSave, initial, isEditing, darkMode }) {
   const inputText = darkMode ? "#f1f5f9" : "#1f2937";
   const borderCol = darkMode ? "#1a3a6b" : "#e2e8f0";
   const labelCol = darkMode ? "#94a3b8" : "#111827";
-  const cancelBg = darkMode ? "transparent" : "#f9fafb";
-  const cancelBorder = darkMode ? "#1a3a6b" : "#e5e7eb";
-  const cancelText = darkMode ? "#94a3b8" : "#374151";
 
   useEffect(() => { setForm(initial || emptyForm); setErrors({}); }, [initial, open]);
   useEffect(() => {
@@ -172,24 +170,25 @@ function CourseModal({ open, onClose, onSave, initial, isEditing, darkMode }) {
           </Field>
 
           <div className="sm:col-span-2 flex gap-3 pt-2">
-            <button
+            <Button
+              variant="primary"
+              size="md"
+              darkMode={darkMode}
               onClick={handleSave}
-              className="flex-1 inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold text-white shadow transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1976D2] focus-visible:ring-offset-2"
-              style={{ backgroundColor: "#1976D2" }}
-              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#0094c5")}
-              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#1976D2")}
+              icon={isEditing ? <Edit className="h-4 w-4" /> : <PlusCircle className="h-4 w-4" />}
+              className="flex-1 shadow"
             >
-              {isEditing ? <><Edit className="h-4 w-4" /> Update Course</> : <><PlusCircle className="h-4 w-4" /> Add Course</>}
-            </button>
-            <button
+              {isEditing ? "Update Course" : "Add Course"}
+            </Button>
+            <Button
+              variant="secondary"
+              size="md"
+              darkMode={darkMode}
               onClick={onClose}
-              className="flex-1 rounded-lg px-4 py-2 text-sm font-semibold transition focus:outline-none"
-              style={{ backgroundColor: cancelBg, border: `1px solid ${cancelBorder}`, color: cancelText }}
-              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = darkMode ? "#1a3a6b" : "#f3f4f6")}
-              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = cancelBg)}
+              className="flex-1"
             >
               Cancel
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -205,9 +204,6 @@ function DeleteModal({ open, onClose, onConfirm, title, darkMode }) {
   const headingCol = darkMode ? "#f1f5f9" : "#111827";
   const bodyText = darkMode ? "#cbd5e1" : "#6b7280";
   const nameCol = darkMode ? "#f1f5f9" : "#374151";
-  const cancelBg = darkMode ? "transparent" : "#f9fafb";
-  const cancelBorder = darkMode ? "#1a3a6b" : "#e5e7eb";
-  const cancelText = darkMode ? "#94a3b8" : "#374151";
 
   useEffect(() => {
     if (!open) return;
@@ -230,24 +226,25 @@ function DeleteModal({ open, onClose, onConfirm, title, darkMode }) {
           "<span className="font-semibold" style={{ color: nameCol }}>{title}</span>" will be permanently removed from the catalog.
         </p>
         <div className="flex gap-3">
-          <button
+          <Button
+            variant="danger"
+            size="md"
+            darkMode={darkMode}
             onClick={onConfirm}
-            className="flex-1 inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold text-white transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2"
-            style={{ backgroundColor: "#dc2626" }}
-            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#b91c1c")}
-            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#dc2626")}
+            icon={<Trash2 className="h-4 w-4" />}
+            className="flex-1 focus-visible:ring-red-400"
           >
-            <Trash2 className="h-4 w-4" /> Delete Course
-          </button>
-          <button
+            Delete Course
+          </Button>
+          <Button
+            variant="secondary"
+            size="md"
+            darkMode={darkMode}
             onClick={onClose}
-            className="flex-1 inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-semibold transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-300"
-            style={{ backgroundColor: cancelBg, border: `1px solid ${cancelBorder}`, color: cancelText }}
-            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = darkMode ? "#1a3a6b" : "#f3f4f6")}
-            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = cancelBg)}
+            className="flex-1"
           >
             Cancel
-          </button>
+          </Button>
         </div>
       </div>
     </div>
@@ -373,15 +370,16 @@ export default function ManageCourses({ darkMode = false }) {
             />
           </div>
 
-          <button
+          <Button
+            variant="primary"
+            size="lg"
+            darkMode={darkMode}
             onClick={openAdd}
-            className="shrink-0 inline-flex items-center justify-center gap-2 rounded-lg px-5 py-3 text-sm font-semibold text-white shadow transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1976D2] focus-visible:ring-offset-2 w-full sm:w-auto"
-            style={{ backgroundColor: "#1976D2" }}
-            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = darkMode ? "#1565C0" : "#2196F3")}
-            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#1976D2")}
+            icon={<PlusCircle className="h-4 w-4" />}
+            className="shrink-0 w-full sm:w-auto shadow"
           >
-            <PlusCircle className="h-4 w-4" aria-hidden="true" /> Add Course
-          </button>
+            Add Course
+          </Button>
         </div>
 
         {/* Count */}
@@ -465,36 +463,28 @@ export default function ManageCourses({ darkMode = false }) {
                       </div>
 
                       <div className="flex gap-2 mt-auto">
-                        <button
+                        <Button
+                          variant="primary"
+                          size="sm"
+                          darkMode={darkMode}
                           onClick={() => openEdit(course)}
                           aria-label={`Edit ${course.title}`}
-                          className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold text-white transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1976D2] focus-visible:ring-offset-1 border-0"
-                          style={{ backgroundColor: "#1976D2" }}
-                          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = darkMode ? "#1565C0" : "#2196F3")}
-                          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#1976D2")}
+                          icon={<Edit className="h-3.5 w-3.5" />}
+                          className="flex-1"
                         >
-                          <Edit className="h-3.5 w-3.5" aria-hidden="true" /> Edit
-                        </button>
-                        <button
+                          Edit
+                        </Button>
+                        <Button
+                          variant="danger-soft"
+                          size="sm"
+                          darkMode={darkMode}
                           onClick={() => setDeleteTarget({ id: course.id, title: course.title })}
                           aria-label={`Delete ${course.title}`}
-                          className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-1"
-                          style={{
-                            color: darkMode ? "#fca5a5" : "#dc2626",
-                            backgroundColor: darkMode ? "rgba(239,68,68,0.18)" : "#fef2f2",
-                            border: `1px solid ${darkMode ? "rgba(239,68,68,0.5)" : "#fca5a5"}`,
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.backgroundColor = darkMode ? "rgba(239,68,68,0.28)" : "#fee2e2";
-                            e.currentTarget.style.borderColor = darkMode ? "rgba(239,68,68,0.75)" : "#ef4444";
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.backgroundColor = darkMode ? "rgba(239,68,68,0.18)" : "#fef2f2";
-                            e.currentTarget.style.borderColor = darkMode ? "rgba(239,68,68,0.5)" : "#fca5a5";
-                          }}
+                          icon={<Trash2 className="h-3.5 w-3.5" />}
+                          className="flex-1 focus-visible:ring-red-400"
                         >
-                          <Trash2 className="h-3.5 w-3.5" aria-hidden="true" /> Delete
-                        </button>
+                          Delete
+                        </Button>
                       </div>
                     </div>
                   </article>

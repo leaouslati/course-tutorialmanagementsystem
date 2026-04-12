@@ -7,6 +7,9 @@ import {
   BookOpen, Bookmark, BookmarkCheck,
   GraduationCap, Layers, FileText, Tag
 } from "lucide-react";
+import Button from "../components/Button";
+
+// Bookmark button only renders for logged-in users; state is persisted via AuthContext.
 import ModuleAccordion from "../components/ModuleAccordion.jsx";
 
 const toastStyle = `
@@ -24,7 +27,7 @@ const toastStyle = `
 export default function CourseDetails({ darkMode = false }) {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { currentUser, login } = useAuth();
+  const { currentUser, login, toggleBookmark, isBookmarked } = useAuth();
 
   const course = courses.find(c => c.id.toString() === id);
 
@@ -33,7 +36,9 @@ export default function CourseDetails({ darkMode = false }) {
 
   const [enrolled, setEnrolled] = useState(() => enrolledIds.includes(course?.id));
   const [showPopup, setShowPopup] = useState(false);
-  const [saved, setSaved] = useState(false);
+
+  // Bookmark is auth-gated — derived from persisted AuthContext state
+  const saved = course ? isBookmarked(course.id) : false;
 
   if (!course) {
     return (
@@ -137,19 +142,23 @@ export default function CourseDetails({ darkMode = false }) {
             <span>Back to Courses</span>
           </Link>
 
-          <button
-            onClick={() => setSaved(s => !s)}
-            aria-label={saved ? "Remove from saved" : "Save this course"}
-            aria-pressed={saved}
-            className="p-2 rounded-xl transition-colors duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
-            style={{ backgroundColor: "#1976D2" }}
-            onMouseEnter={e => (e.currentTarget.style.backgroundColor = darkMode ? "#1565C0" : "#2196F3")}
-            onMouseLeave={e => (e.currentTarget.style.backgroundColor = "#1976D2")}
-          >
-            {saved
-              ? <BookmarkCheck size={17} className="text-white" aria-hidden="true" />
-              : <Bookmark size={17} className="text-white" aria-hidden="true" />}
-          </button>
+          {/* Bookmark button — only shown to authenticated users */}
+          {currentUser && (
+            <button
+              onClick={() => toggleBookmark(course.id)}
+              aria-label={saved ? "Remove bookmark" : "Bookmark this course"}
+              aria-pressed={saved}
+              className="p-2 rounded-xl transition-colors duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+              style={{ backgroundColor: saved ? "#0f9f5a" : "#1976D2" }}
+              onMouseEnter={e => (e.currentTarget.style.backgroundColor = saved ? "#0b8a4e" : (darkMode ? "#1565C0" : "#2196F3"))}
+              onMouseLeave={e => (e.currentTarget.style.backgroundColor = saved ? "#0f9f5a" : "#1976D2")}
+              title={saved ? "Remove bookmark" : "Save course"}
+            >
+              {saved
+                ? <BookmarkCheck size={17} className="text-white" aria-hidden="true" />
+                : <Bookmark size={17} className="text-white" aria-hidden="true" />}
+            </button>
+          )}
         </div>
 
         <div className="max-w-5xl mx-auto space-y-4">
@@ -252,21 +261,22 @@ export default function CourseDetails({ darkMode = false }) {
                 </div>
 
                 {/* Enroll button */}
-                <button
+                <Button
+                  variant={enrolled ? "success" : "primary"}
+                  size="lg"
+                  darkMode={darkMode}
                   onClick={handleEnroll}
                   disabled={enrolled}
+                  fullWidth
+                  className="mt-auto shadow disabled:opacity-80 disabled:cursor-not-allowed"
                   aria-label={
                     !currentUser ? "Log in to enroll in this course"
                       : enrolled ? `Already enrolled in ${course.title}`
                         : `Enroll in ${course.title}`
                   }
-                  className="mt-auto w-full py-3 rounded-xl text-white font-semibold text-sm shadow transition-all duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 disabled:cursor-not-allowed disabled:opacity-80"
-                  style={{ backgroundColor: enrolled ? "#22c55e" : "#1976D2" }}
-                  onMouseEnter={e => { if (!enrolled) e.currentTarget.style.backgroundColor = darkMode ? "#1565C0" : "#2196F3"; }}
-                  onMouseLeave={e => { if (!enrolled) e.currentTarget.style.backgroundColor = enrolled ? "#22c55e" : "#1976D2"; }}
                 >
                   {enrolled ? "✓ Enrolled" : currentUser ? "Enroll Now" : "Log in to Enroll"}
-                </button>
+                </Button>
 
                 {enrolled && (
                   <Link

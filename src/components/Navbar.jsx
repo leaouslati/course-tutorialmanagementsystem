@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { Sun, Moon, UserPlus, LogOut, BookOpen } from "lucide-react";
 import { useAuth } from "../pages/AuthContext";
+import Button from "./Button";
 
 export default function Navbar({ darkMode = false, toggleTheme = () => { } }) {
   const { currentUser, logout } = useAuth();
@@ -96,10 +97,16 @@ export default function Navbar({ darkMode = false, toggleTheme = () => { } }) {
         <NavLink
           to="/"
           aria-label="CourseHub home"
-          className="flex items-center gap-2 text-[#1976D2] font-bold text-xl no-underline shrink-0 whitespace-nowrap"
+          className={`flex items-center gap-2 font-bold text-xl no-underline shrink-0 whitespace-nowrap ${darkMode ? "text-white" : "text-[#1976D2]"}`}
+          style={{ position: 'relative' }}
         >
-          <BookOpen size={22} strokeWidth={2.5} color="#1976D2" />
-          CourseHub
+          <BookOpen size={22} strokeWidth={2.5} color={darkMode ? "#fff" : "#1976D2"} />
+          <span className={darkMode ? "text-white" : "text-[#1976D2]"}>CourseHub</span>
+          <span
+            aria-hidden="true"
+            className={darkMode ? "absolute left-0 -bottom-1 w-full h-0.5 transition-opacity duration-200 opacity-0 group-hover:opacity-100" : ""}
+            style={darkMode ? { background: 'white' } : {}}
+          />
         </NavLink>
 
         {/* Desktop nav links */}
@@ -109,10 +116,13 @@ export default function Navbar({ darkMode = false, toggleTheme = () => { } }) {
               <NavLink
                 to={link.path}
                 aria-current={location.pathname === link.path ? "page" : undefined}
-                className="text-base font-medium no-underline whitespace-nowrap text-[#1976D2] transition-all duration-200"
+                className={`group text-base font-medium no-underline whitespace-nowrap transition-all duration-200 ${darkMode ? "text-white" : "text-[#1976D2]"}`}
                 style={({ isActive }) => ({
+                  color: darkMode ? "#fff" : "#1976D2",
                   paddingBottom: "3px",
-                  borderBottom: isActive ? "2.5px solid #1976D2" : "2.5px solid transparent",
+                  borderBottom: isActive
+                    ? `2.5px solid ${darkMode ? "#fff" : "#1976D2"}`
+                    : "2.5px solid transparent",
                 })}
               >
                 {link.name}
@@ -133,7 +143,7 @@ export default function Navbar({ darkMode = false, toggleTheme = () => { } }) {
             onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = darkMode ? "#1f2937" : "#ffffff")}
           >
             {darkMode
-              ? <Sun size={17} strokeWidth={2} color="#1976D2" />
+              ? <Sun size={17} strokeWidth={2} color="#fff" />
               : <Moon size={17} strokeWidth={2} color="#1976D2" />}
           </button>
 
@@ -158,42 +168,39 @@ export default function Navbar({ darkMode = false, toggleTheme = () => { } }) {
               </div>
 
               {/* Logout */}
-              <button
+              <Button
+                variant="primary"
+                size="md"
+                darkMode={darkMode}
                 onClick={handleLogout}
                 aria-label="Log out"
-                className="flex items-center justify-center gap-1.5 h-9 px-4 rounded-[10px] text-sm font-semibold text-white cursor-pointer transition-colors duration-200"
-                style={{ backgroundColor: "#1976D2", border: "none" }}
-                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#1565C0")}
-                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#1976D2")}
+                icon={<LogOut size={15} />}
               >
-                <LogOut size={15} />
                 Logout
-              </button>
+              </Button>
             </>
           ) : (
             <>
               {/* Login */}
-              <button
+              <Button
+                variant="outline"
+                size="md"
+                darkMode={darkMode}
                 onClick={() => navigate("/login")}
-                className="flex items-center justify-center h-9 px-4 rounded-[10px] text-sm font-semibold text-[#1976D2] cursor-pointer transition-colors duration-200"
-                style={{ border: "1.5px solid #1976D2", backgroundColor: "transparent" }}
-                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = darkMode ? "#1e3a5f" : "#e3f0fb")}
-                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
               >
                 Login
-              </button>
+              </Button>
 
               {/* Sign up */}
-              <button
+              <Button
+                variant="primary"
+                size="md"
+                darkMode={darkMode}
                 onClick={() => navigate("/register")}
-                className="flex items-center justify-center gap-1.5 h-9 px-4 rounded-[10px] text-sm font-semibold text-white cursor-pointer transition-colors duration-200"
-                style={{ backgroundColor: "#1976D2", border: "none" }}
-                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = darkMode ? "#1565C0" : "#2196F3")}
-                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#1976D2")}
+                icon={<UserPlus size={15} />}
               >
-                <UserPlus size={15} />
                 Sign Up
-              </button>
+              </Button>
             </>
           )}
         </div>
@@ -210,7 +217,7 @@ export default function Navbar({ darkMode = false, toggleTheme = () => { } }) {
             onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = darkMode ? "#1f2937" : "#ffffff")}
           >
             {darkMode
-              ? <Sun size={17} strokeWidth={2} color="#1976D2" />
+              ? <Sun size={17} strokeWidth={2} color="#fff" />
               : <Moon size={17} strokeWidth={2} color="#1976D2" />}
           </button>
 
@@ -225,12 +232,12 @@ export default function Navbar({ darkMode = false, toggleTheme = () => { } }) {
             onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = darkMode ? "#1f2937" : "#ffffff")}
           >
             {menuOpen ? (
-              <span style={{ color: "#1976D2", fontSize: "18px", lineHeight: 1, fontWeight: 400 }}>✕</span>
+              <span style={{ color: darkMode ? "#ffffff" : "#1976D2", fontSize: "18px", lineHeight: 1, fontWeight: 400 }}>✕</span>
             ) : (
               <div className="flex flex-col gap-[5px] items-center">
-                <span className="block w-4 h-0.5 bg-[#1976D2] rounded-sm" />
-                <span className="block w-4 h-0.5 bg-[#1976D2] rounded-sm" />
-                <span className="block w-4 h-0.5 bg-[#1976D2] rounded-sm" />
+                <span className={`block w-4 h-0.5 rounded-sm ${darkMode ? "bg-white" : "bg-[#1976D2]"}`} />
+                <span className={`block w-4 h-0.5 rounded-sm ${darkMode ? "bg-white" : "bg-[#1976D2]"}`} />
+                <span className={`block w-4 h-0.5 rounded-sm ${darkMode ? "bg-white" : "bg-[#1976D2]"}`} />
               </div>
             )}
           </button>
@@ -253,10 +260,13 @@ export default function Navbar({ darkMode = false, toggleTheme = () => { } }) {
                 <NavLink
                   to={link.path}
                   aria-current={location.pathname === link.path ? "page" : undefined}
-                  className="block rounded-[10px] px-4 py-[11px] text-base font-medium no-underline text-[#1976D2] transition-colors duration-150"
+                  className={`block rounded-[10px] px-4 py-[11px] text-base font-medium no-underline transition-colors duration-150 ${darkMode ? "text-white" : "text-[#1976D2]"}`}
                   style={({ isActive }) => ({
+                    color: darkMode ? "#fff" : "#1976D2",
                     backgroundColor: isActive ? (darkMode ? "#1e3a5f" : "#eff6ff") : "transparent",
-                    borderLeft: isActive ? "3px solid #1976D2" : "3px solid transparent",
+                    borderLeft: isActive
+                      ? `3px solid ${darkMode ? "#fff" : "#1976D2"}`
+                      : "3px solid transparent",
                   })}
                 >
                   {link.name}
@@ -283,38 +293,38 @@ export default function Navbar({ darkMode = false, toggleTheme = () => { } }) {
                 </div>
               </div>
 
-              <button
+              <Button
+                variant="primary"
+                size="lg"
+                darkMode={darkMode}
                 onClick={handleLogout}
-                className="flex items-center justify-center gap-1.5 w-full h-[42px] rounded-[10px] text-[15px] font-semibold text-white cursor-pointer transition-colors duration-200"
-                style={{ backgroundColor: "#1976D2", border: "none" }}
-                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#1565C0")}
-                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#1976D2")}
+                icon={<LogOut size={15} />}
+                fullWidth
               >
-                <LogOut size={15} />
                 Logout
-              </button>
+              </Button>
             </div>
           ) : (
             <div className="flex flex-col gap-2">
-              <button
+              <Button
+                variant="outline"
+                size="lg"
+                darkMode={darkMode}
                 onClick={() => { navigate("/login"); setMenuOpen(false); }}
-                className="flex items-center justify-center w-full h-[42px] rounded-[10px] text-[15px] font-semibold text-[#1976D2] cursor-pointer transition-colors duration-200"
-                style={{ border: "1.5px solid #1976D2", backgroundColor: "transparent" }}
-                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = darkMode ? "#1e3a5f" : "#e3f0fb")}
-                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+                fullWidth
               >
                 Login
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="primary"
+                size="lg"
+                darkMode={darkMode}
                 onClick={() => { navigate("/register"); setMenuOpen(false); }}
-                className="flex items-center justify-center gap-1.5 w-full h-[42px] rounded-[10px] text-[15px] font-semibold text-white cursor-pointer transition-colors duration-200"
-                style={{ backgroundColor: "#1976D2", border: "none" }}
-                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = darkMode ? "#1565C0" : "#2196F3")}
-                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#1976D2")}
+                icon={<UserPlus size={15} />}
+                fullWidth
               >
-                <UserPlus size={15} />
                 Sign Up
-              </button>
+              </Button>
             </div>
           )}
         </div>

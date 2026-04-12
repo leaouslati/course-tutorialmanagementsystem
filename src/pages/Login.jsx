@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Eye, EyeOff, Mail, Lock, BookOpen, CheckCircle, AlertCircle, KeyRound, X } from "lucide-react";
 import { users } from "../data/mockdata";
 import { useAuth } from "./AuthContext";
+import Button from "../components/Button";
 
 /* ─── Forgot Password Modal ───────────────────────────────────────────── */
 function ForgotPasswordModal({ onClose, darkMode }) {
@@ -15,6 +16,15 @@ function ForgotPasswordModal({ onClose, darkMode }) {
   const [showConfirm, setShowConfirm] = useState(false);
   const [pwErrors, setPwErrors] = useState({});
   const [done, setDone] = useState(false);
+
+  // Shared password rules (mirrors Register.jsx)
+  const PASSWORD_RULES = [
+    { label: "At least 8 characters", test: (p) => p.length >= 8 },
+    { label: "One uppercase letter (A–Z)", test: (p) => /[A-Z]/.test(p) },
+    { label: "One lowercase letter (a–z)", test: (p) => /[a-z]/.test(p) },
+    { label: "One number (0–9)", test: (p) => /[0-9]/.test(p) },
+    { label: "One special character (!@#$…)", test: (p) => /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?`~]/.test(p) },
+  ];
 
   // color tokens
   const modalBg = darkMode ? "#0f1f3d" : "#ffffff";
@@ -49,9 +59,12 @@ function ForgotPasswordModal({ onClose, darkMode }) {
 
   const handleReset = () => {
     const e = {};
-    if (!newPw) e.newPw = "Password is required.";
-    else if (newPw.length < 8) e.newPw = "Password must be at least 8 characters.";
-    else if (!/[A-Za-z]/.test(newPw) || !/[0-9]/.test(newPw)) e.newPw = "Must include letters and numbers.";
+    if (!newPw) {
+      e.newPw = "Password is required.";
+    } else {
+      const failedRule = PASSWORD_RULES.find((r) => !r.test(newPw));
+      if (failedRule) e.newPw = failedRule.label + " required.";
+    }
     if (!confirmPw) e.confirmPw = "Please confirm your password.";
     else if (confirmPw !== newPw) e.confirmPw = "Passwords do not match.";
     if (Object.keys(e).length > 0) { setPwErrors(e); return; }
@@ -149,28 +162,12 @@ function ForgotPasswordModal({ onClose, darkMode }) {
                 {emailError && <p id="reset-email-error" role="alert" className="text-xs text-red-500">{emailError}</p>}
               </div>
               <div className="flex gap-3 mt-2">
-                <button
-                  onClick={onClose}
-                  className="flex-1 rounded-xl py-3 text-sm font-semibold transition"
-                  style={{
-                    backgroundColor: "transparent",
-                    border: `1px solid ${darkMode ? "#1a3a6b" : "#cbd5e1"}`,
-                    color: darkMode ? "#94a3b8" : "#475569",
-                  }}
-                  onMouseEnter={e => (e.currentTarget.style.backgroundColor = darkMode ? "#1a3a6b" : "#f8fafc")}
-                  onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
-                >
+                <Button variant="secondary" size="lg" darkMode={darkMode} onClick={onClose} className="flex-1">
                   Cancel
-                </button>
-                <button
-                  onClick={handleEmailSubmit}
-                  className="flex-1 rounded-xl py-3 text-sm font-semibold text-white transition"
-                  style={{ backgroundColor: "#1976D2" }}
-                  onMouseEnter={e => (e.currentTarget.style.backgroundColor = darkMode ? "#1565C0" : "#2196F3")}
-                  onMouseLeave={e => (e.currentTarget.style.backgroundColor = "#1976D2")}
-                >
+                </Button>
+                <Button variant="primary" size="lg" darkMode={darkMode} onClick={handleEmailSubmit} className="flex-1">
                   Continue
-                </button>
+                </Button>
               </div>
             </>
 
@@ -201,6 +198,24 @@ function ForgotPasswordModal({ onClose, darkMode }) {
                   <EyeBtn show={showNew} onToggle={() => setShowNew(!showNew)} label={showNew ? "Hide password" : "Show password"} />
                 </div>
                 {pwErrors.newPw && <p id="new-pw-error" role="alert" className="text-xs text-red-500">{pwErrors.newPw}</p>}
+
+                {/* Strength indicator — bar + label only, shown while typing */}
+                {newPw.length > 0 && (() => {
+                  const score = PASSWORD_RULES.filter((r) => r.test(newPw)).length;
+                  const color = score <= 1 ? "#ef4444" : score === 2 ? "#f97316" : score === 3 ? "#eab308" : score === 4 ? "#22c55e" : "#16a34a";
+                  const label = ["", "Weak", "Fair", "Good", "Strong", "Very Strong"][score] ?? "";
+                  return (
+                    <div className="mt-1.5 flex items-center gap-2" aria-live="polite">
+                      <div className="flex gap-1 flex-1">
+                        {[1, 2, 3, 4, 5].map((n) => (
+                          <div key={n} className="h-1 flex-1 rounded-full transition-colors duration-300"
+                            style={{ backgroundColor: n <= score ? color : (darkMode ? "#1a3a6b" : "#e5e7eb") }} />
+                        ))}
+                      </div>
+                      {label && <span className="text-xs font-semibold shrink-0" style={{ color, minWidth: "68px", textAlign: "right" }}>{label}</span>}
+                    </div>
+                  );
+                })()}
               </div>
 
               {/* Confirm Password */}
@@ -226,28 +241,12 @@ function ForgotPasswordModal({ onClose, darkMode }) {
               </div>
 
               <div className="flex gap-3 mt-2">
-                <button
-                  onClick={() => setStep("email")}
-                  className="flex-1 rounded-xl py-3 text-sm font-semibold transition"
-                  style={{
-                    backgroundColor: "transparent",
-                    border: `1px solid ${darkMode ? "#1a3a6b" : "#cbd5e1"}`,
-                    color: darkMode ? "#94a3b8" : "#475569",
-                  }}
-                  onMouseEnter={e => (e.currentTarget.style.backgroundColor = darkMode ? "#1a3a6b" : "#f8fafc")}
-                  onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
-                >
+                <Button variant="secondary" size="lg" darkMode={darkMode} onClick={() => setStep("email")} className="flex-1">
                   Back
-                </button>
-                <button
-                  onClick={handleReset}
-                  className="flex-1 rounded-xl py-3 text-sm font-semibold text-white transition"
-                  style={{ backgroundColor: "#1976D2" }}
-                  onMouseEnter={e => (e.currentTarget.style.backgroundColor = darkMode ? "#1565C0" : "#2196F3")}
-                  onMouseLeave={e => (e.currentTarget.style.backgroundColor = "#1976D2")}
-                >
+                </Button>
+                <Button variant="primary" size="lg" darkMode={darkMode} onClick={handleReset} className="flex-1">
                   Reset Password
-                </button>
+                </Button>
               </div>
             </>
           )}
@@ -526,15 +525,16 @@ export default function Login({ darkMode = false }) {
               )}
 
               {/* Submit */}
-              <button
+              <Button
                 type="submit"
-                className="w-full rounded-xl py-3 text-sm font-semibold text-white shadow transition mt-1 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#1976D2]"
-                style={{ backgroundColor: "#1976D2" }}
-                onMouseEnter={e => (e.currentTarget.style.backgroundColor = darkMode ? "#1565C0" : "#2196F3")}
-                onMouseLeave={e => (e.currentTarget.style.backgroundColor = "#1976D2")}
+                variant="primary"
+                size="lg"
+                darkMode={darkMode}
+                fullWidth
+                className="mt-1 shadow"
               >
                 Log In
-              </button>
+              </Button>
             </form>
 
             <p className="text-center text-sm mt-6" style={{ color: darkMode ? "#64748b" : "#64748b" }}>

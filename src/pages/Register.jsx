@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff, Mail, Lock, User, BookOpen, GraduationCap, CheckCircle } from "lucide-react";
 import { useAuth } from "./AuthContext";
 import { users } from "../data/mockdata";
+import Button from "../components/Button";
 
 export default function Register({ darkMode = false }) {
   const navigate = useNavigate();
@@ -35,16 +36,37 @@ export default function Register({ darkMode = false }) {
     setErrors(prev => ({ ...prev, [field]: "" }));
   };
 
+  // Password rules — each entry: { label, test }
+  const PASSWORD_RULES = [
+    { label: "At least 8 characters", test: (p) => p.length >= 8 },
+    { label: "One uppercase letter (A–Z)", test: (p) => /[A-Z]/.test(p) },
+    { label: "One lowercase letter (a–z)", test: (p) => /[a-z]/.test(p) },
+    { label: "One number (0–9)", test: (p) => /[0-9]/.test(p) },
+    { label: "One special character (!@#$…)", test: (p) => /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?`~]/.test(p) },
+  ];
+
+  // Derive a score 0–4 for the strength bar
+  const passwordScore = PASSWORD_RULES.filter((r) => r.test(form.password)).length;
+  const strengthLabel = ["", "Weak", "Fair", "Good", "Strong", "Very Strong"][passwordScore] ?? "";
+  const strengthColor =
+    passwordScore <= 1 ? "#ef4444"
+    : passwordScore === 2 ? "#f97316"
+    : passwordScore === 3 ? "#eab308"
+    : passwordScore === 4 ? "#22c55e"
+    : "#16a34a";
+
   const validate = () => {
     const e = {};
     if (!form.name.trim()) e.name = "Full name is required.";
     else if (form.name.trim().length < 2) e.name = "Name must be at least 2 characters.";
     if (!form.email.trim()) e.email = "Email is required.";
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = "Enter a valid email address.";
-    if (!form.password) e.password = "Password is required.";
-    else if (form.password.length < 8) e.password = "Password must be at least 8 characters.";
-    else if (!/[A-Za-z]/.test(form.password) || !/[0-9]/.test(form.password))
-      e.password = "Password must include letters and numbers.";
+    if (!form.password) {
+      e.password = "Password is required.";
+    } else {
+      const failedRule = PASSWORD_RULES.find((r) => !r.test(form.password));
+      if (failedRule) e.password = failedRule.label + " required.";
+    }
     if (!form.confirm) e.confirm = "Please confirm your password.";
     else if (form.confirm !== form.password) e.confirm = "Passwords do not match.";
     if (!form.role) e.role = "Please select a role.";
@@ -258,6 +280,28 @@ export default function Register({ darkMode = false }) {
                 {errors.password && (
                   <p id="password-error" role="alert" className="text-xs text-red-500">{errors.password}</p>
                 )}
+
+                {/* Password strength indicator — bar + label, shown while typing */}
+                {form.password.length > 0 && (
+                  <div className="mt-1.5 flex items-center gap-2" aria-live="polite">
+                    <div className="flex gap-1 flex-1">
+                      {[1, 2, 3, 4, 5].map((n) => (
+                        <div
+                          key={n}
+                          className="h-1 flex-1 rounded-full transition-colors duration-300"
+                          style={{
+                            backgroundColor: n <= passwordScore ? strengthColor : (darkMode ? "#1a3a6b" : "#e5e7eb"),
+                          }}
+                        />
+                      ))}
+                    </div>
+                    {strengthLabel && (
+                      <span className="text-xs font-semibold shrink-0" style={{ color: strengthColor, minWidth: "68px", textAlign: "right" }}>
+                        {strengthLabel}
+                      </span>
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* Confirm Password */}
@@ -357,15 +401,16 @@ export default function Register({ darkMode = false }) {
               </fieldset>
 
               {/* Submit */}
-              <button
+              <Button
                 type="submit"
-                className="w-full rounded-xl py-2.5 text-sm font-semibold text-white shadow transition-colors duration-200 mt-1 focus:outline-none focus:ring-2 focus:ring-[#1976D2]/50 focus:ring-offset-2"
-                style={{ backgroundColor: "#1976D2" }}
-                onMouseEnter={e => (e.currentTarget.style.backgroundColor = darkMode ? "#1565C0" : "#2196F3")}
-                onMouseLeave={e => (e.currentTarget.style.backgroundColor = "#1976D2")}
+                variant="primary"
+                size="md"
+                darkMode={darkMode}
+                fullWidth
+                className="mt-1 shadow"
               >
                 Create My Account
-              </button>
+              </Button>
             </form>
 
             {/* Login link */}

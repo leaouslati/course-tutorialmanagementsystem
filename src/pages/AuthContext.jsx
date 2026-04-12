@@ -26,7 +26,6 @@ export function AuthProvider({ children }) {
 
   /**
    * Update progress % for a course based on how many lessons are done.
-   * No new fields — just updates currentUser.progress[courseId].
    *
    * @param {string} courseId     - e.g. 'c1'
    * @param {number} doneLessons  - number of completed lessons so far
@@ -47,8 +46,37 @@ export function AuthProvider({ children }) {
     localStorage.setItem("currentUser", JSON.stringify(updated));
   };
 
+  /**
+   * Toggle bookmark state for a course.
+   * Only works when a user is logged in.
+   *
+   * @param {string} courseId - e.g. 'c1'
+   */
+  const toggleBookmark = (courseId) => {
+    if (!currentUser || !courseId) return;
+    const saved = currentUser.savedCourses ?? [];
+    const updatedSaved = saved.includes(courseId)
+      ? saved.filter((id) => id !== courseId)
+      : [...saved, courseId];
+    const updated = { ...currentUser, savedCourses: updatedSaved };
+    setCurrentUser(updated);
+    localStorage.setItem("currentUser", JSON.stringify(updated));
+  };
+
+  /**
+   * Check whether a course is bookmarked by the current user.
+   *
+   * @param {string} courseId
+   * @returns {boolean}
+   */
+  const isBookmarked = (courseId) => {
+    return (currentUser?.savedCourses ?? []).includes(courseId);
+  };
+
   return (
-    <AuthContext.Provider value={{ currentUser, login, logout, updateUser, updateProgress }}>
+    <AuthContext.Provider
+      value={{ currentUser, login, logout, updateUser, updateProgress, toggleBookmark, isBookmarked }}
+    >
       {children}
     </AuthContext.Provider>
   );

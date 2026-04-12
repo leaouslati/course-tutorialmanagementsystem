@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { courses } from "../data/mockdata";
 import CourseCard from "../components/CourseCard";
-import { Search, RotateCcw, BookOpen } from "lucide-react";
+import EmptyState from "../components/EmptyState";
+import Button from "../components/Button";
+import { Search, RotateCcw, BookOpen, X } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import { useAuth } from "../pages/AuthContext";
 
@@ -204,6 +206,76 @@ function Courses({ darkMode = false }) {
             </div>
           </div>
 
+          {/* Active filter chips — show which filters are currently applied */}
+          {(category || difficulty || sortRating || sortTime || search) && (
+            <div className="flex flex-wrap items-center gap-2" aria-label="Active filters">
+              <span className="text-xs font-semibold" style={{ color: countText }}>
+                Active filters:
+              </span>
+
+              {search && (
+                <button
+                  onClick={() => setSearch("")}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold transition-colors duration-150"
+                  style={{ backgroundColor: "#1976D2", color: "#ffffff" }}
+                  aria-label={`Remove search filter: ${search}`}
+                >
+                  Search: &quot;{search}&quot;
+                  <X size={11} aria-hidden="true" />
+                </button>
+              )}
+
+              {category && (
+                <button
+                  onClick={() => setCategory("")}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold transition-colors duration-150"
+                  style={{ backgroundColor: "#7c3aed", color: "#ffffff" }}
+                  aria-label={`Remove category filter: ${category}`}
+                >
+                  {category}
+                  <X size={11} aria-hidden="true" />
+                </button>
+              )}
+
+              {difficulty && (
+                <button
+                  onClick={() => setDifficulty("")}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold transition-colors duration-150"
+                  style={{ backgroundColor: "#0891b2", color: "#ffffff" }}
+                  aria-label={`Remove difficulty filter: ${difficulty}`}
+                >
+                  {difficulty}
+                  <X size={11} aria-hidden="true" />
+                </button>
+              )}
+
+              {sortRating && (
+                <button
+                  onClick={() => setSortRating("")}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold transition-colors duration-150"
+                  style={{ backgroundColor: "#d97706", color: "#ffffff" }}
+                  aria-label="Remove rating sort"
+                >
+                  Rating {sortRating === "asc" ? "↑" : "↓"}
+                  <X size={11} aria-hidden="true" />
+                </button>
+              )}
+
+              {sortTime && (
+                <button
+                  onClick={() => setSortTime("")}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold transition-colors duration-150"
+                  style={{ backgroundColor: "#059669", color: "#ffffff" }}
+                  aria-label="Remove duration sort"
+                >
+                  Duration {sortTime === "asc" ? "↑" : "↓"}
+                  <X size={11} aria-hidden="true" />
+                </button>
+              )}
+
+            </div>
+          )}
+
           {/* Course count */}
           {courses.length > 0 && (
             <p
@@ -222,25 +294,12 @@ function Courses({ darkMode = false }) {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
 
             {courses.length === 0 ? (
-              <div className="flex flex-col items-center justify-center col-span-full py-12 sm:py-16 px-4 text-center">
-                <BookOpen
-                  className="mb-3 w-8 h-8 sm:w-12 sm:h-12"
-                  style={{ color: "#60a5fa" }}
-                  aria-hidden="true"
-                />
-                <h2
-                  className="text-base sm:text-2xl font-semibold mb-2"
-                  style={{ color: headingCol }}
-                >
-                  No courses available
-                </h2>
-                <p
-                  className="text-xs sm:text-base mb-4"
-                  style={{ color: subCol }}
-                >
-                  There are currently no courses in the system. Please check back later or contact an instructor.
-                </p>
-              </div>
+              <EmptyState
+                darkMode={darkMode}
+                icon={<BookOpen className="w-10 h-10 sm:w-12 sm:h-12" style={{ color: "#60a5fa" }} />}
+                title="No courses available"
+                message="There are currently no courses in the system. Please check back later or contact an instructor."
+              />
 
             ) : filteredCourses.length > 0 ? (
               filteredCourses.map((course) => (
@@ -248,34 +307,17 @@ function Courses({ darkMode = false }) {
               ))
 
             ) : (
-              <div className="flex flex-col items-center justify-center col-span-full py-12 sm:py-16 px-4 text-center">
-                <Search
-                  className="mb-3 w-8 h-8 sm:w-12 sm:h-12"
-                  style={{ color: "#60a5fa" }}
-                  aria-hidden="true"
-                />
-                <h2
-                  className="text-base sm:text-2xl font-semibold mb-2"
-                  style={{ color: headingCol }}
-                >
-                  No courses found
-                </h2>
-                <p
-                  className="text-xs sm:text-base mb-4"
-                  style={{ color: subCol }}
-                >
-                  Try adjusting your search or filters to discover more courses.
-                </p>
-                <button
-                  onClick={resetAll}
-                  className="mt-2 px-4 py-2 text-sm sm:text-base text-white rounded-lg shadow transition focus:outline-none focus:ring-2 focus:ring-blue-400"
-                  style={{ backgroundColor: "#1976D2" }}
-                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = darkMode ? "#1565C0" : "#2196F3")}
-                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#1976D2")}
-                >
-                  Reset Filters
-                </button>
-              </div>
+              <EmptyState
+                darkMode={darkMode}
+                icon={<Search className="w-10 h-10 sm:w-12 sm:h-12" style={{ color: "#60a5fa" }} />}
+                title="No courses found"
+                message="Try adjusting your search or filters to discover more courses."
+                action={
+                  <Button variant="primary" size="md" darkMode={darkMode} onClick={resetAll} className="shadow">
+                    Reset Filters
+                  </Button>
+                }
+              />
             )}
 
           </div>
