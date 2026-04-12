@@ -207,72 +207,20 @@ function Courses({ darkMode = false }) {
           </div>
 
           {/* Active filter chips — show which filters are currently applied */}
-          {(category || difficulty || sortRating || sortTime || search) && (
+          {category && (
             <div className="flex flex-wrap items-center gap-2" aria-label="Active filters">
               <span className="text-xs font-semibold" style={{ color: countText }}>
                 Active filters:
               </span>
-
-              {search && (
-                <button
-                  onClick={() => setSearch("")}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold transition-colors duration-150"
-                  style={{ backgroundColor: "#1976D2", color: "#ffffff" }}
-                  aria-label={`Remove search filter: ${search}`}
-                >
-                  Search: &quot;{search}&quot;
-                  <X size={11} aria-hidden="true" />
-                </button>
-              )}
-
-              {category && (
-                <button
-                  onClick={() => setCategory("")}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold transition-colors duration-150"
-                  style={{ backgroundColor: "#7c3aed", color: "#ffffff" }}
-                  aria-label={`Remove category filter: ${category}`}
-                >
-                  {category}
-                  <X size={11} aria-hidden="true" />
-                </button>
-              )}
-
-              {difficulty && (
-                <button
-                  onClick={() => setDifficulty("")}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold transition-colors duration-150"
-                  style={{ backgroundColor: "#0891b2", color: "#ffffff" }}
-                  aria-label={`Remove difficulty filter: ${difficulty}`}
-                >
-                  {difficulty}
-                  <X size={11} aria-hidden="true" />
-                </button>
-              )}
-
-              {sortRating && (
-                <button
-                  onClick={() => setSortRating("")}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold transition-colors duration-150"
-                  style={{ backgroundColor: "#d97706", color: "#ffffff" }}
-                  aria-label="Remove rating sort"
-                >
-                  Rating {sortRating === "asc" ? "↑" : "↓"}
-                  <X size={11} aria-hidden="true" />
-                </button>
-              )}
-
-              {sortTime && (
-                <button
-                  onClick={() => setSortTime("")}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold transition-colors duration-150"
-                  style={{ backgroundColor: "#059669", color: "#ffffff" }}
-                  aria-label="Remove duration sort"
-                >
-                  Duration {sortTime === "asc" ? "↑" : "↓"}
-                  <X size={11} aria-hidden="true" />
-                </button>
-              )}
-
+              <button
+                onClick={() => setCategory("")}
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold transition-colors duration-150"
+                style={{ backgroundColor: "#7c3aed", color: "#ffffff" }}
+                aria-label={`Remove category filter: ${category}`}
+              >
+                {category}
+                <X size={11} aria-hidden="true" />
+              </button>
             </div>
           )}
 
