@@ -1,11 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
   <!-- Blue rounded background -->
   <rect width="32" height="32" rx="7" fill="#1976D2"/>
-  <!-- BookOpen icon (white) centered -->
-  <path d="M5 7.5h7a3 3 0 0 1 3 3v12a2.25 2.25 0 0 0-2.25-2.25H5z"
-        fill="none" stroke="white" stroke-width="1.6"
-        stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M27 7.5h-7a3 3 0 0 0-3 3v12a2.25 2.25 0 0 1 2.25-2.25H27z"
-        fill="none" stroke="white" stroke-width="1.6"
-        stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- BookOpen icon (white) - smaller and centered -->
+  <g transform="translate(6, 8) scale(0.83)" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+  </g>
 </svg>
