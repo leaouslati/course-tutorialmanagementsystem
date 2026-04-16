@@ -2,80 +2,71 @@ import { createContext, useContext, useState } from "react";
 
 const AuthContext = createContext(null);
 
+// Decodes the payload from a JWT without any library.
+// A JWT is three base64url parts separated by dots — the middle one is the payload.
+function decodeToken(token) {
+  try {
+    const payload = token.split(".")[1];
+    // base64url → base64, then decode
+    const json = atob(payload.replace(/-/g, "+").replace(/_/g, "/"));
+    return JSON.parse(json);
+  } catch {
+    return null;
+  }
+}
+
 export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(() => {
-    const saved = localStorage.getItem("currentUser");
-    return saved ? JSON.parse(saved) : null;
+    const token = localStorage.getItem("token");
+    return token ? decodeToken(token) : null;
   });
 
-  const login = (user) => {
-    setCurrentUser(user);
-    localStorage.setItem("currentUser", JSON.stringify(user));
+  // Call with the JWT string returned from the API
+  const login = (token) => {
+    localStorage.setItem("token", token);
+    setCurrentUser(decodeToken(token));
   };
 
   const logout = () => {
+    localStorage.removeItem("token");
     setCurrentUser(null);
-    localStorage.removeItem("currentUser");
   };
 
-  const updateUser = (updates) => {
-    const updated = { ...currentUser, ...updates };
-    setCurrentUser(updated);
-    localStorage.setItem("currentUser", JSON.stringify(updated));
-  };
+  // ── Local UI state helpers (progress & bookmarks) ──────────────────────────
+  // These are stored separately in localStorage and are not part of the JWT.
 
-  /**
-   * Update progress % for a course based on how many lessons are done.
-   *
-   * @param {string} courseId     - e.g. 'c1'
-   * @param {number} doneLessons  - number of completed lessons so far
-   * @param {number} totalLessons - total lessons in the course
-   */
   const updateProgress = (courseId, doneLessons, totalLessons) => {
     if (!currentUser || !courseId) return;
     const newPct = totalLessons > 0
       ? Math.round((doneLessons / totalLessons) * 100)
       : 0;
-    // Skip if unchanged
-    if (currentUser.progress?.[courseId] === newPct) return;
-    const updated = {
-      ...currentUser,
-      progress: { ...(currentUser.progress ?? {}), [courseId]: newPct },
-    };
-    setCurrentUser(updated);
-    localStorage.setItem("currentUser", JSON.stringify(updated));
+    const key = `progress_${currentUser.id}`;
+    const progress = JSON.parse(localStorage.getItem(key) || "{}");
+    if (progress[courseId] === newPct) return;
+    progress[courseId] = newPct;
+    localStorage.setItem(key, JSON.stringify(progress));
+    // Reflect in currentUser so components re-render
+    setCurrentUser((prev) => ({ ...prev, progress: { ...prev?.progress, [courseId]: newPct } }));
   };
 
-  /**
-   * Toggle bookmark state for a course.
-   * Only works when a user is logged in.
-   *
-   * @param {string} courseId - e.g. 'c1'
-   */
   const toggleBookmark = (courseId) => {
     if (!currentUser || !courseId) return;
-    const saved = currentUser.savedCourses ?? [];
-    const updatedSaved = saved.includes(courseId)
+    const key = `bookmarks_${currentUser.id}`;
+    const saved = JSON.parse(localStorage.getItem(key) || "[]");
+    const updated = saved.includes(courseId)
       ? saved.filter((id) => id !== courseId)
       : [...saved, courseId];
-    const updated = { ...currentUser, savedCourses: updatedSaved };
-    setCurrentUser(updated);
-    localStorage.setItem("currentUser", JSON.stringify(updated));
+    localStorage.setItem(key, JSON.stringify(updated));
+    setCurrentUser((prev) => ({ ...prev, savedCourses: updated }));
   };
 
-  /**
-   * Check whether a course is bookmarked by the current user.
-   *
-   * @param {string} courseId
-   * @returns {boolean}
-   */
   const isBookmarked = (courseId) => {
     return (currentUser?.savedCourses ?? []).includes(courseId);
   };
 
   return (
     <AuthContext.Provider
-      value={{ currentUser, login, logout, updateUser, updateProgress, toggleBookmark, isBookmarked }}
+      value={{ currentUser, login, logout, updateProgress, toggleBookmark, isBookmarked }}
     >
       {children}
     </AuthContext.Provider>
