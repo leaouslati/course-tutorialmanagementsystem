@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Eye, EyeOff, Mail, Lock, BookOpen, CheckCircle, AlertCircle, KeyRound, X } from "lucide-react";
-import { users } from "../data/mockdata";
 import { useAuth } from "./AuthContext";
+import { API_URL } from "../api";
 import Button from "../components/Button";
 
 /* ─── Forgot Password Modal ───────────────────────────────────────────── */
@@ -320,26 +320,37 @@ export default function Login({ darkMode = false }) {
     return e;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const errs = validate();
     if (Object.keys(errs).length > 0) { setErrors(errs); return; }
+
     setLoading(true);
-    const matchedUser = users.find(u => {
-      if (u.email !== form.email) return false;
-      const override = localStorage.getItem(`pw_override_${u.email}`);
-      return (override ?? u.password) === form.password;
-    });
-    setTimeout(() => {
-      setLoading(false);
-      if (!matchedUser) { setAuthError("Incorrect email or password. Please try again."); return; }
+    try {
+      const res = await fetch(`${API_URL}/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: form.email, password: form.password }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setAuthError(data.message || "Incorrect email or password. Please try again.");
+        return;
+      }
+
       if (rememberMe) localStorage.setItem("rememberedEmail", form.email);
       else localStorage.removeItem("rememberedEmail");
-      login(matchedUser);
+
+      login(data.token);
       setSuccess(true);
       const from = location.state?.from || "/";
       setTimeout(() => navigate(from, { replace: true }), 2000);
-    }, 800);
+    } catch {
+      setAuthError("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const inputStyle = (field) => ({

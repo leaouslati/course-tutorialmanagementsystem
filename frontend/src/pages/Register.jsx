@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Eye, EyeOff, Mail, Lock, User, BookOpen, GraduationCap, CheckCircle } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, User, BookOpen, GraduationCap, CheckCircle, AlertCircle } from "lucide-react";
 import { useAuth } from "./AuthContext";
-import { users } from "../data/mockdata";
+import { API_URL } from "../api";
 import Button from "../components/Button";
 
 export default function Register({ darkMode = false }) {
@@ -12,6 +12,8 @@ export default function Register({ darkMode = false }) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [errors, setErrors] = useState({});
+  const [authError, setAuthError] = useState("");
+  const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
   // ── color tokens ──────────────────────────────────────────────────────
@@ -73,24 +75,34 @@ export default function Register({ darkMode = false }) {
     return e;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const errs = validate();
     if (Object.keys(errs).length > 0) { setErrors(errs); return; }
-    const newUser = {
-      id: `u${Date.now()}`,
-      name: form.name,
-      email: form.email,
-      password: form.password,
-      role: form.role,
-      joinedDate: new Date().toISOString(),
-      enrolledCourses: [],
-      progress: {},
-    };
-    users.push(newUser);
-    login(newUser);
-    setSuccess(true);
-    setTimeout(() => navigate("/"), 2000);
+
+    setLoading(true);
+    setAuthError("");
+    try {
+      const res = await fetch(`${API_URL}/auth/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: form.name, email: form.email, password: form.password, role: form.role }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setAuthError(data.message || "Something went wrong. Please try again.");
+        return;
+      }
+
+      login(data.token);
+      setSuccess(true);
+      setTimeout(() => navigate("/"), 2000);
+    } catch {
+      setAuthError("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const inputStyle = (field) => ({
@@ -400,6 +412,21 @@ export default function Register({ darkMode = false }) {
                 )}
               </fieldset>
 
+              {/* API error */}
+              {authError && (
+                <div
+                  role="alert"
+                  className="flex items-center gap-2 rounded-xl px-4 py-3"
+                  style={{
+                    backgroundColor: darkMode ? "rgba(239,68,68,0.1)" : "#fef2f2",
+                    border: `1px solid ${darkMode ? "#7f1d1d" : "#fecaca"}`,
+                  }}
+                >
+                  <AlertCircle className="w-4 h-4 text-red-500 shrink-0" aria-hidden="true" />
+                  <p className="text-xs text-red-500 font-medium">{authError}</p>
+                </div>
+              )}
+
               {/* Submit */}
               <Button
                 type="submit"
@@ -408,8 +435,9 @@ export default function Register({ darkMode = false }) {
                 darkMode={darkMode}
                 fullWidth
                 className="mt-1 shadow"
+                disabled={loading}
               >
-                Create My Account
+                {loading ? "Creating account…" : "Create My Account"}
               </Button>
             </form>
 
