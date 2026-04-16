@@ -1,5 +1,10 @@
 import { Router } from 'express'
+import { getMe, updateMe } from '../controllers/users.controller.js'
+import { authMiddleware } from '../middleware/auth.middleware.js'
+
 const router = Router()
-router.get('/me',  (req, res) => res.json({ message: 'get me stub' }))
-router.put('/me',  (req, res) => res.json({ message: 'update me stub' }))
+
+router.get('/me', authMiddleware, getMe)
+router.put('/me', authMiddleware, updateMe)
+
 export default router

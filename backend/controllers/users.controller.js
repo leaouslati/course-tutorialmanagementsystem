@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt";
-import db from "../db.js"; // adjust path if needed
+import db from "../config/db.js"; // adjust path if needed
 
 // ==========================
 // GET LOGGED-IN USER PROFILE
@@ -9,7 +9,7 @@ export const getMe = async (req, res) => {
     const userId = req.user.id;
 
     const result = await db.query(
-      `SELECT id, name, email, created_at, updated_at
+      `SELECT id, name, email, role, avatar, joined_date
        FROM users
        WHERE id = $1`,
       [userId]
@@ -79,10 +79,9 @@ export const updateMe = async (req, res) => {
       `UPDATE users
        SET name = $1,
            email = $2,
-           password_hash = $3,
-           updated_at = NOW()
+           password_hash = $3
        WHERE id = $4
-       RETURNING id, name, email, created_at, updated_at`,
+       RETURNING id, name, email, role, avatar, joined_date`,
       [updatedName, updatedEmail, updatedPasswordHash, userId]
     );
 

@@ -36,6 +36,39 @@ export async function register(req, res) {
   }
 }
 
+export async function checkEmail(req, res) {
+  const { email } = req.body
+  try {
+    const result = await db.query('SELECT id FROM users WHERE email = $1', [email])
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'No account found with this email' })
+    }
+    res.json({ exists: true })
+  } catch (error) {
+    console.error('Check email error:', error)
+    res.status(500).json({ message: 'Something went wrong' })
+  }
+}
+
+export async function forgotPassword(req, res) {
+  const { email, newPassword } = req.body
+
+  try {
+    const result = await db.query('SELECT id FROM users WHERE email = $1', [email])
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'No account found with this email' })
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10)
+    await db.query('UPDATE users SET password_hash = $1 WHERE email = $2', [hashedPassword, email])
+
+    res.json({ message: 'Password updated successfully' })
+  } catch (error) {
+    console.error('Forgot password error:', error)
+    res.status(500).json({ message: 'Something went wrong' })
+  }
+}
+
 export async function login(req, res) {
   const { email, password } = req.body
 
