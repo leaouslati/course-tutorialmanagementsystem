@@ -16,6 +16,7 @@ function ForgotPasswordModal({ onClose, darkMode }) {
   const [showConfirm, setShowConfirm] = useState(false);
   const [pwErrors, setPwErrors] = useState({});
   const [done, setDone] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   // Shared password rules (mirrors Register.jsx)
   const PASSWORD_RULES = [
@@ -49,15 +50,32 @@ function ForgotPasswordModal({ onClose, darkMode }) {
     </button>
   );
 
-  const handleEmailSubmit = () => {
+  const handleEmailSubmit = async () => {
     if (!email.trim()) { setEmailError("Email is required."); return; }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setEmailError("Enter a valid email address."); return; }
-    if (!users.find(u => u.email === email)) { setEmailError("No account found with this email."); return; }
-    setEmailError("");
-    setStep("reset");
+
+    setLoading(true);
+    try {
+      const res = await fetch(`${API_URL}/auth/check-email`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setEmailError(data.message || "No account found with this email.");
+        return;
+      }
+      setEmailError("");
+      setStep("reset");
+    } catch {
+      setEmailError("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleReset = () => {
+  const handleReset = async () => {
     const e = {};
     if (!newPw) {
       e.newPw = "Password is required.";
@@ -68,9 +86,26 @@ function ForgotPasswordModal({ onClose, darkMode }) {
     if (!confirmPw) e.confirmPw = "Please confirm your password.";
     else if (confirmPw !== newPw) e.confirmPw = "Passwords do not match.";
     if (Object.keys(e).length > 0) { setPwErrors(e); return; }
-    localStorage.setItem(`pw_override_${email}`, newPw);
-    setDone(true);
-    setTimeout(() => onClose(), 1800);
+
+    setLoading(true);
+    try {
+      const res = await fetch(`${API_URL}/auth/forgot-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, newPassword: newPw }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setPwErrors({ newPw: data.message || "Something went wrong." });
+        return;
+      }
+      setDone(true);
+      setTimeout(() => onClose(), 1800);
+    } catch {
+      setPwErrors({ newPw: "Something went wrong. Please try again." });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const inputCls = (err) => ({
@@ -165,8 +200,8 @@ function ForgotPasswordModal({ onClose, darkMode }) {
                 <Button variant="secondary" size="lg" darkMode={darkMode} onClick={onClose} className="flex-1">
                   Cancel
                 </Button>
-                <Button variant="primary" size="lg" darkMode={darkMode} onClick={handleEmailSubmit} className="flex-1">
-                  Continue
+                <Button variant="primary" size="lg" darkMode={darkMode} onClick={handleEmailSubmit} className="flex-1" disabled={loading}>
+                  {loading ? "Checking…" : "Continue"}
                 </Button>
               </div>
             </>
@@ -244,8 +279,8 @@ function ForgotPasswordModal({ onClose, darkMode }) {
                 <Button variant="secondary" size="lg" darkMode={darkMode} onClick={() => setStep("email")} className="flex-1">
                   Back
                 </Button>
-                <Button variant="primary" size="lg" darkMode={darkMode} onClick={handleReset} className="flex-1">
-                  Reset Password
+                <Button variant="primary" size="lg" darkMode={darkMode} onClick={handleReset} className="flex-1" disabled={loading}>
+                  {loading ? "Saving…" : "Reset Password"}
                 </Button>
               </div>
             </>
