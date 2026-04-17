@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useAuth } from "./AuthContext.jsx";
-import { API_URL, authFetch } from "../../api";
+import { API_URL, authFetch } from "../api.js";
 import {
   Check,
   RotateCcw,
