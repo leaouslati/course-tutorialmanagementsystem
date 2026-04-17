@@ -1,8 +1,20 @@
-import { Router } from 'express'
-const router = Router()
-router.get('/',       (req, res) => res.json({ message: 'get all courses stub' }))
-router.get('/:id',    (req, res) => res.json({ message: 'get one course stub' }))
-router.post('/',      (req, res) => res.json({ message: 'create course stub' }))
-router.put('/:id',    (req, res) => res.json({ message: 'update course stub' }))
-router.delete('/:id', (req, res) => res.json({ message: 'delete course stub' }))
-export default router
+import { Router } from "express";
+import {
+  getAllCourses,
+  getCourseById,
+  createCourse,
+  updateCourse,
+  deleteCourse,
+} from "../controllers/courses.controller.js";
+import { authMiddleware } from "../middleware/auth.middleware.js";
+import { instructorOnly } from "../middleware/instructorOnly.middleware.js";
+
+const router = Router();
+
+router.get("/", getAllCourses);
+router.get("/:id", getCourseById);
+router.post("/", authMiddleware, instructorOnly, createCourse);
+router.put("/:id", authMiddleware, instructorOnly, updateCourse);
+router.delete("/:id", authMiddleware, instructorOnly, deleteCourse);
+
+export default router;
