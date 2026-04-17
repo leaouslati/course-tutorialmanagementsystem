@@ -1,3 +1,4 @@
+//courses.routes.js
 import { Router } from "express";
 import {
   getAllCourses,
