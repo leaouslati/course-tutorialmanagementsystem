@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { courses, users, modules, lessons } from "../data/mockdata.js";
 import { useAuth } from "./AuthContext.jsx";
+import { API_URL, authFetch } from "../../api.js";
 import {
   Check, RotateCcw, Clock, Users, Star,
   BookOpen, Bookmark, BookmarkCheck,
