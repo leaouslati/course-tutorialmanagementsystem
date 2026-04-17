@@ -62,3 +62,26 @@ const updateCourse = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+// deleteCourse
+const deleteCourse = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const courseResult = await pool.query('SELECT * FROM courses WHERE id = $1', [id]);
+    if (courseResult.rows.length === 0) {
+      return res.status(404).json({ message: 'Course not found.' });
+    }
+
+    const course = courseResult.rows[0];
+    if (course.instructor_id !== req.user.id) {
+      return res.status(403).json({ message: 'You do not own this course.' });
+    }
+
+    await pool.query('DELETE FROM courses WHERE id = $1', [id]);
+
+    res.status(204).send();
+  } catch (error) {
+    console.error('deleteCourse error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
