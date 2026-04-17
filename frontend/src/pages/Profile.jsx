@@ -2,7 +2,7 @@
 import { courses, modules } from "../data/mockdata";
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "../pages/AuthContext";
-import { authFetch } from "../utils/authFetch";
+import { authFetch } from "../api";
 import {
   Mail, Calendar, User, Users, Edit2, Eye, EyeOff, Lock, X, Flame, CreditCard,
   BookOpen, TrendingUp, Layers, BarChart2, ArrowRight,
