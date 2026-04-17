@@ -1,8 +1,20 @@
-import { Router } from 'express'
-const router = Router()
-router.get('/',       (req, res) => res.json({ message: 'get all courses stub' }))
-router.get('/:id',    (req, res) => res.json({ message: 'get one course stub' }))
-router.post('/',      (req, res) => res.json({ message: 'create course stub' }))
-router.put('/:id',    (req, res) => res.json({ message: 'update course stub' }))
-router.delete('/:id', (req, res) => res.json({ message: 'delete course stub' }))
+import express from 'express'
+import { authMiddleware } from '../middleware/auth.middleware.js'
+import {
+  getCourses,
+  getCourse,
+  createCourse,
+  updateCourse,
+  deleteCourse
+} from '../controllers/courses.controller.js'
+
+const router = express.Router()
+
+router.get('/', getCourses)
+router.get('/:id', getCourse)
+
+router.post('/', authMiddleware, createCourse)
+router.put('/:id', authMiddleware, updateCourse)
+router.delete('/:id', authMiddleware, deleteCourse)
+
 export default router
