@@ -726,18 +726,17 @@ export default function Profile({ darkMode = false }) {
         setLoading(true);
         setLoadError("");
 
-        const res = await authFetch("/users/me");
-        const data = await res.json();
+        const { response, data } = await authFetch("/users/me");
 
-        if (!res.ok) {
-          throw new Error(data.message || "Failed to load profile");
-        }
+if (!response.ok) {
+  throw new Error(data.message || "Failed to load profile");
+}
 
-        setUser((prev) => ({
-          ...prev,
-          ...currentUser,
-          ...data,
-        }));
+setUser((prev) => ({
+  ...prev,
+  ...currentUser,
+  ...data,
+}));
       } catch (error) {
         setLoadError(error.message || "Failed to load profile");
       } finally {

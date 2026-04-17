@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff, Mail, Lock, User, BookOpen, GraduationCap, CheckCircle, AlertCircle } from "lucide-react";
 import { useAuth } from "./AuthContext";
-import { apiFetch } from "../api";
+import { authFetch } from "../api";
 import Button from "../components/Button";
 
 export default function Register({ darkMode = false }) {
@@ -83,7 +83,7 @@ export default function Register({ darkMode = false }) {
     setLoading(true);
     setAuthError("");
     try {
-      const { response, data } = await apiFetch("/auth/register", {
+      const { response, data } = await authFetch("/auth/register", {
         method: "POST",
         body: JSON.stringify({
           name: form.name,
