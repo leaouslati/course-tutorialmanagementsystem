@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff, Mail, Lock, User, BookOpen, GraduationCap, CheckCircle, AlertCircle } from "lucide-react";
 import { useAuth } from "./AuthContext";
-import { API_URL } from "../api";
+import { apiFetch } from "../api";
 import Button from "../components/Button";
 
 export default function Register({ darkMode = false }) {
@@ -83,15 +83,18 @@ export default function Register({ darkMode = false }) {
     setLoading(true);
     setAuthError("");
     try {
-      const res = await fetch(`${API_URL}/auth/register`, {
+      const { response, data } = await apiFetch("/auth/register", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: form.name, email: form.email, password: form.password, role: form.role }),
+        body: JSON.stringify({
+          name: form.name,
+          email: form.email,
+          password: form.password,
+          role: form.role,
+        }),
       });
-      const data = await res.json();
 
-      if (!res.ok) {
-        setAuthError(data.message || "Something went wrong. Please try again.");
+      if (!response.ok) {
+        setAuthError(data.message || "Email already taken. Please try another email.");
         return;
       }
 
