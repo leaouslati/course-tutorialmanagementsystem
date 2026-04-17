@@ -2,6 +2,7 @@
 import { courses, modules } from "../data/mockdata";
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "../pages/AuthContext";
+import { authFetch } from "../api";
 import {
   Mail, Calendar, User, Users, Edit2, Eye, EyeOff, Lock, X, Flame, CreditCard,
   BookOpen, TrendingUp, Layers, BarChart2, ArrowRight,
@@ -14,12 +15,14 @@ const LEVELS = [
   { min: 20, label: "Intermediate", colorClass: "text-amber-500", bgClass: "bg-amber-50", hex: "#f59e0b" },
   { min: 0, label: "Beginner", colorClass: "text-green-600", bgClass: "bg-green-50", hex: "#22c55e" },
 ];
+
 const INSTRUCTOR_LEVELS = [
   { min: 5, label: "Expert Instructor", colorClass: "text-rose-500", bgClass: "bg-rose-50", hex: "#f43f5e" },
   { min: 3, label: "Established Instructor", colorClass: "text-purple-600", bgClass: "bg-purple-50", hex: "#9333ea" },
   { min: 1, label: "Rising Instructor", colorClass: "text-amber-500", bgClass: "bg-amber-50", hex: "#f59e0b" },
   { min: 0, label: "New Instructor", colorClass: "text-green-600", bgClass: "bg-green-50", hex: "#22c55e" },
 ];
+
 const getLevel = (arr, val) => arr.find((l) => val >= l.min);
 
 const mkStudentBadges = (fin, enr, avg) => [
@@ -30,6 +33,7 @@ const mkStudentBadges = (fin, enr, avg) => [
   { icon: <Zap className="w-6 h-6 text-yellow-500" />, bg: "bg-yellow-50", border: "border-yellow-200", title: "Fast Learner", desc: "Enrolled in 5+ courses", earned: enr >= 5 },
   { icon: <Star className="w-6 h-6 text-rose-500" />, bg: "bg-rose-50", border: "border-rose-200", title: "Top Student", desc: "Average progress above 80%", earned: avg >= 80 },
 ];
+
 const mkInstructorBadges = (cre, les) => [
   { icon: <PlusCircle className="w-6 h-6 text-[#1976D2]" />, bg: "bg-blue-50", border: "border-blue-200", title: "Course Creator", desc: "Published your first course", earned: cre >= 1 },
   { icon: <Layers className="w-6 h-6 text-purple-500" />, bg: "bg-purple-50", border: "border-purple-200", title: "Dedicated Teacher", desc: "Created 3+ courses", earned: cre >= 3 },
@@ -39,12 +43,18 @@ const mkInstructorBadges = (cre, les) => [
 
 function useFocusTrap(active) {
   const ref = useRef(null);
+
   useEffect(() => {
     if (!active || !ref.current) return;
-    const els = ref.current.querySelectorAll('button,[href],input,select,textarea,[tabindex]:not([tabindex="-1"])');
+
+    const els = ref.current.querySelectorAll(
+      'button,[href],input,select,textarea,[tabindex]:not([tabindex="-1"])'
+    );
+
     const first = els[0];
     const last = els[els.length - 1];
     first?.focus();
+
     const handler = (e) => {
       if (e.key !== "Tab") return;
       if (e.shiftKey ? document.activeElement === first : document.activeElement === last) {
@@ -52,15 +62,19 @@ function useFocusTrap(active) {
         (e.shiftKey ? last : first)?.focus();
       }
     };
+
     document.addEventListener("keydown", handler);
     return () => document.removeEventListener("keydown", handler);
   }, [active]);
+
   return ref;
 }
 
 function useEscapeKey(fn) {
   useEffect(() => {
-    const handler = (e) => { if (e.key === "Escape") fn(); };
+    const handler = (e) => {
+      if (e.key === "Escape") fn();
+    };
     document.addEventListener("keydown", handler);
     return () => document.removeEventListener("keydown", handler);
   }, [fn]);
@@ -68,28 +82,51 @@ function useEscapeKey(fn) {
 
 function StatRow({ icon, label, value, valueClass, small = false, darkMode }) {
   const size = small ? "text-sm" : "text-base";
+
   return (
     <div className="flex items-center justify-between">
       <span
         className={`flex items-center gap-1.5 ${size} font-medium`}
         style={{ color: darkMode ? "#94a3b8" : "#334155" }}
       >
-        <span aria-hidden="true">{icon}</span>{label}
+        <span aria-hidden="true">{icon}</span>
+        {label}
       </span>
       <span className={`${size} font-bold ${valueClass}`}>{value}</span>
     </div>
   );
 }
 
-// ── PwField moved OUTSIDE EditModal to prevent remount on every keystroke ──
-function PwField({ label, fieldId, value, onChange, showKey, placeholder, show, setShow, inputStyle, iconCol, labelCol }) {
+function PwField({
+  label,
+  fieldId,
+  value,
+  onChange,
+  showKey,
+  placeholder,
+  show,
+  setShow,
+  inputStyle,
+  iconCol,
+  labelCol,
+}) {
   return (
     <div className="flex flex-col gap-1">
-      <label htmlFor={fieldId} className="text-xs font-semibold uppercase tracking-wider" style={{ color: labelCol }}>
+      <label
+        htmlFor={fieldId}
+        className="text-xs font-semibold uppercase tracking-wider"
+        style={{ color: labelCol }}
+      >
         {label}
       </label>
+
       <div className="relative">
-        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: iconCol }} aria-hidden="true" />
+        <Lock
+          className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4"
+          style={{ color: iconCol }}
+          aria-hidden="true"
+        />
+
         <input
           id={fieldId}
           type={show[showKey] ? "text" : "password"}
@@ -98,6 +135,7 @@ function PwField({ label, fieldId, value, onChange, showKey, placeholder, show, 
           placeholder={placeholder}
           style={{ ...inputStyle, paddingLeft: "2.5rem", paddingRight: "2.5rem" }}
         />
+
         <button
           type="button"
           onClick={() => setShow((s) => ({ ...s, [showKey]: !s[showKey] }))}
@@ -115,15 +153,21 @@ function PwField({ label, fieldId, value, onChange, showKey, placeholder, show, 
 function IDCardModal({ user, subtitle, idPrefix, badge, stats, onClose, darkMode }) {
   const trapRef = useFocusTrap(true);
   useEscapeKey(onClose);
+
   const joined = user.joinedDate
     ? new Date(user.joinedDate).toLocaleDateString("en-US", { month: "short", year: "numeric" })
+    : user.joined_date
+    ? new Date(user.joined_date).toLocaleDateString("en-US", { month: "short", year: "numeric" })
     : "Unknown";
-  const idNumber = `${idPrefix}-${user.id?.toUpperCase().replace("U", "").padStart(4, "0") ?? "0000"}`;
+
+  const idNumber = `${idPrefix}-${String(user.id ?? "0000").padStart(4, "0")}`;
 
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4"
-      role="dialog" aria-modal="true" aria-labelledby="idcard-title"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="idcard-title"
     >
       <div ref={trapRef} className="w-full max-w-sm flex flex-col items-center gap-4">
         <div
@@ -136,7 +180,9 @@ function IDCardModal({ user, subtitle, idPrefix, badge, stats, onClose, darkMode
           <div className="h-20 bg-gradient-to-r from-[#0D47A1] via-[#1565C0] to-[#1976D2] flex items-center px-6 gap-3">
             <BookOpen className="w-6 h-6 text-white/80" aria-hidden="true" />
             <div>
-              <p id="idcard-title" className="text-white font-extrabold text-base tracking-wide leading-tight">CourseHub</p>
+              <p id="idcard-title" className="text-white font-extrabold text-base tracking-wide leading-tight">
+                CourseHub
+              </p>
               <p className="text-blue-200 text-xs font-medium">{subtitle}</p>
             </div>
             <div className="ml-auto text-right">
@@ -158,15 +204,19 @@ function IDCardModal({ user, subtitle, idPrefix, badge, stats, onClose, darkMode
                 {user.name?.charAt(0)?.toUpperCase() ?? "U"}
               </span>
             </div>
+
             <div className="flex-1 min-w-0">
               <h3 className="text-lg font-extrabold leading-tight" style={{ color: darkMode ? "#f1f5f9" : "#0f172a" }}>
                 {user.name}
               </h3>
-              <p className="text-xs mt-0.5 truncate" style={{ color: darkMode ? "#64748b" : "#64748b" }}>
+              <p className="text-xs mt-0.5 truncate" style={{ color: "#64748b" }}>
                 {user.email}
               </p>
               <div className="flex items-center gap-2 mt-2">
-                <span className="text-xs font-bold px-2 py-0.5 rounded-full text-white" style={{ backgroundColor: badge.hex }}>
+                <span
+                  className="text-xs font-bold px-2 py-0.5 rounded-full text-white"
+                  style={{ backgroundColor: badge.hex }}
+                >
                   {badge.label}
                 </span>
                 <span className="text-xs" style={{ color: darkMode ? "#64748b" : "#94a3b8" }}>
@@ -186,7 +236,10 @@ function IDCardModal({ user, subtitle, idPrefix, badge, stats, onClose, darkMode
             {stats.map(({ label, value, color }) => (
               <div key={label} className="py-4 text-center">
                 <p className={`text-xl font-extrabold ${color}`}>{value}</p>
-                <p className="text-[10px] uppercase tracking-wider mt-0.5" style={{ color: darkMode ? "#64748b" : "#94a3b8" }}>
+                <p
+                  className="text-[10px] uppercase tracking-wider mt-0.5"
+                  style={{ color: darkMode ? "#64748b" : "#94a3b8" }}
+                >
                   {label}
                 </p>
               </div>
@@ -208,11 +261,12 @@ function IDCardModal({ user, subtitle, idPrefix, badge, stats, onClose, darkMode
   );
 }
 
-function EditModal({ user, onSave, onClose, darkMode }) {
+function EditModal({ user, setUser, onClose, darkMode }) {
   const [tab, setTab] = useState("info");
-  const [name, setName] = useState(user.name);
-  const [email, setEmail] = useState(user.email);
+  const [name, setName] = useState(user.name || "");
+  const [email, setEmail] = useState(user.email || "");
   const [infoSuccess, setInfoSuccess] = useState(false);
+  const [infoError, setInfoError] = useState("");
   const [currentPw, setCurrentPw] = useState("");
   const [newPw, setNewPw] = useState("");
   const [confirmPw, setConfirmPw] = useState("");
@@ -220,6 +274,7 @@ function EditModal({ user, onSave, onClose, darkMode }) {
   const [pwError, setPwError] = useState("");
   const [pwSuccess, setPwSuccess] = useState(false);
   const trapRef = useFocusTrap(true);
+
   useEscapeKey(onClose);
 
   const modalBg = darkMode ? "#0f1f3d" : "#ffffff";
@@ -243,34 +298,113 @@ function EditModal({ user, onSave, onClose, darkMode }) {
     outline: "none",
   };
 
-  const handleInfoSave = () => {
-    onSave({ name, email });
-    setInfoSuccess(true);
-    setTimeout(() => { setInfoSuccess(false); onClose(); }, 1500);
+  const handleInfoSave = async () => {
+    try {
+      setInfoError("");
+      setInfoSuccess(false);
+
+      const res = await authFetch("/users/me", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name, email }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || "Failed to update profile");
+      }
+
+      setUser((prev) => ({
+        ...prev,
+        ...data,
+      }));
+
+      setInfoSuccess(true);
+
+      setTimeout(() => {
+        setInfoSuccess(false);
+        onClose();
+      }, 1500);
+    } catch (error) {
+      setInfoError(error.message || "Failed to update profile");
+    }
   };
 
-  const handlePasswordSave = () => {
+  const handlePasswordSave = async () => {
     setPwError("");
-    if (!currentPw || !newPw || !confirmPw) return setPwError("All fields are required.");
-    if (currentPw !== user.password) return setPwError("Current password is incorrect.");
-    if (newPw.length < 8) return setPwError("New password must be at least 8 characters.");
-    if (newPw !== confirmPw) return setPwError("Passwords do not match.");
-    onSave({ password: newPw });
-    setPwSuccess(true);
-    setTimeout(() => { setPwSuccess(false); onClose(); }, 1500);
+    setPwSuccess(false);
+
+    if (!currentPw || !newPw || !confirmPw) {
+      setPwError("All fields are required.");
+      return;
+    }
+
+    if (newPw.length < 8) {
+      setPwError("New password must be at least 8 characters.");
+      return;
+    }
+
+    if (newPw !== confirmPw) {
+      setPwError("Passwords do not match.");
+      return;
+    }
+
+    try {
+      const res = await authFetch("/users/me", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          currentPassword: currentPw,
+          newPassword: newPw,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        if (res.status === 401) {
+          setPwError(data.message || "Current password is incorrect.");
+          return;
+        }
+        throw new Error(data.message || "Failed to update password");
+      }
+
+      setUser((prev) => ({
+        ...prev,
+        ...data,
+      }));
+
+      setPwSuccess(true);
+      setCurrentPw("");
+      setNewPw("");
+      setConfirmPw("");
+
+      setTimeout(() => {
+        setPwSuccess(false);
+        onClose();
+      }, 1500);
+    } catch (error) {
+      setPwError(error.message || "Failed to update password");
+    }
   };
 
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4"
-      role="dialog" aria-modal="true" aria-labelledby="edit-modal-title"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="edit-modal-title"
     >
       <div
         ref={trapRef}
         className="w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden"
         style={{ backgroundColor: modalBg, border: `1px solid ${modalBorder}` }}
       >
-        {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b" style={{ borderColor: modalBorder }}>
           <h3 id="edit-modal-title" className="text-lg font-bold" style={{ color: headingCol }}>
             Account Settings
@@ -287,7 +421,6 @@ function EditModal({ user, onSave, onClose, darkMode }) {
           </button>
         </div>
 
-        {/* Tabs */}
         <div className="flex gap-2 px-6 py-4 border-b" style={{ borderColor: modalBorder }}>
           {["info", "password"].map((id) => (
             <button
@@ -297,17 +430,23 @@ function EditModal({ user, onSave, onClose, darkMode }) {
               style={
                 tab === id
                   ? { backgroundColor: "#1976D2", color: "#ffffff" }
-                  : { backgroundColor: darkMode ? "#0a1628" : "#F4F8FD", color: darkMode ? "#94a3b8" : "#64748b" }
+                  : {
+                      backgroundColor: darkMode ? "#0a1628" : "#F4F8FD",
+                      color: darkMode ? "#94a3b8" : "#64748b",
+                    }
               }
-              onMouseEnter={(e) => { if (tab !== id) e.currentTarget.style.backgroundColor = darkMode ? "#1a3a6b" : "#E3F2FD"; }}
-              onMouseLeave={(e) => { if (tab !== id) e.currentTarget.style.backgroundColor = darkMode ? "#0a1628" : "#F4F8FD"; }}
+              onMouseEnter={(e) => {
+                if (tab !== id) e.currentTarget.style.backgroundColor = darkMode ? "#1a3a6b" : "#E3F2FD";
+              }}
+              onMouseLeave={(e) => {
+                if (tab !== id) e.currentTarget.style.backgroundColor = darkMode ? "#0a1628" : "#F4F8FD";
+              }}
             >
               {id === "info" ? "Profile Info" : "Change Password"}
             </button>
           ))}
         </div>
 
-        {/* Body */}
         <div className="px-6 py-6">
           {tab === "info" && (
             <div className="flex flex-col gap-4">
@@ -329,12 +468,28 @@ function EditModal({ user, onSave, onClose, darkMode }) {
                   />
                 </div>
               ))}
-              {infoSuccess && <p role="status" className="text-xs text-green-500 font-medium">Profile updated successfully!</p>}
+
+              {infoError && (
+                <p role="alert" className="text-xs text-red-500 font-medium">
+                  {infoError}
+                </p>
+              )}
+
+              {infoSuccess && (
+                <p role="status" className="text-xs text-green-500 font-medium">
+                  Profile updated successfully!
+                </p>
+              )}
+
               <div className="flex gap-3 mt-2">
                 <button
                   onClick={onClose}
                   className="flex-1 rounded-xl py-2.5 text-sm font-semibold transition"
-                  style={{ backgroundColor: "transparent", border: `1px solid ${darkMode ? "#1a3a6b" : "#cbd5e1"}`, color: darkMode ? "#94a3b8" : "#475569" }}
+                  style={{
+                    backgroundColor: "transparent",
+                    border: `1px solid ${darkMode ? "#1a3a6b" : "#cbd5e1"}`,
+                    color: darkMode ? "#94a3b8" : "#475569",
+                  }}
                   onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = darkMode ? "#1a3a6b" : "#f8fafc")}
                   onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
                 >
@@ -358,31 +513,70 @@ function EditModal({ user, onSave, onClose, darkMode }) {
               <p className="text-xs" style={{ color: mutedCol }}>
                 Password must be at least 8 characters with a mix of letters and numbers.
               </p>
+
               <PwField
-                label="Current Password" fieldId="pw-current" value={currentPw}
-                onChange={(e) => setCurrentPw(e.target.value)} showKey="current"
+                label="Current Password"
+                fieldId="pw-current"
+                value={currentPw}
+                onChange={(e) => setCurrentPw(e.target.value)}
+                showKey="current"
                 placeholder="Enter current password"
-                show={show} setShow={setShow} inputStyle={inputStyle} iconCol={iconCol} labelCol={labelCol}
+                show={show}
+                setShow={setShow}
+                inputStyle={inputStyle}
+                iconCol={iconCol}
+                labelCol={labelCol}
               />
+
               <PwField
-                label="New Password" fieldId="pw-new" value={newPw}
-                onChange={(e) => setNewPw(e.target.value)} showKey="new"
+                label="New Password"
+                fieldId="pw-new"
+                value={newPw}
+                onChange={(e) => setNewPw(e.target.value)}
+                showKey="new"
                 placeholder="Enter new password"
-                show={show} setShow={setShow} inputStyle={inputStyle} iconCol={iconCol} labelCol={labelCol}
+                show={show}
+                setShow={setShow}
+                inputStyle={inputStyle}
+                iconCol={iconCol}
+                labelCol={labelCol}
               />
+
               <PwField
-                label="Confirm New Password" fieldId="pw-confirm" value={confirmPw}
-                onChange={(e) => setConfirmPw(e.target.value)} showKey="confirm"
+                label="Confirm New Password"
+                fieldId="pw-confirm"
+                value={confirmPw}
+                onChange={(e) => setConfirmPw(e.target.value)}
+                showKey="confirm"
                 placeholder="Confirm new password"
-                show={show} setShow={setShow} inputStyle={inputStyle} iconCol={iconCol} labelCol={labelCol}
+                show={show}
+                setShow={setShow}
+                inputStyle={inputStyle}
+                iconCol={iconCol}
+                labelCol={labelCol}
               />
-              {pwError && <p role="alert" className="text-xs text-red-500 font-medium">{pwError}</p>}
-              {pwSuccess && <p role="status" className="text-xs text-green-500 font-medium">Password updated successfully!</p>}
+
+              {pwError && (
+                <p role="alert" className="text-xs text-red-500 font-medium">
+                  {pwError}
+                </p>
+              )}
+
+              {pwSuccess && (
+                <p role="status" className="text-xs text-green-500 font-medium">
+                  Password updated successfully!
+                </p>
+              )}
+
               <div className="flex gap-3 mt-2">
                 <button
                   onClick={onClose}
                   className="flex-1 rounded-xl py-2.5 text-sm font-semibold transition"
-                  style={{ backgroundColor: "transparent", border: `1px solid ${darkMode ? "#1a3a6b" : "#cbd5e1"}`, color: darkMode ? "#94a3b8" : "#475569" }}
+                  style={{
+                    backgroundColor: "transparent",
+                    border: `1px solid ${darkMode ? "#1a3a6b" : "#cbd5e1"}`,
+                    color: darkMode ? "#94a3b8" : "#475569",
+                  }}
                   onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = darkMode ? "#1a3a6b" : "#f8fafc")}
                   onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
                 >
@@ -411,24 +605,37 @@ function BadgeCard({ icon, title, desc, earned, bg, border, darkMode }) {
     <div
       className="rounded-xl border-2 p-4 flex items-start gap-4 transition-all duration-200"
       style={{
-        backgroundColor: earned ? darkMode ? "#0f1f3d" : "#ffffff" : darkMode ? "#0a1628" : "#f8fafc",
-        borderColor: earned ? darkMode ? "#1e3f7a" : undefined : darkMode ? "#1a3a6b" : "#e2e8f0",
+        backgroundColor: earned ? (darkMode ? "#0f1f3d" : "#ffffff") : darkMode ? "#0a1628" : "#f8fafc",
+        borderColor: earned ? (darkMode ? "#1e3f7a" : undefined) : darkMode ? "#1a3a6b" : "#e2e8f0",
         borderStyle: earned ? "solid" : "dashed",
         opacity: earned ? 1 : darkMode ? 0.4 : 0.5,
         filter: earned ? "none" : "grayscale(1)",
       }}
     >
-      <div aria-hidden="true" className={`flex-shrink-0 w-14 h-14 rounded-2xl flex items-center justify-center ${earned ? bg : "bg-slate-100"}`}>
+      <div
+        aria-hidden="true"
+        className={`flex-shrink-0 w-14 h-14 rounded-2xl flex items-center justify-center ${earned ? bg : "bg-slate-100"}`}
+      >
         <span className="[&>svg]:w-8 [&>svg]:h-8">{icon}</span>
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between gap-2">
-          <p className="text-sm font-semibold" style={{ color: darkMode ? "#f1f5f9" : "#1e293b" }}>{title}</p>
-          {earned
-            ? <span className="text-[10px] font-bold text-green-500 bg-green-500/10 px-2 py-0.5 rounded-full whitespace-nowrap border border-green-500/20">Earned</span>
-            : <span className="text-[10px] font-medium uppercase tracking-wider" style={{ color: darkMode ? "#475569" : "#94a3b8" }}>Locked</span>}
+          <p className="text-sm font-semibold" style={{ color: darkMode ? "#f1f5f9" : "#1e293b" }}>
+            {title}
+          </p>
+          {earned ? (
+            <span className="text-[10px] font-bold text-green-500 bg-green-500/10 px-2 py-0.5 rounded-full whitespace-nowrap border border-green-500/20">
+              Earned
+            </span>
+          ) : (
+            <span className="text-[10px] font-medium uppercase tracking-wider" style={{ color: darkMode ? "#475569" : "#94a3b8" }}>
+              Locked
+            </span>
+          )}
         </div>
-        <p className="text-xs mt-0.5" style={{ color: darkMode ? "#64748b" : "#64748b" }}>{desc}</p>
+        <p className="text-xs mt-0.5" style={{ color: "#64748b" }}>
+          {desc}
+        </p>
       </div>
     </div>
   );
@@ -459,10 +666,18 @@ function QuickAction({ to, icon, label, sub, onClick, darkMode }) {
         <span style={{ color: "#1976D2" }}>{icon}</span>
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-semibold" style={{ color: darkMode ? "#f1f5f9" : "#1e293b" }}>{label}</p>
-        <p className="text-xs" style={{ color: darkMode ? "#64748b" : "#64748b" }}>{sub}</p>
+        <p className="text-sm font-semibold" style={{ color: darkMode ? "#f1f5f9" : "#1e293b" }}>
+          {label}
+        </p>
+        <p className="text-xs" style={{ color: "#64748b" }}>
+          {sub}
+        </p>
       </div>
-      <ArrowRight aria-hidden="true" className="w-4 h-4 flex-shrink-0" style={{ color: darkMode ? "#1a3a6b" : "#cbd5e1" }} />
+      <ArrowRight
+        aria-hidden="true"
+        className="w-4 h-4 flex-shrink-0"
+        style={{ color: darkMode ? "#1a3a6b" : "#cbd5e1" }}
+      />
     </>
   );
 
@@ -475,52 +690,126 @@ function QuickAction({ to, icon, label, sub, onClick, darkMode }) {
   const [hovered, setHovered] = useState(false);
 
   return to ? (
-    <Link to={to} style={hovered ? hoverStyle : style} onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
+    <Link
+      to={to}
+      style={hovered ? hoverStyle : style}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
       {inner()}
     </Link>
   ) : (
-    <button onClick={onClick} style={hovered ? hoverStyle : style} onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
+    <button
+      onClick={onClick}
+      style={hovered ? hoverStyle : style}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
       {inner()}
     </button>
   );
 }
 
-/* ─── Profile Page ─────────────────────────────────────────────────────── */
 export default function Profile({ darkMode = false }) {
-  const { currentUser, updateUser } = useAuth();
+  const { currentUser } = useAuth();
+
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [showIDCard, setShowIDCard] = useState(false);
   const [showInstructorIDCard, setShowInstructorIDCard] = useState(false);
 
-  if (!currentUser) return null;
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        setLoading(true);
+        setLoadError("");
 
-  const isInstructor = currentUser.role === "instructor";
+        const res = await authFetch("/users/me");
+        const data = await res.json();
 
-  const enrolledCourses = Array.isArray(currentUser.enrolledCourses)
-    ? courses.filter((c) => currentUser.enrolledCourses.includes(c.id)) : [];
-  const createdCourses = courses.filter((c) => c.instructorId === currentUser.id);
+        if (!res.ok) {
+          throw new Error(data.message || "Failed to load profile");
+        }
 
-  const lessonCount = (course) => Array.isArray(course.modules)
-    ? course.modules.reduce((a, id) => a + (modules.find((m) => m.id === id)?.lessons.length || 0), 0) : 0;
-  const progress = (course) => currentUser.progress?.[course.id] ?? 0;
+        setUser((prev) => ({
+          ...prev,
+          ...currentUser,
+          ...data,
+        }));
+      } catch (error) {
+        setLoadError(error.message || "Failed to load profile");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, [currentUser]);
+
+  if (loading) {
+    return <div className="p-6">Loading profile...</div>;
+  }
+
+  if (loadError) {
+    return <div className="p-6 text-red-500">{loadError}</div>;
+  }
+
+  if (!user) {
+    return null;
+  }
+
+  const isInstructor = user.role === "instructor";
+
+  const enrolledCourses = Array.isArray(user.enrolledCourses)
+    ? courses.filter((c) => user.enrolledCourses.includes(c.id))
+    : [];
+
+  const createdCourses = courses.filter((c) => c.instructorId === user.id);
+
+  const lessonCount = (course) =>
+    Array.isArray(course.modules)
+      ? course.modules.reduce(
+          (a, id) => a + (modules.find((m) => m.id === id)?.lessons.length || 0),
+          0
+        )
+      : 0;
+
+  const progress = (course) => user.progress?.[course.id] ?? 0;
 
   const enrolledCount = enrolledCourses.length;
   const createdCount = createdCourses.length;
   const finished = enrolledCourses.filter((c) => progress(c) === 100).length;
   const avgProgress = enrolledCourses.length
-    ? Math.round(enrolledCourses.reduce((s, c) => s + progress(c), 0) / enrolledCourses.length) : 0;
-  const totalModules = createdCourses.reduce((a, c) => a + (Array.isArray(c.modules) ? c.modules.length : 0), 0);
+    ? Math.round(enrolledCourses.reduce((s, c) => s + progress(c), 0) / enrolledCourses.length)
+    : 0;
+
+  const totalModules = createdCourses.reduce(
+    (a, c) => a + (Array.isArray(c.modules) ? c.modules.length : 0),
+    0
+  );
+
   const totalLessons = createdCourses.reduce((a, c) => a + lessonCount(c), 0);
   const totalStudents = createdCourses.reduce((a, c) => a + (c.studentsCount || 0), 0);
   const avgRating = createdCourses.length
-    ? (createdCourses.reduce((a, c) => a + (c.rating || 0), 0) / createdCourses.length).toFixed(1) : "—";
+    ? (createdCourses.reduce((a, c) => a + (c.rating || 0), 0) / createdCourses.length).toFixed(1)
+    : "—";
+
   const progressVal = isInstructor ? Math.min(createdCount * 18, 100) : avgProgress;
-  const completedHours = enrolledCourses.reduce((s, c) => s + (progress(c) * c.duration) / 100, 0).toFixed(1);
+
+  const completedHours = enrolledCourses
+    .reduce((s, c) => s + (progress(c) * c.duration) / 100, 0)
+    .toFixed(1);
 
   const lvl = getLevel(LEVELS, avgProgress);
   const exp = getLevel(INSTRUCTOR_LEVELS, createdCount);
   const levelTag = isInstructor ? exp : lvl;
-  const badges = isInstructor ? mkInstructorBadges(createdCount, totalLessons) : mkStudentBadges(finished, enrolledCount, avgProgress);
+
+  const badges = isInstructor
+    ? mkInstructorBadges(createdCount, totalLessons)
+    : mkStudentBadges(finished, enrolledCount, avgProgress);
+
   const earned = badges.filter((b) => b.earned).length;
 
   const pageBg = darkMode ? "#060f1e" : "#F4F8FD";
@@ -533,17 +822,21 @@ export default function Profile({ darkMode = false }) {
   const progressBg = darkMode ? "#1a3a6b" : "#f1f5f9";
   const sectionLbl = darkMode ? "#64748b" : "#64748b";
 
+  const joinedValue = user.joinedDate
+    ? new Date(user.joinedDate).toLocaleDateString("en-US", { month: "long", year: "numeric" })
+    : user.joined_date
+    ? new Date(user.joined_date).toLocaleDateString("en-US", { month: "long", year: "numeric" })
+    : "Unknown";
+
   const infoRows = [
-    { icon: <Mail className="h-5 w-5 text-[#1976D2]" />, text: currentUser.email },
-    { icon: <Calendar className="h-5 w-5 text-[#1976D2]" />, text: `Joined: ${currentUser.joinedDate ? new Date(currentUser.joinedDate).toLocaleDateString("en-US", { month: "long", year: "numeric" }) : "Unknown"}` },
-    { icon: <User className="h-5 w-5 text-[#1976D2]" />, text: currentUser.role, cls: "capitalize" },
+    { icon: <Mail className="h-5 w-5 text-[#1976D2]" />, text: user.email },
+    { icon: <Calendar className="h-5 w-5 text-[#1976D2]" />, text: `Joined: ${joinedValue}` },
+    { icon: <User className="h-5 w-5 text-[#1976D2]" />, text: user.role },
   ];
 
   return (
     <div className="w-full min-h-screen transition-colors duration-300" style={{ backgroundColor: pageBg }}>
       <main className="w-full min-h-screen px-4 sm:px-6 lg:px-8 py-6 flex flex-col items-center gap-8">
-
-        {/* ── Profile Header Card ── */}
         <section
           aria-labelledby="profile-heading"
           className="w-full max-w-5xl rounded-2xl shadow-md overflow-hidden"
@@ -551,20 +844,25 @@ export default function Profile({ darkMode = false }) {
         >
           <div className="px-6 sm:px-8 pt-8 pb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex items-center gap-5">
-              <div aria-hidden="true" className="flex-shrink-0 h-20 w-20 rounded-2xl flex items-center justify-center" style={{ backgroundColor: darkMode ? "#0a1628" : "#E3F2FD" }}>
+              <div
+                aria-hidden="true"
+                className="flex-shrink-0 h-20 w-20 rounded-2xl flex items-center justify-center"
+                style={{ backgroundColor: darkMode ? "#0a1628" : "#E3F2FD" }}
+              >
                 <span className="text-3xl font-extrabold text-[#1976D2]">
-                  {currentUser.name?.charAt(0)?.toUpperCase() ?? "U"}
+                  {user.name?.charAt(0)?.toUpperCase() ?? "U"}
                 </span>
               </div>
               <div>
                 <h2 id="profile-heading" className="text-2xl font-bold" style={{ color: headingCol }}>
-                  {currentUser.name}
+                  {user.name}
                 </h2>
                 <span className="inline-flex rounded-full bg-[#FCD34D] px-3 py-0.5 text-xs font-bold capitalize text-slate-800 mt-1">
-                  {currentUser.role}
+                  {user.role}
                 </span>
               </div>
             </div>
+
             <button
               onClick={() => setShowModal(true)}
               className="self-start sm:self-auto flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold text-white transition shadow"
@@ -576,18 +874,26 @@ export default function Profile({ darkMode = false }) {
             </button>
           </div>
 
-          <div className="px-6 sm:px-8 pb-8 grid grid-cols-1 sm:grid-cols-2 gap-3 border-t-2 pt-5" style={{ borderColor: dividerCol }}>
+          <div
+            className="px-6 sm:px-8 pb-8 grid grid-cols-1 sm:grid-cols-2 gap-3 border-t-2 pt-5"
+            style={{ borderColor: dividerCol }}
+          >
             {infoRows.map(({ icon, text, cls = "" }, i) => (
               <div key={i} className="flex items-center gap-2">
                 <span aria-hidden="true">{icon}</span>
-                <span className={`text-sm ${cls}`} style={{ color: subCol }}>{text}</span>
+                <span className={`text-sm ${cls}`} style={{ color: subCol }}>
+                  {text}
+                </span>
               </div>
             ))}
+
             <div className="flex items-center gap-2">
               <span aria-hidden="true">
-                {isInstructor
-                  ? <Star className={`h-5 w-5 ${exp.colorClass}`} />
-                  : <Flame className={`h-5 w-5 ${lvl.colorClass}`} />}
+                {isInstructor ? (
+                  <Star className={`h-5 w-5 ${exp.colorClass}`} />
+                ) : (
+                  <Flame className={`h-5 w-5 ${lvl.colorClass}`} />
+                )}
               </span>
               <span className={`text-sm font-semibold px-2 py-0.5 rounded-full ${levelTag.colorClass} ${levelTag.bgClass}`}>
                 {levelTag.label}
@@ -596,13 +902,21 @@ export default function Profile({ darkMode = false }) {
           </div>
         </section>
 
-        {/* ── Modals ── */}
         {showModal && (
-          <EditModal user={currentUser} onSave={(u) => updateUser(u)} onClose={() => setShowModal(false)} darkMode={darkMode} />
+          <EditModal
+            user={user}
+            setUser={setUser}
+            onClose={() => setShowModal(false)}
+            darkMode={darkMode}
+          />
         )}
+
         {showIDCard && !isInstructor && (
           <IDCardModal
-            user={currentUser} subtitle="Student Identity Card" idPrefix="STU" badge={lvl}
+            user={user}
+            subtitle="Student Identity Card"
+            idPrefix="STU"
+            badge={lvl}
             stats={[
               { label: "Enrolled", value: enrolledCount, color: "text-[#1976D2]" },
               { label: "Completed", value: finished, color: "text-green-500" },
@@ -612,9 +926,13 @@ export default function Profile({ darkMode = false }) {
             darkMode={darkMode}
           />
         )}
+
         {showInstructorIDCard && isInstructor && (
           <IDCardModal
-            user={currentUser} subtitle="Instructor Identity Card" idPrefix="INS" badge={exp}
+            user={user}
+            subtitle="Instructor Identity Card"
+            idPrefix="INS"
+            badge={exp}
             stats={[
               { label: "Courses", value: createdCount, color: "text-[#1976D2]" },
               { label: "Students", value: totalStudents, color: "text-green-500" },
@@ -625,52 +943,112 @@ export default function Profile({ darkMode = false }) {
           />
         )}
 
-        {/* ── Stats ── */}
         <section aria-labelledby="stats-heading" className="w-full max-w-5xl">
           <h3 id="stats-heading" className="sr-only">Your stats</h3>
           <div className="flex flex-col sm:flex-row gap-6">
-            <article className="flex-1 rounded-2xl p-6 shadow-md flex flex-col min-h-[140px]" style={{ backgroundColor: cardBg, border: `1px solid ${cardBorder}` }}>
+            <article
+              className="flex-1 rounded-2xl p-6 shadow-md flex flex-col min-h-[140px]"
+              style={{ backgroundColor: cardBg, border: `1px solid ${cardBorder}` }}
+            >
               <div className="text-sm font-semibold uppercase tracking-[0.14em] mb-1" style={{ color: mutedCol }}>
                 {isInstructor ? "Created Courses" : "Enrolled Courses"}
               </div>
+
               <p className="mt-1 text-3xl font-bold" style={{ color: headingCol }}>
                 {isInstructor ? createdCount : enrolledCount}
               </p>
+
               <div className="flex flex-col gap-2 mt-4 w-full">
                 {isInstructor ? (
                   <>
-                    <StatRow darkMode={darkMode} icon={<Layers className="w-4 h-4 text-purple-500" />} label="Total Modules" value={totalModules} valueClass="text-purple-500" />
-                    <StatRow darkMode={darkMode} icon={<BookOpen className="w-4 h-4 text-[#1976D2]" />} label="Total Lessons" value={totalLessons} valueClass="text-[#1976D2]" />
+                    <StatRow
+                      darkMode={darkMode}
+                      icon={<Layers className="w-4 h-4 text-purple-500" />}
+                      label="Total Modules"
+                      value={totalModules}
+                      valueClass="text-purple-500"
+                    />
+                    <StatRow
+                      darkMode={darkMode}
+                      icon={<BookOpen className="w-4 h-4 text-[#1976D2]" />}
+                      label="Total Lessons"
+                      value={totalLessons}
+                      valueClass="text-[#1976D2]"
+                    />
                   </>
                 ) : (
                   <>
-                    <StatRow darkMode={darkMode} icon={<Award className="w-4 h-4 text-green-500" />} label="Completed" value={finished} valueClass="text-green-500" small />
-                    <StatRow darkMode={darkMode} icon={<Clock className="w-4 h-4 text-[#1976D2]" />} label="Hours Learned" value={`${completedHours}h`} valueClass="text-[#1976D2]" small />
+                    <StatRow
+                      darkMode={darkMode}
+                      icon={<Award className="w-4 h-4 text-green-500" />}
+                      label="Completed"
+                      value={finished}
+                      valueClass="text-green-500"
+                      small
+                    />
+                    <StatRow
+                      darkMode={darkMode}
+                      icon={<Clock className="w-4 h-4 text-[#1976D2]" />}
+                      label="Hours Learned"
+                      value={`${completedHours}h`}
+                      valueClass="text-[#1976D2]"
+                      small
+                    />
                   </>
                 )}
               </div>
             </article>
 
             {isInstructor ? (
-              <article className="flex-1 rounded-2xl p-6 shadow-md flex flex-col min-h-[140px]" style={{ backgroundColor: cardBg, border: `1px solid ${cardBorder}` }}>
-                <div className="text-base font-bold uppercase tracking-[0.14em] mb-2 text-center mt-3" style={{ color: subCol }}>Your Impact</div>
+              <article
+                className="flex-1 rounded-2xl p-6 shadow-md flex flex-col min-h-[140px]"
+                style={{ backgroundColor: cardBg, border: `1px solid ${cardBorder}` }}
+              >
+                <div className="text-base font-bold uppercase tracking-[0.14em] mb-2 text-center mt-3" style={{ color: subCol }}>
+                  Your Impact
+                </div>
                 <div className="flex flex-col justify-center flex-1 gap-1.5 mt-7">
-                  <StatRow darkMode={darkMode} icon={<Users className="w-4 h-4 text-green-500" />} label="Total Students" value={totalStudents} valueClass="text-green-500" />
-                  <StatRow darkMode={darkMode} icon={<Star className="w-4 h-4 text-yellow-400" />} label="Avg Rating" value={avgRating} valueClass="text-yellow-400" />
+                  <StatRow
+                    darkMode={darkMode}
+                    icon={<Users className="w-4 h-4 text-green-500" />}
+                    label="Total Students"
+                    value={totalStudents}
+                    valueClass="text-green-500"
+                  />
+                  <StatRow
+                    darkMode={darkMode}
+                    icon={<Star className="w-4 h-4 text-yellow-400" />}
+                    label="Avg Rating"
+                    value={avgRating}
+                    valueClass="text-yellow-400"
+                  />
                 </div>
               </article>
             ) : (
-              <article className="flex-1 rounded-2xl p-6 shadow-md flex flex-col min-h-[140px]" style={{ backgroundColor: cardBg, border: `1px solid ${cardBorder}` }}>
-                <div className="text-sm font-semibold uppercase tracking-[0.14em] mb-2 text-center" style={{ color: mutedCol }}>Overall Progress</div>
+              <article
+                className="flex-1 rounded-2xl p-6 shadow-md flex flex-col min-h-[140px]"
+                style={{ backgroundColor: cardBg, border: `1px solid ${cardBorder}` }}
+              >
+                <div className="text-sm font-semibold uppercase tracking-[0.14em] mb-2 text-center" style={{ color: mutedCol }}>
+                  Overall Progress
+                </div>
                 <div className="flex flex-col items-center justify-center flex-1 gap-3">
-                  <p className="text-3xl font-bold" style={{ color: headingCol }}>{progressVal}%</p>
+                  <p className="text-3xl font-bold" style={{ color: headingCol }}>
+                    {progressVal}%
+                  </p>
                   <div
-                    role="progressbar" aria-valuenow={progressVal} aria-valuemin={0} aria-valuemax={100}
+                    role="progressbar"
+                    aria-valuenow={progressVal}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
                     aria-label="Overall course progress"
                     className="w-full h-4 rounded-full overflow-hidden"
                     style={{ backgroundColor: progressBg }}
                   >
-                    <div className="h-full rounded-full transition-all duration-700 bg-[#1976D2]" style={{ width: `${progressVal}%` }} />
+                    <div
+                      className="h-full rounded-full transition-all duration-700 bg-[#1976D2]"
+                      style={{ width: `${progressVal}%` }}
+                    />
                   </div>
                 </div>
               </article>
@@ -678,7 +1056,6 @@ export default function Profile({ darkMode = false }) {
           </div>
         </section>
 
-        {/* ── Quick Actions ── */}
         <section aria-labelledby="actions-heading" className="w-full max-w-5xl">
           <h3 id="actions-heading" className="text-base font-bold uppercase tracking-widest mb-4" style={{ color: sectionLbl }}>
             Quick Actions
@@ -700,21 +1077,22 @@ export default function Profile({ darkMode = false }) {
           </div>
         </section>
 
-        {/* ── Badges ── */}
         <section aria-labelledby="badges-heading" className="w-full max-w-5xl mb-8">
           <div className="flex items-center justify-between mb-4">
             <h3 id="badges-heading" className="text-base font-bold uppercase tracking-widest" style={{ color: sectionLbl }}>
               Badges
             </h3>
-            <span className="text-xs" style={{ color: mutedCol }}>{earned} of {badges.length} earned</span>
+            <span className="text-xs" style={{ color: mutedCol }}>
+              {earned} of {badges.length} earned
+            </span>
           </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {badges.map((badge, i) => (
               <BadgeCard key={i} {...badge} darkMode={darkMode} />
             ))}
           </div>
         </section>
-
       </main>
     </div>
   );
