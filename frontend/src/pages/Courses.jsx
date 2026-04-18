@@ -15,6 +15,26 @@ function Courses({ darkMode = false }) {
   const [sortTime, setSortTime] = useState("");
   const [difficulty, setDifficulty] = useState("");
   const [category, setCategory] = useState("");
+  const [courses, setCourses] = useState([]);
+  const [loadingCourses, setLoadingCourses] = useState(true);
+  const [fetchError, setFetchError] = useState("");
+
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        setLoadingCourses(true);
+        const res = await authFetch(`${API_URL}/courses`);
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || "Failed to load courses");
+        setCourses(data);
+      } catch (err) {
+        setFetchError(err.message || "Failed to load courses");
+      } finally {
+        setLoadingCourses(false);
+      }
+    };
+    fetchCourses();
+  }, []);
 
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(false);

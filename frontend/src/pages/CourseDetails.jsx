@@ -52,7 +52,7 @@ export default function CourseDetails({ darkMode = false }) {
         setNotFound(false);
         setFetchError("");
 
-        const res = await fetch(`${API_URL}/courses/${id}`);
+        const res = await authFetch(`${API_URL}/courses/${id}`);
         const data = await res.json();
 
         if (res.status === 404) {
