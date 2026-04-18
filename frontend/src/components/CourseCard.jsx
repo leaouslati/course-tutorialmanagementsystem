@@ -1,10 +1,9 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { users } from "../data/mockdata.js";
 import { Clock, Users, Star } from "lucide-react";
 
 function CourseCard({ course, darkMode = false }) {
-  const instructor = users.find((user) => user.id === course.instructorId);
+  const instructorName = course.instructorName ?? "Unknown Instructor";
   const isNew = new Date() - new Date(course.createdAt) < 1000 * 60 * 60 * 24 * 90;
 
   const cardBg = darkMode ? "#0f1f3d" : "#ffffff";
@@ -80,7 +79,7 @@ function CourseCard({ course, darkMode = false }) {
 
         {/* Instructor */}
         <p className="text-xs sm:text-sm font-medium truncate" style={{ color: subColor }}>
-          {instructor ? instructor.name : "Unknown Instructor"}
+          {instructorName}
         </p>
 
         {/* Description */}
