@@ -1,4 +1,4 @@
-import bcrypt from "bcrypt";
+import bcrypt from 'bcryptjs';
 import db from "../config/db.js"; // adjust path if needed
 
 // ==========================

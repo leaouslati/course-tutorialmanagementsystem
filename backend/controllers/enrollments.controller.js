@@ -1,1 +1,74 @@
-// TODO: implement
+import pool from '../config/db.js'
+
+// Normalize a course row (snake_case → camelCase) + attach progress
+const normalizeCourse = (row) => ({
+  id: row.id,
+  title: row.title,
+  shortDescription: row.short_description,
+  description: row.description,
+  category: row.category,
+  difficulty: row.difficulty,
+  duration: row.duration,
+  rating: row.rating,
+  studentsCount: row.students_count ?? 0,
+  image: row.image_url,
+  instructorId: row.instructor_id,
+  instructorName: row.instructor_name ?? null,
+  createdAt: row.created_at,
+  progress: row.progress ?? 0,
+})
+
+// GET /api/enrollments
+export const getMyEnrollments = async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT c.*,
+              u.name AS instructor_name,
+              e.progress
+         FROM enrollments e
+         JOIN courses c ON c.id = e.course_id
+         JOIN users   u ON u.id = c.instructor_id
+        WHERE e.user_id = $1
+        ORDER BY e.enrolled_at DESC`,
+      [req.user.id]
+    )
+
+    res.json(result.rows.map(normalizeCourse))
+  } catch (error) {
+    console.error('getMyEnrollments error:', error)
+    res.status(500).json({ message: 'Server error' })
+  }
+}
+
+// POST /api/enrollments
+export const enroll = async (req, res) => {
+  try {
+    const { courseId } = req.body
+
+    if (!courseId) {
+      return res.status(400).json({ message: 'courseId is required' })
+    }
+
+    // Check for existing enrollment
+    const existing = await pool.query(
+      'SELECT id FROM enrollments WHERE user_id = $1 AND course_id = $2',
+      [req.user.id, courseId]
+    )
+
+    if (existing.rows.length > 0) {
+      return res.status(409).json({ message: 'Already enrolled in this course' })
+    }
+
+    const result = await pool.query(
+      `INSERT INTO enrollments (user_id, course_id, progress)
+       VALUES ($1, $2, 0)
+       RETURNING *`,
+      [req.user.id, courseId]
+    )
+
+    res.status(201).json(result.rows[0])
+  } catch (error) {
+    console.error('enroll error:', error)
+    res.status(500).json({ message: 'Server error' })
+  }
+}

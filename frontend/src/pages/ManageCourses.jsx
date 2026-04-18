@@ -230,7 +230,7 @@ export default function ManageCourses({ darkMode = false }) {
     (async () => {
       setLoading(true);
       try {
-        const res = await authFetch("/api/courses");
+        const res = await authFetch("/api/courses?instructorId=me");
         const data = await res.json();
         setCourses(Array.isArray(data) ? data : []);
       } catch {
@@ -267,6 +267,7 @@ export default function ManageCourses({ darkMode = false }) {
           body: JSON.stringify(form),
         });
         const updated = await res.json();
+        if (!res.ok) throw new Error(updated.message || "Failed to update course");
         setCourses((p) => p.map((c) => (c.id === editingCourse.id ? updated : c)));
         notify("Course updated successfully.");
       } else {
@@ -275,12 +276,13 @@ export default function ManageCourses({ darkMode = false }) {
           body: JSON.stringify(form),
         });
         const created = await res.json();
+        if (!res.ok) throw new Error(created.message || "Failed to create course");
         setCourses((p) => [created, ...p]);
         notify("Course added to the catalog.");
       }
       closeModal();
-    } catch {
-      notify("Operation failed", "error");
+    } catch (err) {
+      notify(err.message || "Operation failed", "error");
     }
   };
 
