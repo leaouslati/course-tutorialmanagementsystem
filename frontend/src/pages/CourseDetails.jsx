@@ -1,15 +1,22 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { courses, users, modules, lessons } from "../data/mockdata.js";
 import { useAuth } from "./AuthContext.jsx";
+import { API_URL, authFetch } from "../api.js";
 import {
-  Check, RotateCcw, Clock, Users, Star,
-  BookOpen, Bookmark, BookmarkCheck,
-  GraduationCap, Layers, FileText, Tag
+  Check,
+  RotateCcw,
+  Clock,
+  Users,
+  Star,
+  BookOpen,
+  Bookmark,
+  BookmarkCheck,
+  GraduationCap,
+  Layers,
+  FileText,
+  Tag,
 } from "lucide-react";
 import Button from "../components/Button";
-
-// Bookmark button only renders for logged-in users; state is persisted via AuthContext.
 import ModuleAccordion from "../components/ModuleAccordion.jsx";
 
 const toastStyle = `
@@ -27,24 +34,124 @@ const toastStyle = `
 export default function CourseDetails({ darkMode = false }) {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { currentUser, login, toggleBookmark, isBookmarked } = useAuth();
+  const { currentUser, toggleBookmark, isBookmarked } = useAuth();
 
-  const course = courses.find(c => c.id.toString() === id);
-
-  const enrolledIds = Array.isArray(currentUser?.enrolledCourses)
-    ? currentUser.enrolledCourses : [];
-
-  const [enrolled, setEnrolled] = useState(() => enrolledIds.includes(course?.id));
+  const [course, setCourse] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
+  const [fetchError, setFetchError] = useState("");
+  const [enrolled, setEnrolled] = useState(false);
+  const [checkingEnrollment, setCheckingEnrollment] = useState(true);
+  const [enrolling, setEnrolling] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
 
-  // Bookmark is auth-gated — derived from persisted AuthContext state
-  const saved = course ? isBookmarked(course.id) : false;
+  useEffect(() => {
+    const fetchCourse = async () => {
+      try {
+        setLoading(true);
+        setNotFound(false);
+        setFetchError("");
 
-  if (!course) {
+        const res = await authFetch(`${API_URL}/courses/${id}`);
+        const data = await res.json();
+
+        if (res.status === 404) {
+          setNotFound(true);
+          setCourse(null);
+          return;
+        }
+
+        if (!res.ok) {
+          throw new Error(data.message || "Failed to load course");
+        }
+
+        setCourse(data);
+      } catch (error) {
+        setFetchError(error.message || "Failed to load course");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCourse();
+  }, [id]);
+
+  useEffect(() => {
+    const checkEnrollment = async () => {
+      if (!currentUser || !id) {
+        setEnrolled(false);
+        setCheckingEnrollment(false);
+        return;
+      }
+
+      try {
+        setCheckingEnrollment(true);
+
+        const res = await authFetch(`${API_URL}/enrollments`);
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.message || "Failed to load enrollments");
+        }
+
+        const enrollmentList = Array.isArray(data) ? data : [];
+
+        const alreadyEnrolled = enrollmentList.some((item) => {
+          return (
+            String(item.courseId) === String(id) ||
+            String(item.course_id) === String(id) ||
+            String(item.course?.id) === String(id)
+          );
+        });
+
+        setEnrolled(alreadyEnrolled);
+      } catch (error) {
+        console.error("checkEnrollment error:", error);
+        setEnrolled(false);
+      } finally {
+        setCheckingEnrollment(false);
+      }
+    };
+
+    checkEnrollment();
+  }, [currentUser, id]);
+
+  useEffect(() => {
+    if (!showPopup) return;
+
+    const timer = setTimeout(() => setShowPopup(false), 3500);
+    return () => clearTimeout(timer);
+  }, [showPopup]);
+
+  const pageBg = darkMode ? "#060f1e" : "#F4F8FD";
+  const cardBg = darkMode ? "#0f1f3d" : "#ffffff";
+  const cardBorder = darkMode ? "#1a3a6b" : "#e5e7eb";
+  const statTileBg = darkMode ? "#0a1628" : "#F4F8FD";
+  const statBorder = darkMode ? "#1a3a6b" : "#f1f5f9";
+  const headingCol = darkMode ? "#f1f5f9" : "#111827";
+  const subCol = darkMode ? "#94a3b8" : "#6b7280";
+  const bodyText = darkMode ? "#cbd5e1" : "#4b5563";
+  const divider = darkMode ? "#1a3a6b" : "#f1f5f9";
+  const backLink = darkMode ? "#94a3b8" : "#6b7280";
+  const iconTileBg = darkMode ? "rgba(25,118,210,0.15)" : "#E3F2FD";
+
+  if (loading) {
     return (
       <main
         className="min-h-screen flex flex-col items-center justify-center px-4 py-6 transition-colors duration-300"
-        style={{ backgroundColor: darkMode ? "#060f1e" : "#F4F8FD" }}
+        style={{ backgroundColor: pageBg }}
+      >
+        <div className="w-10 h-10 border-4 border-[#1976D2] border-t-transparent rounded-full animate-spin mb-4" />
+        <p style={{ color: headingCol }}>Loading course...</p>
+      </main>
+    );
+  }
+
+  if (notFound) {
+    return (
+      <main
+        className="min-h-screen flex flex-col items-center justify-center px-4 py-6 transition-colors duration-300"
+        style={{ backgroundColor: pageBg }}
       >
         <h1
           className="font-bold mb-3 text-center"
@@ -65,41 +172,78 @@ export default function CourseDetails({ darkMode = false }) {
     );
   }
 
-  const instructor = users.find(u => u.id === course.instructorId);
-  const courseModules = (course.modules || [])
-    .map(mid => {
-      const mod = modules.find(m => m.id === mid);
-      if (!mod) return null;
-      return {
-        ...mod,
-        lessons: (mod.lessons || []).map(lid => {
-          const l = lessons.find(l => l.id === lid);
-          if (!l) return null;
-          return {
-            ...l,
-            type: l.videoUrl ? "video" : "text",
-            duration: l.duration + " min",
-            url: l.videoUrl?.replace("watch?v=", "embed/"),
-          };
-        }).filter(Boolean),
-      };
-    })
-    .filter(Boolean);
+  if (fetchError) {
+    return (
+      <main
+        className="min-h-screen flex flex-col items-center justify-center px-4 py-6 transition-colors duration-300"
+        style={{ backgroundColor: pageBg }}
+      >
+        <h1
+          className="font-bold mb-3 text-center"
+          style={{
+            fontSize: "clamp(1.25rem, 4vw, 1.75rem)",
+            color: darkMode ? "#f1f5f9" : "#111827",
+          }}
+        >
+          {fetchError}
+        </h1>
+        <Link
+          to="/courses"
+          className="text-sm font-medium text-[#1976D2] underline underline-offset-4 hover:opacity-75 transition-opacity"
+        >
+          Back to Courses
+        </Link>
+      </main>
+    );
+  }
 
-  const totalLessons = courseModules.reduce((a, m) => a + (m?.lessons?.length || 0), 0);
+  if (!course) return null;
+
+  const saved = currentUser ? isBookmarked(course.id) : false;
+
+  const courseModules = Array.isArray(course.modules) ? course.modules : [];
+  const totalLessons = courseModules.reduce(
+    (sum, module) => sum + (Array.isArray(module.lessons) ? module.lessons.length : 0),
+    0
+  );
   const totalModules = courseModules.length;
 
-  const handleEnroll = () => {
+  const instructorName =
+    course.instructor?.name ||
+    course.instructor_name ||
+    course.instructorName ||
+    "Unknown Instructor";
+
+  const handleEnroll = async () => {
     if (!currentUser) {
       navigate("/login", { state: { from: `/courses/${id}` } });
       return;
     }
-    if (enrolled) return;
-    const updatedUser = { ...currentUser, enrolledCourses: [...enrolledIds, course.id] };
-    login(updatedUser);
-    setEnrolled(true);
-    setShowPopup(true);
-    setTimeout(() => setShowPopup(false), 3500);
+
+    if (enrolled || enrolling) return;
+
+    try {
+      setEnrolling(true);
+
+      const res = await authFetch(`${API_URL}/enrollments`, {
+        method: "POST",
+        body: JSON.stringify({ courseId: course.id }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || "Failed to enroll");
+      }
+
+      setEnrolled(true);
+      setShowPopup(true);
+    } catch (error) {
+      console.error("handleEnroll error:", error);
+      alert(error.message || "Failed to enroll");
+    } finally {
+      setEnrolling(false);
+    }
   };
 
   const detailStats = [
@@ -109,19 +253,6 @@ export default function CourseDetails({ darkMode = false }) {
     { icon: <GraduationCap className="w-4 h-4 text-[#1976D2]" />, label: "Level", value: course.difficulty },
   ];
 
-  // ── shared color tokens (match CourseCard dark palette) ──────────────────
-  const pageBg = darkMode ? "#060f1e" : "#F4F8FD";
-  const cardBg = darkMode ? "#0f1f3d" : "#ffffff";
-  const cardBorder = darkMode ? "#1a3a6b" : "#e5e7eb";
-  const statTileBg = darkMode ? "#0a1628" : "#F4F8FD";
-  const statBorder = darkMode ? "#1a3a6b" : "#f1f5f9";
-  const headingCol = darkMode ? "#f1f5f9" : "#111827";
-  const subCol = darkMode ? "#94a3b8" : "#6b7280";
-  const bodyText = darkMode ? "#cbd5e1" : "#4b5563";
-  const divider = darkMode ? "#1a3a6b" : "#f1f5f9";
-  const backLink = darkMode ? "#94a3b8" : "#6b7280";
-  const iconTileBg = darkMode ? "rgba(25,118,210,0.15)" : "#E3F2FD";
-
   return (
     <>
       <style>{toastStyle}</style>
@@ -130,8 +261,6 @@ export default function CourseDetails({ darkMode = false }) {
         className="min-h-screen w-full px-4 sm:px-6 lg:px-8 py-6 pb-12 transition-colors duration-300"
         style={{ backgroundColor: pageBg }}
       >
-
-        {/* ── Top bar: back + save ── */}
         <div className="mb-4 max-w-5xl mx-auto flex items-center justify-between">
           <Link
             to="/courses"
@@ -142,7 +271,6 @@ export default function CourseDetails({ darkMode = false }) {
             <span>Back to Courses</span>
           </Link>
 
-          {/* Bookmark button — only shown to authenticated users */}
           {currentUser && (
             <button
               onClick={() => toggleBookmark(course.id)}
@@ -150,20 +278,28 @@ export default function CourseDetails({ darkMode = false }) {
               aria-pressed={saved}
               className="p-2 rounded-xl transition-colors duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
               style={{ backgroundColor: saved ? "#0f9f5a" : "#1976D2" }}
-              onMouseEnter={e => (e.currentTarget.style.backgroundColor = saved ? "#0b8a4e" : (darkMode ? "#1565C0" : "#2196F3"))}
-              onMouseLeave={e => (e.currentTarget.style.backgroundColor = saved ? "#0f9f5a" : "#1976D2")}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.backgroundColor = saved
+                  ? "#0b8a4e"
+                  : darkMode
+                  ? "#1565C0"
+                  : "#2196F3")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.backgroundColor = saved ? "#0f9f5a" : "#1976D2")
+              }
               title={saved ? "Remove bookmark" : "Save course"}
             >
-              {saved
-                ? <BookmarkCheck size={17} className="text-white" aria-hidden="true" />
-                : <Bookmark size={17} className="text-white" aria-hidden="true" />}
+              {saved ? (
+                <BookmarkCheck size={17} className="text-white" aria-hidden="true" />
+              ) : (
+                <Bookmark size={17} className="text-white" aria-hidden="true" />
+              )}
             </button>
           )}
         </div>
 
         <div className="max-w-5xl mx-auto space-y-4">
-
-          {/* ── Course Hero Card ── */}
           <article
             aria-labelledby="course-title"
             className="rounded-2xl shadow-sm overflow-hidden mb-8 transition-colors duration-300"
@@ -173,8 +309,6 @@ export default function CourseDetails({ darkMode = false }) {
             }}
           >
             <div className="flex flex-col md:flex-row">
-
-              {/* Thumbnail */}
               <div className="w-full md:w-2/5 flex-shrink-0 md:min-h-[22rem]">
                 <img
                   src={course.image}
@@ -184,12 +318,10 @@ export default function CourseDetails({ darkMode = false }) {
                 />
               </div>
 
-              {/* Content */}
               <div className="flex-1 p-5 sm:p-7 flex flex-col gap-4">
-
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-widest text-[#1976D2] mb-1">
-                    {instructor ? instructor.name : "Unknown Instructor"}
+                    {instructorName}
                   </p>
                   <h1
                     id="course-title"
@@ -210,7 +342,6 @@ export default function CourseDetails({ darkMode = false }) {
                   {course.description || course.shortDescription}
                 </p>
 
-                {/* Detail stats grid */}
                 <dl className="grid grid-cols-2 gap-2 sm:gap-3">
                   {detailStats.map(({ icon, label, value }) => (
                     <div
@@ -221,7 +352,9 @@ export default function CourseDetails({ darkMode = false }) {
                         border: `1px solid ${statBorder}`,
                       }}
                     >
-                      <span aria-hidden="true" className="flex-shrink-0">{icon}</span>
+                      <span aria-hidden="true" className="flex-shrink-0">
+                        {icon}
+                      </span>
                       <div className="min-w-0">
                         <dt
                           className="text-[10px] uppercase tracking-wider truncate"
@@ -240,7 +373,6 @@ export default function CourseDetails({ darkMode = false }) {
                   ))}
                 </dl>
 
-                {/* Stats row */}
                 <div
                   className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs border-t pt-3 transition-colors duration-300"
                   style={{ color: subCol, borderColor: divider }}
@@ -248,7 +380,7 @@ export default function CourseDetails({ darkMode = false }) {
                 >
                   <span className="flex items-center gap-1">
                     <Star className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400" aria-hidden="true" />
-                    <span>{course.rating} rating</span>
+                    <span>{course.rating ?? 0} rating</span>
                   </span>
                   <span className="flex items-center gap-1">
                     <Users className="w-3.5 h-3.5 text-[#1976D2]" aria-hidden="true" />
@@ -256,26 +388,35 @@ export default function CourseDetails({ darkMode = false }) {
                   </span>
                   <span className="flex items-center gap-1">
                     <Clock className="w-3.5 h-3.5 text-[#1976D2]" aria-hidden="true" />
-                    <span>{course.duration} min</span>
+                    <span>{course.duration ?? 0} min</span>
                   </span>
                 </div>
 
-                {/* Enroll button */}
                 <Button
                   variant={enrolled ? "success" : "primary"}
                   size="lg"
                   darkMode={darkMode}
                   onClick={handleEnroll}
-                  disabled={enrolled}
+                  disabled={enrolled || enrolling || checkingEnrollment}
                   fullWidth
                   className="mt-auto shadow disabled:opacity-80 disabled:cursor-not-allowed"
                   aria-label={
-                    !currentUser ? "Log in to enroll in this course"
-                      : enrolled ? `Already enrolled in ${course.title}`
-                        : `Enroll in ${course.title}`
+                    !currentUser
+                      ? "Log in to enroll in this course"
+                      : enrolled
+                      ? `Already enrolled in ${course.title}`
+                      : `Enroll in ${course.title}`
                   }
                 >
-                  {enrolled ? "✓ Enrolled" : currentUser ? "Enroll Now" : "Log in to Enroll"}
+                  {checkingEnrollment
+                    ? "Checking enrollment..."
+                    : enrolled
+                    ? "✓ Already Enrolled"
+                    : enrolling
+                    ? "Enrolling..."
+                    : currentUser
+                    ? "Enroll Now"
+                    : "Log in to Enroll"}
                 </Button>
 
                 {enrolled && (
@@ -286,12 +427,10 @@ export default function CourseDetails({ darkMode = false }) {
                     View in My Enrollments →
                   </Link>
                 )}
-
               </div>
             </div>
           </article>
 
-          {/* ── Modules Section ── */}
           {courseModules.length > 0 && (
             <section
               aria-labelledby="modules-heading"
@@ -337,16 +476,13 @@ export default function CourseDetails({ darkMode = false }) {
               />
             </section>
           )}
-
         </div>
       </main>
 
-      {/* ── Screen-reader live region ── */}
       <div aria-live="polite" aria-atomic="true" className="sr-only">
         {showPopup && `Successfully enrolled in ${course.title}`}
       </div>
 
-      {/* ── Toast ── */}
       {showPopup && (
         <div
           role="status"

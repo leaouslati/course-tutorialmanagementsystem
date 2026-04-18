@@ -5,7 +5,7 @@ import Button from "../components/Button";
 import { Search, RotateCcw, BookOpen, X, Loader2, AlertCircle } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import { useAuth } from "../pages/AuthContext";
-import { API_URL } from "../api";
+import { API_URL, authFetch } from "../api";
 
 function Courses({ darkMode = false }) {
   const { currentUser } = useAuth();
@@ -15,7 +15,6 @@ function Courses({ darkMode = false }) {
   const [sortTime, setSortTime] = useState("");
   const [difficulty, setDifficulty] = useState("");
   const [category, setCategory] = useState("");
-
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -40,7 +39,7 @@ function Courses({ darkMode = false }) {
       if (sortTime)   params.set("sortTime",    sortTime);
 
       const url = `${API_URL}/courses${params.toString() ? `?${params.toString()}` : ""}`;
-      const res = await fetch(url);
+      const res = await authFetch(url);
 
       if (!res.ok) {
         throw new Error(`Failed to load courses (${res.status})`);
