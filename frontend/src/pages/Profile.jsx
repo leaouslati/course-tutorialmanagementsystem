@@ -1,5 +1,4 @@
 ﻿import { Link } from "react-router-dom";
-import { courses, modules } from "../data/mockdata";
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "../pages/AuthContext";
 import { authFetch } from "../api";
@@ -719,6 +718,8 @@ export default function Profile({ darkMode = false }) {
   const [showModal, setShowModal] = useState(false);
   const [showIDCard, setShowIDCard] = useState(false);
   const [showInstructorIDCard, setShowInstructorIDCard] = useState(false);
+  const [enrolledCourses, setEnrolledCourses] = useState([]);
+  const [createdCourses, setCreatedCourses] = useState([]);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -733,11 +734,17 @@ export default function Profile({ darkMode = false }) {
           throw new Error(data.message || "Failed to load profile");
         }
 
-        setUser((prev) => ({
-          ...prev,
-          ...currentUser,
-          ...data,
-        }));
+        setUser(data);
+
+        if (data.role === "instructor") {
+          const coursesRes = await authFetch("/api/courses?instructorId=me");
+          const coursesData = await coursesRes.json();
+          setCreatedCourses(Array.isArray(coursesData) ? coursesData : []);
+        } else {
+          const enrollRes = await authFetch("/api/enrollments");
+          const enrollData = await enrollRes.json();
+          setEnrolledCourses(Array.isArray(enrollData) ? enrollData : []);
+        }
       } catch (error) {
         setLoadError(error.message || "Failed to load profile");
       } finally {
@@ -746,7 +753,7 @@ export default function Profile({ darkMode = false }) {
     };
 
     fetchProfile();
-  }, [currentUser]);
+  }, []);
 
   if (loading) {
     return <div className="p-6">Loading profile...</div>;
@@ -762,21 +769,8 @@ export default function Profile({ darkMode = false }) {
 
   const isInstructor = user.role === "instructor";
 
-  const enrolledCourses = Array.isArray(user.enrolledCourses)
-    ? courses.filter((c) => user.enrolledCourses.includes(c.id))
-    : [];
-
-  const createdCourses = courses.filter((c) => c.instructorId === user.id);
-
-  const lessonCount = (course) =>
-    Array.isArray(course.modules)
-      ? course.modules.reduce(
-          (a, id) => a + (modules.find((m) => m.id === id)?.lessons.length || 0),
-          0
-        )
-      : 0;
-
-  const progress = (course) => user.progress?.[course.id] ?? 0;
+  // progress is tracked locally in AuthContext (localStorage) keyed by course id
+  const progress = (course) => currentUser?.progress?.[course.id] ?? 0;
 
   const enrolledCount = enrolledCourses.length;
   const createdCount = createdCourses.length;
@@ -785,12 +779,9 @@ export default function Profile({ darkMode = false }) {
     ? Math.round(enrolledCourses.reduce((s, c) => s + progress(c), 0) / enrolledCourses.length)
     : 0;
 
-  const totalModules = createdCourses.reduce(
-    (a, c) => a + (Array.isArray(c.modules) ? c.modules.length : 0),
-    0
-  );
-
-  const totalLessons = createdCourses.reduce((a, c) => a + lessonCount(c), 0);
+  // module/lesson counts are not available from the course list endpoint
+  const totalModules = 0;
+  const totalLessons = 0;
   const totalStudents = createdCourses.reduce((a, c) => a + (c.studentsCount || 0), 0);
   const avgRating = createdCourses.length
     ? (createdCourses.reduce((a, c) => a + (c.rating || 0), 0) / createdCourses.length).toFixed(1)

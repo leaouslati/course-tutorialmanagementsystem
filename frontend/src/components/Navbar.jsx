@@ -4,63 +4,73 @@ import { Sun, Moon, UserPlus, LogOut, BookOpen } from "lucide-react";
 import { authFetch } from "../api";
 import Button from "./Button";
 
+function decodeToken(token) {
+  try {
+    const payload = token.split(".")[1];
+    const json = atob(payload.replace(/-/g, "+").replace(/_/g, "/"));
+    return JSON.parse(json);
+  } catch {
+    return null;
+  }
+}
+
 export default function Navbar({ darkMode = false, toggleTheme = () => {} }) {
-  const [user, setUser] = useState(null);
-  // Only show loading state when a token exists — avoids hiding navbar for guests
-  const [loadingUser, setLoadingUser] = useState(() => !!localStorage.getItem('token'));
+  const [name, setName] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const menuRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Fetch user info on mount and on every navigation so login/logout is reflected immediately
+  // Read token at render time — Navbar re-renders on every route change (via
+  // useLocation), so token and decoded stay fresh after login/logout without
+  // needing an API call for role.
+  const token = localStorage.getItem("token");
+  const decoded = token ? decodeToken(token) : null;
+  const isLoggedIn = !!decoded;
+  const role = decoded?.role;
+
+  // Fetch name from /api/users/me once per token value.
+  // Re-runs whenever the token string changes (login → new token, logout → null).
   useEffect(() => {
-    if (!localStorage.getItem('token')) {
-      setUser(null);
-      setLoadingUser(false);
+    if (!token) {
+      setName(null);
       return;
     }
     let ignore = false;
-    setLoadingUser(true);
-    async function fetchUser() {
-      try {
-        const res = await authFetch("/api/users/me");
+    authFetch("/api/users/me")
+      .then((res) => {
         if (!res.ok) {
-          localStorage.removeItem('token');
-          if (!ignore) setUser(null);
-          return;
+          localStorage.removeItem("token");
+          return null;
         }
-        const data = await res.json();
-        if (!ignore) setUser(data);
-      } catch {
-        if (!ignore) setUser(null);
-      } finally {
-        if (!ignore) setLoadingUser(false);
-      }
-    }
-    fetchUser();
-    return () => { ignore = true; };
-  }, [location.pathname]);
+        return res.json();
+      })
+      .then((data) => {
+        if (data && !ignore) setName(data.name);
+      })
+      .catch(() => {
+        if (!ignore) setName(null);
+      });
+    return () => {
+      ignore = true;
+    };
+  }, [token]);
 
-  const isLoggedIn = !!user;
-  const role = user?.role;
-
-  const publicLinks = [
+  const navLinks = [
     { name: "Home", path: "/" },
     { name: "Courses", path: "/courses" },
-  ];
-  const studentLinks = [
-    { name: "My Enrollments", path: "/enrollments" },
-    { name: "Profile", path: "/profile" },
-  ];
-  const instructorLinks = [
-    { name: "Manage Courses", path: "/manage-courses" },
-    { name: "Profile", path: "/profile" },
-  ];
-  const navLinks = [
-    ...publicLinks,
-    ...(isLoggedIn ? (role === "instructor" ? instructorLinks : studentLinks) : []),
+    ...(isLoggedIn
+      ? role === "instructor"
+        ? [
+            { name: "Manage Courses", path: "/manage-courses" },
+            { name: "Profile", path: "/profile" },
+          ]
+        : [
+            { name: "My Enrollments", path: "/enrollments" },
+            { name: "Profile", path: "/profile" },
+          ]
+      : []),
   ];
 
   useEffect(() => {
@@ -72,7 +82,9 @@ export default function Navbar({ darkMode = false, toggleTheme = () => {} }) {
   }, []);
 
   useEffect(() => {
-    const handler = (e) => { if (e.key === "Escape") setMenuOpen(false); };
+    const handler = (e) => {
+      if (e.key === "Escape") setMenuOpen(false);
+    };
     document.addEventListener("keydown", handler);
     return () => document.removeEventListener("keydown", handler);
   }, []);
@@ -84,7 +96,9 @@ export default function Navbar({ darkMode = false, toggleTheme = () => {} }) {
   }, []);
 
   useEffect(() => {
-    const onResize = () => { if (window.innerWidth >= 768) setMenuOpen(false); };
+    const onResize = () => {
+      if (window.innerWidth >= 768) setMenuOpen(false);
+    };
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
   }, []);
@@ -92,8 +106,8 @@ export default function Navbar({ darkMode = false, toggleTheme = () => {} }) {
   useEffect(() => setMenuOpen(false), [location.pathname]);
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    setUser(null);
+    localStorage.removeItem("token");
+    setName(null);
     navigate("/");
   };
 
@@ -131,15 +145,10 @@ export default function Navbar({ darkMode = false, toggleTheme = () => {} }) {
           to="/"
           aria-label="CourseHub home"
           className={`flex items-center gap-2 font-bold text-xl no-underline shrink-0 whitespace-nowrap ${darkMode ? "text-white" : "text-[#1976D2]"}`}
-          style={{ position: 'relative' }}
+          style={{ position: "relative" }}
         >
           <BookOpen size={22} strokeWidth={2.5} color={darkMode ? "#fff" : "#1976D2"} />
           <span className={darkMode ? "text-white" : "text-[#1976D2]"}>CourseHub</span>
-          <span
-            aria-hidden="true"
-            className={darkMode ? "absolute left-0 -bottom-1 w-full h-0.5 transition-opacity duration-200 opacity-0 group-hover:opacity-100" : ""}
-            style={darkMode ? { background: 'white' } : {}}
-          />
         </NavLink>
 
         {/* Desktop nav links */}
@@ -185,7 +194,7 @@ export default function Navbar({ darkMode = false, toggleTheme = () => {} }) {
               {/* User chip */}
               <div
                 role="status"
-                aria-label={`Logged in as ${user?.name}, ${role}`}
+                aria-label={`Logged in as ${name ?? "Account"}, ${role}`}
                 className="flex items-center gap-2 h-9 px-3 rounded-[10px] shrink-0"
                 style={{
                   border: `1px solid ${darkMode ? "#374151" : "#e5e7eb"}`,
@@ -193,10 +202,10 @@ export default function Navbar({ darkMode = false, toggleTheme = () => {} }) {
                 }}
               >
                 <div className="w-[22px] h-[22px] rounded-full bg-[#1976D2] flex items-center justify-center text-white text-[11px] font-bold shrink-0">
-                  {user?.name?.[0]?.toUpperCase() ?? (role === "instructor" ? "I" : "S")}
+                  {name?.[0]?.toUpperCase() ?? (role === "instructor" ? "I" : "S")}
                 </div>
                 <span className={`text-sm font-semibold max-w-[100px] overflow-hidden text-ellipsis whitespace-nowrap ${darkMode ? "text-gray-100" : "text-gray-800"}`}>
-                  {user?.name ?? "Account"}
+                  {name ?? "Account"}
                 </span>
               </div>
 
@@ -224,7 +233,7 @@ export default function Navbar({ darkMode = false, toggleTheme = () => {} }) {
                 Login
               </Button>
 
-              {/* Sign up */}
+              {/* Sign Up — only shown when not logged in */}
               <Button
                 variant="primary"
                 size="md"
@@ -314,11 +323,11 @@ export default function Navbar({ darkMode = false, toggleTheme = () => {} }) {
             <div className="flex flex-col gap-2.5">
               <div className="flex items-center gap-2.5 px-1 py-0.5">
                 <div className="w-[38px] h-[38px] rounded-full bg-[#1976D2] flex items-center justify-center text-white text-[15px] font-bold shrink-0">
-                  {user?.name?.[0]?.toUpperCase() ?? (role === "instructor" ? "I" : "S")}
+                  {name?.[0]?.toUpperCase() ?? (role === "instructor" ? "I" : "S")}
                 </div>
                 <div>
                   <p className={`m-0 text-sm font-semibold ${darkMode ? "text-gray-100" : "text-gray-800"}`}>
-                    {user?.name ?? "Account"}
+                    {name ?? "Account"}
                   </p>
                   <p className="m-0 text-xs font-medium capitalize" style={{ color: role === "instructor" ? "#9333ea" : "#3b82f6" }}>
                     {role}
