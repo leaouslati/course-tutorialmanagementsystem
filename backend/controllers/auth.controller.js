@@ -23,14 +23,14 @@ export const register = async (req, res) => {
     const passwordHash = await bcrypt.hash(password, 10)
 
     const result = await pool.query(
-      'INSERT INTO users (name, email, password_hash) VALUES ($1, $2, $3) RETURNING id, name, email',
+      'INSERT INTO users (name, email, password_hash) VALUES ($1, $2, $3) RETURNING id, name, email, role',
       [name, email, passwordHash]
     )
 
     const user = result.rows[0]
 
     const token = jwt.sign(
-      { id: user.id, email: user.email },
+      { id: user.id, email: user.email, role: user.role },
       process.env.JWT_SECRET || 'secret',
       { expiresIn: '7d' }
     )
@@ -38,6 +38,23 @@ export const register = async (req, res) => {
     return res.status(201).json({ token, user })
   } catch (error) {
     console.error('Register error:', error)
+    return res.status(500).json({ message: 'Internal server error' })
+  }
+}
+
+// CHECK EMAIL (used by forgot-password flow)
+export const checkEmail = async (req, res) => {
+  try {
+    const { email } = req.body
+    if (!email) return res.status(400).json({ message: 'Email is required' })
+
+    const result = await pool.query('SELECT id FROM users WHERE email = $1', [email])
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'No account found with this email' })
+    }
+    return res.json({ message: 'Email found' })
+  } catch (error) {
+    console.error('checkEmail error:', error)
     return res.status(500).json({ message: 'Internal server error' })
   }
 }
@@ -52,7 +69,7 @@ export const login = async (req, res) => {
     }
 
     const result = await pool.query(
-      'SELECT id, name, email, password_hash FROM users WHERE email = $1',
+      'SELECT id, name, email, password_hash, role FROM users WHERE email = $1',
       [email]
     )
 
@@ -69,7 +86,7 @@ export const login = async (req, res) => {
     }
 
     const token = jwt.sign(
-      { id: user.id, email: user.email },
+      { id: user.id, email: user.email, role: user.role },
       process.env.JWT_SECRET || 'secret',
       { expiresIn: '7d' }
     )
@@ -79,7 +96,8 @@ export const login = async (req, res) => {
       user: {
         id: user.id,
         name: user.name,
-        email: user.email
+        email: user.email,
+        role: user.role
       }
     })
   } catch (error) {

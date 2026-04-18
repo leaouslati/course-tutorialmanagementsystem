@@ -83,7 +83,7 @@ export default function Register({ darkMode = false }) {
     setLoading(true);
     setAuthError("");
     try {
-      const { response, data } = await authFetch("/auth/register", {
+      const res = await authFetch("/api/auth/register", {
         method: "POST",
         body: JSON.stringify({
           name: form.name,
@@ -92,8 +92,9 @@ export default function Register({ darkMode = false }) {
           role: form.role,
         }),
       });
+      const data = await res.json();
 
-      if (!response.ok) {
+      if (!res.ok) {
         setAuthError(data.message || "Email already taken. Please try another email.");
         return;
       }

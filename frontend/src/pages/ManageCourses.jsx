@@ -1,11 +1,11 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { courses as initialCourses } from "../data/mockdata";
 import {
   PlusCircle, Edit, Trash2, CheckCircle, AlertCircle,
   Search as SearchIcon, BookOpen, Clock, Star, User, XCircle,
   AlertTriangle,
 } from "lucide-react";
 import Button from "../components/Button";
+import { authFetch } from "../api";
 
 const difficultyOptions = ["Beginner", "Intermediate", "Advanced"];
 const categoryOptions = ["Programming", "Web Development", "Design", "Mathematics", "Language"];
@@ -22,25 +22,24 @@ const badge = (difficulty, darkMode) => {
 const emptyForm = {
   title: "", shortDescription: "", description: "",
   category: "Programming", difficulty: "Beginner",
-  duration: "60", rating: "4.5", studentsCount: "0",
-  image: "", instructorId: "u2",
+  duration: "60", rating: "4.5", studentsCount: "0", image: "",
 };
 
-/* ─── Field Helper (must live outside CourseModal to keep stable identity) ── */
+function Spinner({ darkMode }) {
+  return (
+    <div className="flex items-center justify-center py-20">
+      <div
+        className="h-10 w-10 animate-spin rounded-full border-4"
+        style={{ borderColor: darkMode ? "#1e3a8a" : "#93c5fd", borderTopColor: "transparent" }}
+      />
+    </div>
+  );
+}
+
 function Field({ label, error, children, htmlFor, labelCol }) {
   return (
     <div className="space-y-1.5">
-      <label
-        htmlFor={htmlFor}
-        style={{
-          display: "block",
-          fontSize: 10,
-          fontWeight: 800,
-          textTransform: "uppercase",
-          letterSpacing: "0.1em",
-          color: labelCol,
-        }}
-      >
+      <label htmlFor={htmlFor} style={{ display: "block", fontSize: 10, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.1em", color: labelCol }}>
         {label}
       </label>
       {children}
@@ -54,11 +53,9 @@ function Field({ label, error, children, htmlFor, labelCol }) {
   );
 }
 
-/* ─── Course Form Modal ─────────────────────────────────────────────────── */
 function CourseModal({ open, onClose, onSave, initial, isEditing, darkMode }) {
   const [form, setForm] = useState(initial || emptyForm);
   const [errors, setErrors] = useState({});
-  const titleId = "course-modal-title";
 
   const cardBg = darkMode ? "#0f1f3d" : "#ffffff";
   const inputBg = darkMode ? "#0a1628" : "#ffffff";
@@ -94,26 +91,19 @@ function CourseModal({ open, onClose, onSave, initial, isEditing, darkMode }) {
   };
 
   const inputStyle = (hasErr) => ({
-    backgroundColor: inputBg,
-    color: inputText,
+    backgroundColor: inputBg, color: inputText,
     border: `1px solid ${hasErr ? "#ef4444" : borderCol}`,
-    boxShadow: "none",
-    width: "100%",
-    borderRadius: 8,
-    padding: "6px 10px",
-    fontSize: 14,
-    outline: "none",
-    transition: "border-color 0.15s",
+    boxShadow: "none", width: "100%", borderRadius: 8,
+    padding: "6px 10px", fontSize: 14, outline: "none", transition: "border-color 0.15s",
   });
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby={titleId}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true">
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} aria-hidden="true" />
       <div className="relative z-10 w-full max-w-lg rounded-2xl max-h-[90vh] overflow-y-auto shadow-2xl" style={{ backgroundColor: cardBg }}>
-        {/* Header */}
         <div className="sticky top-0 z-10 flex items-center justify-between px-4 py-3 rounded-t-2xl" style={{ background: "linear-gradient(90deg,#0D47A1 0%,#1565C0 60%,#1976D2 100%)" }}>
           <div>
-            <h2 id={titleId} className="text-lg font-extrabold text-white tracking-tight">
+            <h2 className="text-lg font-extrabold text-white tracking-tight">
               {isEditing ? "Edit Course" : "Add New Course"}
             </h2>
             <p style={{ fontSize: 12, color: "#bfdbfe", marginTop: 2 }}>
@@ -121,23 +111,22 @@ function CourseModal({ open, onClose, onSave, initial, isEditing, darkMode }) {
             </p>
           </div>
           <button onClick={onClose} aria-label="Close modal" style={{ background: "none", border: "none", cursor: "pointer", padding: 4, display: "flex", alignItems: "center", color: "rgba(255,255,255,0.85)" }}>
-            <XCircle style={{ width: 28, height: 28 }} strokeWidth={1.8} aria-hidden="true" />
+            <XCircle style={{ width: 28, height: 28 }} strokeWidth={1.8} />
           </button>
         </div>
 
-        {/* Body */}
         <div className="p-4 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
           <Field label="Course Title *" error={errors.title} htmlFor="field-title" labelCol={labelCol}>
-            <input id="field-title" value={form.title} onChange={set("title")} style={inputStyle(errors.title)} placeholder="e.g. Complete JavaScript Bootcamp" aria-required="true" aria-invalid={!!errors.title} />
+            <input id="field-title" value={form.title} onChange={set("title")} style={inputStyle(errors.title)} placeholder="e.g. Complete JavaScript Bootcamp" />
           </Field>
 
           <Field label="Short Description *" error={errors.shortDescription} htmlFor="field-shortDesc" labelCol={labelCol}>
-            <input id="field-shortDesc" value={form.shortDescription} onChange={set("shortDescription")} style={inputStyle(errors.shortDescription)} placeholder="A one-line pitch" aria-required="true" aria-invalid={!!errors.shortDescription} />
+            <input id="field-shortDesc" value={form.shortDescription} onChange={set("shortDescription")} style={inputStyle(errors.shortDescription)} placeholder="A one-line pitch" />
           </Field>
 
           <div className="sm:col-span-2">
             <Field label="Full Description *" error={errors.description} htmlFor="field-desc" labelCol={labelCol}>
-              <textarea id="field-desc" value={form.description} onChange={set("description")} style={{ ...inputStyle(errors.description), resize: "none" }} rows={2} placeholder="Describe what learners will achieve..." aria-required="true" aria-invalid={!!errors.description} />
+              <textarea id="field-desc" value={form.description} onChange={set("description")} style={{ ...inputStyle(errors.description), resize: "none" }} rows={2} placeholder="Describe what learners will achieve..." />
             </Field>
           </div>
 
@@ -157,36 +146,15 @@ function CourseModal({ open, onClose, onSave, initial, isEditing, darkMode }) {
             <input id="field-duration" type="number" min={10} value={form.duration} onChange={set("duration")} style={inputStyle(false)} placeholder="60" />
           </Field>
 
-          <Field label="Rating (0–5)" htmlFor="field-rating" labelCol={labelCol}>
-            <input id="field-rating" type="number" step="0.1" min={0} max={5} value={form.rating} onChange={set("rating")} style={inputStyle(false)} placeholder="4.5" />
-          </Field>
-
-          <Field label="Enrolled Students" htmlFor="field-students" labelCol={labelCol}>
-            <input id="field-students" type="number" min={0} value={form.studentsCount} onChange={set("studentsCount")} style={inputStyle(false)} placeholder="0" />
-          </Field>
-
           <Field label="Image URL" htmlFor="field-image" labelCol={labelCol}>
             <input id="field-image" value={form.image} onChange={set("image")} style={inputStyle(false)} placeholder="https://..." />
           </Field>
 
           <div className="sm:col-span-2 flex gap-3 pt-2">
-            <Button
-              variant="primary"
-              size="md"
-              darkMode={darkMode}
-              onClick={handleSave}
-              icon={isEditing ? <Edit className="h-4 w-4" /> : <PlusCircle className="h-4 w-4" />}
-              className="flex-1 shadow"
-            >
+            <Button variant="primary" size="md" darkMode={darkMode} onClick={handleSave} icon={isEditing ? <Edit className="h-4 w-4" /> : <PlusCircle className="h-4 w-4" />} className="flex-1 shadow">
               {isEditing ? "Update Course" : "Add Course"}
             </Button>
-            <Button
-              variant="secondary"
-              size="md"
-              darkMode={darkMode}
-              onClick={onClose}
-              className="flex-1"
-            >
+            <Button variant="secondary" size="md" darkMode={darkMode} onClick={onClose} className="flex-1">
               Cancel
             </Button>
           </div>
@@ -196,10 +164,7 @@ function CourseModal({ open, onClose, onSave, initial, isEditing, darkMode }) {
   );
 }
 
-/* ─── Delete Confirm Modal ──────────────────────────────────────────────── */
 function DeleteModal({ open, onClose, onConfirm, title, darkMode }) {
-  const titleId = "delete-modal-title";
-  const descId = "delete-modal-desc";
   const cardBg = darkMode ? "#0f1f3d" : "#ffffff";
   const headingCol = darkMode ? "#f1f5f9" : "#111827";
   const bodyText = darkMode ? "#cbd5e1" : "#6b7280";
@@ -215,34 +180,21 @@ function DeleteModal({ open, onClose, onConfirm, title, darkMode }) {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" role="alertdialog" aria-modal="true" aria-labelledby={titleId} aria-describedby={descId}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" role="alertdialog" aria-modal="true">
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} aria-hidden="true" />
       <div className="relative z-10 w-full max-w-sm rounded-2xl p-6 shadow-2xl text-center" style={{ backgroundColor: cardBg }}>
-        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full" style={{ backgroundColor: darkMode ? "rgba(239,68,68,0.15)" : "#fee2e2" }} aria-hidden="true">
+        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full" style={{ backgroundColor: darkMode ? "rgba(239,68,68,0.15)" : "#fee2e2" }}>
           <AlertTriangle className="h-6 w-6" style={{ color: "#ef4444" }} />
         </div>
-        <h3 id={titleId} className="text-lg font-extrabold mb-1" style={{ color: headingCol }}>Delete Course?</h3>
-        <p id={descId} className="text-sm mb-6" style={{ color: bodyText }}>
-          "<span className="font-semibold" style={{ color: nameCol }}>{title}</span>" will be permanently removed from the catalog.
+        <h3 className="text-lg font-extrabold mb-1" style={{ color: headingCol }}>Delete Course?</h3>
+        <p className="text-sm mb-6" style={{ color: bodyText }}>
+          "<span className="font-semibold" style={{ color: nameCol }}>{title}</span>" will be permanently removed.
         </p>
         <div className="flex gap-3">
-          <Button
-            variant="danger"
-            size="md"
-            darkMode={darkMode}
-            onClick={onConfirm}
-            icon={<Trash2 className="h-4 w-4" />}
-            className="flex-1 focus-visible:ring-red-400"
-          >
+          <Button variant="danger" size="md" darkMode={darkMode} onClick={onConfirm} icon={<Trash2 className="h-4 w-4" />} className="flex-1">
             Delete Course
           </Button>
-          <Button
-            variant="secondary"
-            size="md"
-            darkMode={darkMode}
-            onClick={onClose}
-            className="flex-1"
-          >
+          <Button variant="secondary" size="md" darkMode={darkMode} onClick={onClose} className="flex-1">
             Cancel
           </Button>
         </div>
@@ -251,9 +203,9 @@ function DeleteModal({ open, onClose, onConfirm, title, darkMode }) {
   );
 }
 
-/* ─── Main Page ─────────────────────────────────────────────────────────── */
 export default function ManageCourses({ darkMode = false }) {
-  const [courses, setCourses] = useState([...initialCourses]);
+  const [courses, setCourses] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [toast, setToast] = useState({ text: "", type: "success" });
   const [modalOpen, setModalOpen] = useState(false);
@@ -272,6 +224,29 @@ export default function ManageCourses({ darkMode = false }) {
   const inputBorder = darkMode ? "#1a3a6b" : "transparent";
   const countText = darkMode ? "#94a3b8" : "#4b5563";
 
+  const notify = (text, type = "success") => setToast({ text, type });
+
+  useEffect(() => {
+    (async () => {
+      setLoading(true);
+      try {
+        const res = await authFetch("/api/courses");
+        const data = await res.json();
+        setCourses(Array.isArray(data) ? data : []);
+      } catch {
+        notify("Failed to load courses", "error");
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
+
+  useEffect(() => {
+    if (!toast.text) return;
+    const t = setTimeout(() => setToast({ text: "", type: "success" }), 2800);
+    return () => clearTimeout(t);
+  }, [toast.text]);
+
   const filteredCourses = useMemo(() => {
     const q = search.toLowerCase().trim();
     if (!q) return courses;
@@ -280,35 +255,48 @@ export default function ManageCourses({ darkMode = false }) {
     );
   }, [courses, search]);
 
-  useEffect(() => {
-    if (!toast.text) return;
-    const t = setTimeout(() => setToast({ text: "", type: "success" }), 2800);
-    return () => clearTimeout(t);
-  }, [toast.text]);
-
-  const notify = (text, type = "success") => setToast({ text, type });
   const openAdd = () => { setEditing(null); setModalOpen(true); };
   const openEdit = (course) => { setEditing(course); setModalOpen(true); };
   const closeModal = () => setModalOpen(false);
 
-  const handleSave = (form) => {
-    if (editingCourse) {
-      const updated = { ...editingCourse, ...form, duration: Number(form.duration), rating: Number(form.rating), studentsCount: Number(form.studentsCount) };
-      setCourses((prev) => prev.map((c) => (c.id === editingCourse.id ? updated : c)));
-      notify("Course updated successfully.");
-    } else {
-      const newCourse = { ...form, id: `c${Date.now()}`, duration: Number(form.duration), rating: Number(form.rating), studentsCount: Number(form.studentsCount), createdAt: new Date().toISOString().split("T")[0] };
-      setCourses((prev) => [newCourse, ...prev]);
-      notify("Course added to the catalog.");
+  const saveCourse = async (form) => {
+    try {
+      if (editingCourse) {
+        const res = await authFetch(`/api/courses/${editingCourse.id}`, {
+          method: "PUT",
+          body: JSON.stringify(form),
+        });
+        const updated = await res.json();
+        setCourses((p) => p.map((c) => (c.id === editingCourse.id ? updated : c)));
+        notify("Course updated successfully.");
+      } else {
+        const res = await authFetch("/api/courses", {
+          method: "POST",
+          body: JSON.stringify(form),
+        });
+        const created = await res.json();
+        setCourses((p) => [created, ...p]);
+        notify("Course added to the catalog.");
+      }
+      closeModal();
+    } catch {
+      notify("Operation failed", "error");
     }
-    closeModal();
   };
 
-  const confirmDelete = () => {
-    setCourses((prev) => prev.filter((c) => c.id !== deleteTarget.id));
-    notify("Course removed from catalog.");
-    setDeleteTarget(null);
+  const confirmDelete = async () => {
+    try {
+      await authFetch(`/api/courses/${deleteTarget.id}`, { method: "DELETE" });
+      setCourses((p) => p.filter((c) => c.id !== deleteTarget.id));
+      notify("Course removed from catalog.");
+    } catch {
+      notify("Delete failed", "error");
+    } finally {
+      setDeleteTarget(null);
+    }
   };
+
+  if (loading) return <Spinner darkMode={darkMode} />;
 
   return (
     <div className="min-h-screen transition-colors duration-300" style={{ backgroundColor: pageBg }}>
@@ -334,12 +322,8 @@ export default function ManageCourses({ darkMode = false }) {
 
       <main className="w-full px-4 sm:px-6 py-6 sm:py-10">
 
-        {/* Header */}
         <header className="mb-6 sm:mb-8">
-          <h1
-            className="font-extrabold tracking-tight leading-tight"
-            style={{ fontSize: "clamp(1.6rem, 4vw, 2.25rem)", color: headingCol }}
-          >
+          <h1 className="font-extrabold tracking-tight leading-tight" style={{ fontSize: "clamp(1.6rem, 4vw, 2.25rem)", color: headingCol }}>
             Manage Courses
           </h1>
           <p className="mt-1 sm:mt-2 font-semibold" style={{ fontSize: "clamp(0.8rem, 2.5vw, 1.1rem)", color: subCol }}>
@@ -347,54 +331,32 @@ export default function ManageCourses({ darkMode = false }) {
           </p>
         </header>
 
-        {/* Toolbar */}
         <div className="mb-6 flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
           <div className="relative flex-1">
-            <label htmlFor="course-search" className="sr-only">Search courses</label>
             <SearchIcon className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2" style={{ color: mutedCol }} aria-hidden="true" />
             <input
-              id="course-search"
               type="search"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search by title or category…"
               className="w-full rounded-xl pl-11 pr-4 py-3 text-sm transition focus:outline-none"
-              style={{
-                backgroundColor: inputBg,
-                color: inputText,
-                border: `1px solid ${inputBorder}`,
-                boxShadow: darkMode ? "none" : "0 2px 12px 0 rgba(0,0,0,0.08)",
-              }}
+              style={{ backgroundColor: inputBg, color: inputText, border: `1px solid ${inputBorder}`, boxShadow: darkMode ? "none" : "0 2px 12px 0 rgba(0,0,0,0.08)" }}
               onFocus={(e) => (e.currentTarget.style.borderColor = "#1976D2")}
               onBlur={(e) => (e.currentTarget.style.borderColor = inputBorder)}
             />
           </div>
-
-          <Button
-            variant="primary"
-            size="lg"
-            darkMode={darkMode}
-            onClick={openAdd}
-            icon={<PlusCircle className="h-4 w-4" />}
-            className="shrink-0 w-full sm:w-auto shadow"
-          >
+          <Button variant="primary" size="lg" darkMode={darkMode} onClick={openAdd} icon={<PlusCircle className="h-4 w-4" />} className="shrink-0 w-full sm:w-auto shadow">
             Add Course
           </Button>
         </div>
 
-        {/* Count */}
         <p className="mb-4 text-xs font-medium" style={{ color: countText }} aria-live="polite" aria-atomic="true">
           Showing <span className="font-bold" style={{ color: headingCol }}>{filteredCourses.length}</span> of{" "}
           <span className="font-bold" style={{ color: headingCol }}>{courses.length}</span> courses
         </p>
 
-        {/* Grid */}
         {filteredCourses.length === 0 ? (
-          <div
-            className="rounded-2xl border-dashed py-20 text-center"
-            style={{ border: `1px dashed ${darkMode ? "#1a3a6b" : "#d1d5db"}`, color: mutedCol }}
-            role="status"
-          >
+          <div className="rounded-2xl border-dashed py-20 text-center" style={{ border: `1px dashed ${darkMode ? "#1a3a6b" : "#d1d5db"}`, color: mutedCol }} role="status">
             <BookOpen className="mx-auto mb-3 h-8 w-8 opacity-40" aria-hidden="true" />
             <p className="font-semibold">No matching courses found.</p>
             <p className="text-xs mt-1 opacity-70">Try a different search or add a new course.</p>
@@ -407,21 +369,9 @@ export default function ManageCourses({ darkMode = false }) {
                 <li key={course.id}>
                   <article
                     className="flex flex-col rounded-xl overflow-hidden h-full transition-all duration-300"
-                    style={{
-                      backgroundColor: cardBg,
-                      border: `1px solid ${cardBorder}`,
-                      boxShadow: darkMode ? "none" : "0 2px 12px 0 rgba(0,0,0,0.08)",
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.boxShadow = darkMode
-                        ? "0 0 24px 2px rgba(25,118,210,0.15)"
-                        : "0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04)";
-                      e.currentTarget.style.transform = "translateY(-2px)";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.boxShadow = darkMode ? "none" : "0 2px 12px 0 rgba(0,0,0,0.08)";
-                      e.currentTarget.style.transform = "translateY(0)";
-                    }}
+                    style={{ backgroundColor: cardBg, border: `1px solid ${cardBorder}`, boxShadow: darkMode ? "none" : "0 2px 12px 0 rgba(0,0,0,0.08)" }}
+                    onMouseEnter={(e) => { e.currentTarget.style.boxShadow = darkMode ? "0 0 24px 2px rgba(25,118,210,0.15)" : "0 20px 25px -5px rgba(0,0,0,0.1)"; e.currentTarget.style.transform = "translateY(-2px)"; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.boxShadow = darkMode ? "none" : "0 2px 12px 0 rgba(0,0,0,0.08)"; e.currentTarget.style.transform = "translateY(0)"; }}
                     aria-label={course.title}
                   >
                     {course.image ? (
@@ -450,39 +400,25 @@ export default function ManageCourses({ darkMode = false }) {
                       <div className="flex flex-wrap items-center gap-3 mb-4 text-sm" style={{ color: subCol }}>
                         <span className="flex items-center gap-1">
                           <Clock className="h-4 w-4" style={{ color: "#1976D2" }} aria-hidden="true" />
-                          <span><span className="sr-only">Duration: </span>{course.duration} min</span>
+                          {course.duration} min
                         </span>
                         <span className="flex items-center gap-1">
                           <User className="h-4 w-4" style={{ color: "#1976D2" }} aria-hidden="true" />
-                          <span><span className="sr-only">Students enrolled: </span>{course.studentsCount?.toLocaleString()}</span>
+                          {course.studentsCount?.toLocaleString()}
                         </span>
-                        <span className="flex items-center gap-1">
-                          <Star className="h-4 w-4" style={{ color: "#facc15", fill: "#facc15" }} aria-hidden="true" />
-                          <span><span className="sr-only">Rating: </span>{course.rating}</span>
-                        </span>
+                        {course.rating && (
+                          <span className="flex items-center gap-1">
+                            <Star className="h-4 w-4" style={{ color: "#facc15", fill: "#facc15" }} aria-hidden="true" />
+                            {course.rating}
+                          </span>
+                        )}
                       </div>
 
                       <div className="flex gap-2 mt-auto">
-                        <Button
-                          variant="primary"
-                          size="sm"
-                          darkMode={darkMode}
-                          onClick={() => openEdit(course)}
-                          aria-label={`Edit ${course.title}`}
-                          icon={<Edit className="h-3.5 w-3.5" />}
-                          className="flex-1"
-                        >
+                        <Button variant="primary" size="sm" darkMode={darkMode} onClick={() => openEdit(course)} aria-label={`Edit ${course.title}`} icon={<Edit className="h-3.5 w-3.5" />} className="flex-1">
                           Edit
                         </Button>
-                        <Button
-                          variant="danger-soft"
-                          size="sm"
-                          darkMode={darkMode}
-                          onClick={() => setDeleteTarget({ id: course.id, title: course.title })}
-                          aria-label={`Delete ${course.title}`}
-                          icon={<Trash2 className="h-3.5 w-3.5" />}
-                          className="flex-1 focus-visible:ring-red-400"
-                        >
+                        <Button variant="danger-soft" size="sm" darkMode={darkMode} onClick={() => setDeleteTarget({ id: course.id, title: course.title })} aria-label={`Delete ${course.title}`} icon={<Trash2 className="h-3.5 w-3.5" />} className="flex-1">
                           Delete
                         </Button>
                       </div>
@@ -498,11 +434,11 @@ export default function ManageCourses({ darkMode = false }) {
       <CourseModal
         open={modalOpen}
         onClose={closeModal}
-        onSave={handleSave}
+        onSave={saveCourse}
         darkMode={darkMode}
         initial={
           editingCourse
-            ? { ...editingCourse, duration: editingCourse.duration?.toString(), rating: editingCourse.rating?.toString(), studentsCount: editingCourse.studentsCount?.toString() }
+            ? { ...editingCourse, duration: editingCourse.duration?.toString(), image: editingCourse.image || "" }
             : emptyForm
         }
         isEditing={!!editingCourse}
