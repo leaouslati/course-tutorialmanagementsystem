@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from "react";
-import { courses } from "../data/mockdata";
+import React, { useState, useEffect, useCallback } from "react";
 import CourseCard from "../components/CourseCard";
 import EmptyState from "../components/EmptyState";
 import Button from "../components/Button";
-import { Search, RotateCcw, BookOpen, X } from "lucide-react";
+import { Search, RotateCcw, BookOpen, X, Loader2, AlertCircle } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import { useAuth } from "../pages/AuthContext";
+import { API_URL } from "../api";
 
 function Courses({ darkMode = false }) {
   const { currentUser } = useAuth();
@@ -16,10 +16,49 @@ function Courses({ darkMode = false }) {
   const [difficulty, setDifficulty] = useState("");
   const [category, setCategory] = useState("");
 
+  const [courses, setCourses] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  // Sync category from URL params on mount
   useEffect(() => {
     const cat = searchParams.get("category");
     if (cat) setCategory(cat);
   }, [searchParams]);
+
+  // Fetch courses whenever filters change
+  const fetchCourses = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const params = new URLSearchParams();
+      if (category)   params.set("category",   category);
+      if (difficulty) params.set("difficulty",  difficulty);
+      if (search)     params.set("search",      search);
+      if (sortRating) params.set("sortRating",  sortRating);
+      if (sortTime)   params.set("sortTime",    sortTime);
+
+      const url = `${API_URL}/courses${params.toString() ? `?${params.toString()}` : ""}`;
+      const res = await fetch(url);
+
+      if (!res.ok) {
+        throw new Error(`Failed to load courses (${res.status})`);
+      }
+
+      const data = await res.json();
+      setCourses(data);
+    } catch (err) {
+      setError(err.message || "Something went wrong. Please try again.");
+      setCourses([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [category, difficulty, search, sortRating, sortTime]);
+
+  useEffect(() => {
+    fetchCourses();
+  }, [fetchCourses]);
 
   const resetAll = () => {
     setSearch("");
@@ -29,16 +68,15 @@ function Courses({ darkMode = false }) {
     setCategory("");
   };
 
-
-  const pageBg = darkMode ? "#060f1e" : "#F4F8FD";
-  const cardBg = darkMode ? "#0f1f3d" : "#ffffff";
-  const cardBorder = darkMode ? "#1a3a6b" : "transparent";
-  const headingCol = darkMode ? "#f1f5f9" : "#111827";
-  const subCol = darkMode ? "#94a3b8" : "#4b5563";
-  const inputText = darkMode ? "#f1f5f9" : "#1f2937";
-  const inputPlaceholder = darkMode ? "#64748b" : "#9ca3af";
-  const countText = darkMode ? "#94a3b8" : "#4b5563";
-
+  // ── Theme tokens ──────────────────────────────────────────────────────────
+  const pageBg          = darkMode ? "#060f1e" : "#F4F8FD";
+  const cardBg          = darkMode ? "#0f1f3d" : "#ffffff";
+  const cardBorder      = darkMode ? "#1a3a6b" : "transparent";
+  const headingCol      = darkMode ? "#f1f5f9" : "#111827";
+  const subCol          = darkMode ? "#94a3b8" : "#4b5563";
+  const inputText       = darkMode ? "#f1f5f9" : "#1f2937";
+  const inputPlaceholder= darkMode ? "#64748b" : "#9ca3af";
+  const countText       = darkMode ? "#94a3b8" : "#4b5563";
 
   const btnBase = {
     backgroundColor: cardBg,
@@ -46,7 +84,6 @@ function Courses({ darkMode = false }) {
     border: `1px solid ${darkMode ? "#1a3a6b" : "transparent"}`,
     boxShadow: darkMode ? "none" : "0 2px 8px 0 rgba(0,0,0,0.08)",
   };
-
   const btnActive = {
     backgroundColor: "#1976D2",
     color: "#ffffff",
@@ -54,17 +91,76 @@ function Courses({ darkMode = false }) {
     boxShadow: "none",
   };
 
-  const filterBtnClass = "px-3 py-2 sm:px-4 text-sm sm:text-base rounded-lg transition-all duration-150 whitespace-nowrap";
+  const filterBtnClass =
+    "px-3 py-2 sm:px-4 text-sm sm:text-base rounded-lg transition-all duration-150 whitespace-nowrap";
 
-  let filteredCourses = courses.filter((c) =>
-    c.title.toLowerCase().includes(search.toLowerCase())
-  );
-  if (difficulty) filteredCourses = filteredCourses.filter((c) => c.difficulty === difficulty);
-  if (category) filteredCourses = filteredCourses.filter((c) => c.category === category);
-  if (sortRating === "asc") filteredCourses = [...filteredCourses].sort((a, b) => a.rating - b.rating);
-  if (sortRating === "desc") filteredCourses = [...filteredCourses].sort((a, b) => b.rating - a.rating);
-  if (sortTime === "asc") filteredCourses = [...filteredCourses].sort((a, b) => a.duration - b.duration);
-  if (sortTime === "desc") filteredCourses = [...filteredCourses].sort((a, b) => b.duration - a.duration);
+  // ── Render ─────────────────────────────────────────────────────────────────
+  const renderContent = () => {
+    if (loading) {
+      return (
+        <div
+          className="col-span-full flex flex-col items-center justify-center py-20 gap-4"
+          role="status"
+          aria-label="Loading courses"
+        >
+          <Loader2
+            className="animate-spin"
+            size={40}
+            style={{ color: "#1976D2" }}
+            aria-hidden="true"
+          />
+          <p className="text-sm font-medium" style={{ color: subCol }}>
+            Loading courses…
+          </p>
+        </div>
+      );
+    }
+
+    if (error) {
+      return (
+        <div className="col-span-full flex flex-col items-center justify-center py-20 gap-4">
+          <AlertCircle size={40} style={{ color: "#ef4444" }} aria-hidden="true" />
+          <p className="text-sm font-semibold" style={{ color: "#ef4444" }}>
+            {error}
+          </p>
+          <Button variant="primary" size="md" darkMode={darkMode} onClick={fetchCourses}>
+            Try Again
+          </Button>
+        </div>
+      );
+    }
+
+    if (courses.length === 0) {
+      const hasActiveFilters = search || difficulty || category;
+      return (
+        <EmptyState
+          darkMode={darkMode}
+          icon={
+            hasActiveFilters
+              ? <Search className="w-10 h-10 sm:w-12 sm:h-12" style={{ color: "#60a5fa" }} />
+              : <BookOpen className="w-10 h-10 sm:w-12 sm:h-12" style={{ color: "#60a5fa" }} />
+          }
+          title={hasActiveFilters ? "No courses found" : "No courses available"}
+          message={
+            hasActiveFilters
+              ? "Try adjusting your search or filters to discover more courses."
+              : "There are currently no courses in the system. Please check back later or contact an instructor."
+          }
+          action={
+            hasActiveFilters ? (
+              <Button variant="primary" size="md" darkMode={darkMode} onClick={resetAll} className="shadow">
+                Reset Filters
+              </Button>
+            ) : undefined
+          }
+        />
+      );
+    }
+
+    return courses.map((course) => (
+      <CourseCard key={course.id} course={course} darkMode={darkMode} />
+    ));
+  };
 
   return (
     <div
@@ -77,19 +173,13 @@ function Courses({ darkMode = false }) {
         <header className="mb-4 sm:mb-6">
           <h1
             className="font-bold text-left mb-2"
-            style={{
-              fontSize: "clamp(2.35rem, 4vw, 3rem)",
-              color: headingCol,
-            }}
+            style={{ fontSize: "clamp(2.35rem, 4vw, 3rem)", color: headingCol }}
           >
             Available Courses
           </h1>
           <p
             className="font-semibold text-left"
-            style={{
-              fontSize: "clamp(0.8rem, 2.5vw, 1.25rem)",
-              color: subCol,
-            }}
+            style={{ fontSize: "clamp(0.8rem, 2.5vw, 1.25rem)", color: subCol }}
           >
             Learn. Grow. Achieve.
           </p>
@@ -152,11 +242,7 @@ function Courses({ darkMode = false }) {
               <button
                 onClick={() => setSortRating(sortRating === "desc" ? "asc" : "desc")}
                 className={filterBtnClass}
-                style={{
-                  ...(sortRating ? btnActive : btnBase),
-                  width: "100px",
-                  flexShrink: 0,
-                }}
+                style={{ ...(sortRating ? btnActive : btnBase), width: "100px", flexShrink: 0 }}
                 aria-label={`Sort by rating ${sortRating === "asc" ? "descending" : "ascending"}`}
                 onMouseEnter={(e) => {
                   if (!sortRating)
@@ -175,11 +261,7 @@ function Courses({ darkMode = false }) {
               <button
                 onClick={() => setSortTime(sortTime === "desc" ? "asc" : "desc")}
                 className={filterBtnClass}
-                style={{
-                  ...(sortTime ? btnActive : btnBase),
-                  width: "110px",
-                  flexShrink: 0,
-                }}
+                style={{ ...(sortTime ? btnActive : btnBase), width: "110px", flexShrink: 0 }}
                 aria-label={`Sort by duration ${sortTime === "asc" ? "descending" : "ascending"}`}
                 onMouseEnter={(e) => {
                   if (!sortTime)
@@ -206,7 +288,7 @@ function Courses({ darkMode = false }) {
             </div>
           </div>
 
-          {/* Active filter chips — show which filters are currently applied */}
+          {/* Active filter chips */}
           {category && (
             <div className="flex flex-wrap items-center gap-2" aria-label="Active filters">
               <span className="text-xs font-semibold" style={{ color: countText }}>
@@ -224,15 +306,15 @@ function Courses({ darkMode = false }) {
             </div>
           )}
 
-          {/* Course count */}
-          {courses.length > 0 && (
+          {/* Course count — only shown when not loading and no error */}
+          {!loading && !error && courses.length > 0 && (
             <p
               className="text-xs sm:text-sm"
               style={{ color: countText }}
               aria-live="polite"
             >
-              Showing <span className="font-semibold">{filteredCourses.length}</span> of{" "}
-              <span className="font-semibold">{courses.length}</span> courses
+              Showing <span className="font-semibold">{courses.length}</span> course
+              {courses.length !== 1 ? "s" : ""}
             </p>
           )}
         </div>
@@ -240,34 +322,7 @@ function Courses({ darkMode = false }) {
         {/* ── Course Grid ── */}
         <section aria-label="Course listings">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-
-            {courses.length === 0 ? (
-              <EmptyState
-                darkMode={darkMode}
-                icon={<BookOpen className="w-10 h-10 sm:w-12 sm:h-12" style={{ color: "#60a5fa" }} />}
-                title="No courses available"
-                message="There are currently no courses in the system. Please check back later or contact an instructor."
-              />
-
-            ) : filteredCourses.length > 0 ? (
-              filteredCourses.map((course) => (
-                <CourseCard key={course.id} course={course} darkMode={darkMode} />
-              ))
-
-            ) : (
-              <EmptyState
-                darkMode={darkMode}
-                icon={<Search className="w-10 h-10 sm:w-12 sm:h-12" style={{ color: "#60a5fa" }} />}
-                title="No courses found"
-                message="Try adjusting your search or filters to discover more courses."
-                action={
-                  <Button variant="primary" size="md" darkMode={darkMode} onClick={resetAll} className="shadow">
-                    Reset Filters
-                  </Button>
-                }
-              />
-            )}
-
+            {renderContent()}
           </div>
         </section>
 
