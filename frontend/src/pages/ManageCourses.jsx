@@ -53,7 +53,7 @@ function Field({ label, error, children, htmlFor, labelCol }) {
   );
 }
 
-function CourseModal({ open, onClose, onSave, initial, isEditing, darkMode }) {
+function CourseModal({ open, onClose, onSave, initial, isEditing, darkMode, saving }) {
   const [form, setForm] = useState(initial || emptyForm);
   const [errors, setErrors] = useState({});
 
@@ -151,8 +151,8 @@ function CourseModal({ open, onClose, onSave, initial, isEditing, darkMode }) {
           </Field>
 
           <div className="sm:col-span-2 flex gap-3 pt-2">
-            <Button variant="primary" size="md" darkMode={darkMode} onClick={handleSave} icon={isEditing ? <Edit className="h-4 w-4" /> : <PlusCircle className="h-4 w-4" />} className="flex-1 shadow">
-              {isEditing ? "Update Course" : "Add Course"}
+            <Button variant="primary" size="md" darkMode={darkMode} onClick={handleSave} disabled={saving} icon={saving ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white inline-block" /> : isEditing ? <Edit className="h-4 w-4" /> : <PlusCircle className="h-4 w-4" />} className="flex-1 shadow">
+              {saving ? (isEditing ? "Updating…" : "Adding…") : isEditing ? "Update Course" : "Add Course"}
             </Button>
             <Button variant="secondary" size="md" darkMode={darkMode} onClick={onClose} className="flex-1">
               Cancel
@@ -164,7 +164,7 @@ function CourseModal({ open, onClose, onSave, initial, isEditing, darkMode }) {
   );
 }
 
-function DeleteModal({ open, onClose, onConfirm, title, darkMode }) {
+function DeleteModal({ open, onClose, onConfirm, title, darkMode, deleting }) {
   const cardBg = darkMode ? "#0f1f3d" : "#ffffff";
   const headingCol = darkMode ? "#f1f5f9" : "#111827";
   const bodyText = darkMode ? "#cbd5e1" : "#6b7280";
@@ -191,8 +191,8 @@ function DeleteModal({ open, onClose, onConfirm, title, darkMode }) {
           "<span className="font-semibold" style={{ color: nameCol }}>{title}</span>" will be permanently removed.
         </p>
         <div className="flex gap-3">
-          <Button variant="danger" size="md" darkMode={darkMode} onClick={onConfirm} icon={<Trash2 className="h-4 w-4" />} className="flex-1">
-            Delete Course
+          <Button variant="danger" size="md" darkMode={darkMode} onClick={onConfirm} disabled={deleting} icon={deleting ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white inline-block" /> : <Trash2 className="h-4 w-4" />} className="flex-1">
+            {deleting ? "Deleting…" : "Delete Course"}
           </Button>
           <Button variant="secondary" size="md" darkMode={darkMode} onClick={onClose} className="flex-1">
             Cancel
@@ -211,6 +211,8 @@ export default function ManageCourses({ darkMode = false }) {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingCourse, setEditing] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
+  const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const pageBg = darkMode ? "#060f1e" : "#F4F8FD";
   const cardBg = darkMode ? "#0f1f3d" : "#ffffff";
@@ -260,6 +262,7 @@ export default function ManageCourses({ darkMode = false }) {
   const closeModal = () => setModalOpen(false);
 
   const saveCourse = async (form) => {
+    setSaving(true);
     try {
       if (editingCourse) {
         const res = await authFetch(`/api/courses/${editingCourse.id}`, {
@@ -283,18 +286,22 @@ export default function ManageCourses({ darkMode = false }) {
       closeModal();
     } catch (err) {
       notify(err.message || "Operation failed", "error");
+    } finally {
+      setSaving(false);
     }
   };
 
   const confirmDelete = async () => {
+    setDeleting(true);
     try {
       await authFetch(`/api/courses/${deleteTarget.id}`, { method: "DELETE" });
       setCourses((p) => p.filter((c) => c.id !== deleteTarget.id));
       notify("Course removed from catalog.");
+      setDeleteTarget(null);
     } catch {
       notify("Delete failed", "error");
     } finally {
-      setDeleteTarget(null);
+      setDeleting(false);
     }
   };
 
@@ -438,6 +445,7 @@ export default function ManageCourses({ darkMode = false }) {
         onClose={closeModal}
         onSave={saveCourse}
         darkMode={darkMode}
+        saving={saving}
         initial={
           editingCourse
             ? { ...editingCourse, duration: editingCourse.duration?.toString(), image: editingCourse.image || "" }
@@ -452,6 +460,7 @@ export default function ManageCourses({ darkMode = false }) {
         onConfirm={confirmDelete}
         title={deleteTarget?.title}
         darkMode={darkMode}
+        deleting={deleting}
       />
     </div>
   );
