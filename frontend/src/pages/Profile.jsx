@@ -303,7 +303,7 @@ function EditModal({ user, setUser, onClose, darkMode }) {
       setInfoError("");
       setInfoSuccess(false);
 
-      const res = await authFetch("/users/me", {
+      const res = await authFetch("/api/users/me", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -353,7 +353,7 @@ function EditModal({ user, setUser, onClose, darkMode }) {
     }
 
     try {
-      const res = await authFetch("/users/me", {
+      const res = await authFetch("/api/users/me", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -726,17 +726,18 @@ export default function Profile({ darkMode = false }) {
         setLoading(true);
         setLoadError("");
 
-        const { response, data } = await authFetch("/users/me");
+        const res = await authFetch("/api/users/me");
+        const data = await res.json();
 
-if (!response.ok) {
-  throw new Error(data.message || "Failed to load profile");
-}
+        if (!res.ok) {
+          throw new Error(data.message || "Failed to load profile");
+        }
 
-setUser((prev) => ({
-  ...prev,
-  ...currentUser,
-  ...data,
-}));
+        setUser((prev) => ({
+          ...prev,
+          ...currentUser,
+          ...data,
+        }));
       } catch (error) {
         setLoadError(error.message || "Failed to load profile");
       } finally {

@@ -1,18 +1,47 @@
 import { useState, useEffect, useRef } from "react";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { Sun, Moon, UserPlus, LogOut, BookOpen } from "lucide-react";
-import { useAuth } from "../pages/AuthContext";
+import { authFetch } from "../api";
 import Button from "./Button";
 
-export default function Navbar({ darkMode = false, toggleTheme = () => { } }) {
-  const { currentUser, logout } = useAuth();
-  const user = currentUser;
-
+export default function Navbar({ darkMode = false, toggleTheme = () => {} }) {
+  const [user, setUser] = useState(null);
+  // Only show loading state when a token exists — avoids hiding navbar for guests
+  const [loadingUser, setLoadingUser] = useState(() => !!localStorage.getItem('token'));
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const menuRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Fetch user info on mount and on every navigation so login/logout is reflected immediately
+  useEffect(() => {
+    if (!localStorage.getItem('token')) {
+      setUser(null);
+      setLoadingUser(false);
+      return;
+    }
+    let ignore = false;
+    setLoadingUser(true);
+    async function fetchUser() {
+      try {
+        const res = await authFetch("/api/users/me");
+        if (!res.ok) {
+          localStorage.removeItem('token');
+          if (!ignore) setUser(null);
+          return;
+        }
+        const data = await res.json();
+        if (!ignore) setUser(data);
+      } catch {
+        if (!ignore) setUser(null);
+      } finally {
+        if (!ignore) setLoadingUser(false);
+      }
+    }
+    fetchUser();
+    return () => { ignore = true; };
+  }, [location.pathname]);
 
   const isLoggedIn = !!user;
   const role = user?.role;
@@ -62,7 +91,11 @@ export default function Navbar({ darkMode = false, toggleTheme = () => { } }) {
 
   useEffect(() => setMenuOpen(false), [location.pathname]);
 
-  const handleLogout = () => { logout(); navigate("/"); };
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    setUser(null);
+    navigate("/");
+  };
 
   const iconBtn = {
     display: "inline-flex",
