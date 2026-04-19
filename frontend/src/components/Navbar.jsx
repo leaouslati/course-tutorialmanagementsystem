@@ -15,7 +15,7 @@ function decodeToken(token) {
 }
 
 export default function Navbar({ darkMode = false, toggleTheme = () => {} }) {
-  const [name, setName] = useState(null);
+  const [name, setName] = useState(() => localStorage.getItem("user_name") ?? null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const menuRef = useRef(null);
@@ -47,7 +47,10 @@ export default function Navbar({ darkMode = false, toggleTheme = () => {} }) {
         return res.json();
       })
       .then((data) => {
-        if (data && !ignore) setName(data.name);
+        if (data && !ignore) {
+          setName(data.name);
+          localStorage.setItem("user_name", data.name);
+        }
       })
       .catch(() => {
         if (!ignore) setName(null);
@@ -107,6 +110,7 @@ export default function Navbar({ darkMode = false, toggleTheme = () => {} }) {
 
   const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("user_name");
     setName(null);
     navigate("/");
   };

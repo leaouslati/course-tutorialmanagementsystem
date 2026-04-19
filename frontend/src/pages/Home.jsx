@@ -220,13 +220,14 @@ export default function Home({ darkMode = false }) {
   const [startCount, setStartCount] = useState(false);
 
   useEffect(() => {
+    if (loading) return;
     const observer = new IntersectionObserver(
       ([e]) => { if (e.isIntersecting) { setStartCount(true); observer.disconnect(); } },
       { threshold: 0.3 }
     );
     if (statsRef.current) observer.observe(statsRef.current);
-    return () => { if (statsRef.current) observer.unobserve(statsRef.current); };
-  }, []);
+    return () => observer.disconnect();
+  }, [loading]);
 
   const stats = [
     { label: "Courses Available", value: statsData.courseCount - 1, color: "text-[#1976D2]", suffix: "+", decimals: 0 },
@@ -236,9 +237,10 @@ export default function Home({ darkMode = false }) {
 
   const formatStat = (stat) => {
     const { value, decimals, suffix, label } = stat;
-    if (value >= 1000 && label !== "Average Rating")
-      return `${(value / 1000).toFixed(1).replace(/\.0$/, "")}k`;
-    return decimals > 0 ? value.toFixed(decimals) + suffix : value + suffix;
+    const safe = isFinite(value) ? value : 0;
+    if (safe >= 1000 && label !== "Average Rating")
+      return `${(safe / 1000).toFixed(1).replace(/\.0$/, "")}k`;
+    return decimals > 0 ? safe.toFixed(decimals) + suffix : safe + suffix;
   };
 
   const heroBg = darkMode
@@ -408,9 +410,9 @@ export default function Home({ darkMode = false }) {
               <div key={idx} className="flex flex-col items-center">
                 <dt className={`font-extrabold tracking-tight ${stat.color}`} style={{ fontSize: "clamp(1.5rem, 5vw, 3rem)" }}>
                   {startCount
-                    ? stat.value >= 1000 && stat.label !== "Average Rating"
-                      ? <CountUp end={stat.value} duration={1.2} decimals={0} formattingFn={(v) => `${(v / 1000).toFixed(1).replace(/\.0$/, "")}k`} />
-                      : <CountUp end={stat.value} duration={1.2} decimals={stat.decimals} suffix={stat.suffix} />
+                    ? (() => { const safe = isFinite(stat.value) ? stat.value : 0; return safe >= 1000 && stat.label !== "Average Rating"
+                      ? <CountUp end={safe} duration={1.2} decimals={0} formattingFn={(v) => `${(v / 1000).toFixed(1).replace(/\.0$/, "")}k`} />
+                      : <CountUp end={safe} duration={1.2} decimals={stat.decimals} suffix={stat.suffix} />; })()
                     : formatStat(stat)}
                 </dt>
                 <dd

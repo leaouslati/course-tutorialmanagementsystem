@@ -8,7 +8,7 @@
 export default function StatusBadge({ progress = 0, darkMode = false }) {
   let label, style;
 
-  if (progress === 100) {
+  if (progress >= 100) {
     label = "Completed";
     style = darkMode
       ? { backgroundColor: "rgba(34,197,94,0.15)", color: "#4ade80", border: "1px solid #166534" }
