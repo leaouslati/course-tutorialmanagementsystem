@@ -5,10 +5,14 @@ import pool from '../config/db.js'
 // REGISTER
 export const register = async (req, res) => {
   try {
-    const { name, email, password } = req.body
+    const { name, email, password, role } = req.body
 
-    if (!name || !email || !password) {
+    if (!name || !email || !password || !role) {
       return res.status(400).json({ message: 'All fields are required' })
+    }
+
+    if (!['student', 'instructor'].includes(role)) {
+      return res.status(400).json({ message: 'Role must be student or instructor' })
     }
 
     const existingUser = await pool.query(
@@ -23,8 +27,8 @@ export const register = async (req, res) => {
     const passwordHash = await bcrypt.hash(password, 10)
 
     const result = await pool.query(
-      'INSERT INTO users (name, email, password_hash) VALUES ($1, $2, $3) RETURNING id, name, email, role',
-      [name, email, passwordHash]
+      'INSERT INTO users (name, email, password_hash, role) VALUES ($1, $2, $3, $4) RETURNING id, name, email, role',
+      [name, email, passwordHash, role]
     )
 
     const user = result.rows[0]
