@@ -1,7 +1,12 @@
 import { Router } from 'express'
+import authMiddleware from '../middleware/authMiddleware.js'
+import { getMyEnrollments, enroll, unenroll, updateProgress } from '../controllers/enrollments.controller.js'
+
 const router = Router()
-router.get('/',                    (req, res) => res.json({ message: 'get enrollments stub' }))
-router.post('/',                   (req, res) => res.json({ message: 'enroll stub' }))
-router.delete('/:courseId',        (req, res) => res.json({ message: 'unenroll stub' }))
-router.put('/:courseId/progress',  (req, res) => res.json({ message: 'progress stub' }))
+
+router.get('/',                   authMiddleware, getMyEnrollments)
+router.post('/',                  authMiddleware, enroll)
+router.delete('/:courseId',       authMiddleware, unenroll)
+router.put('/:courseId/progress', authMiddleware, updateProgress)
+
 export default router
