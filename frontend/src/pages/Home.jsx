@@ -185,6 +185,7 @@ export default function Home({ darkMode = false }) {
   ];
 
   const [topCourses, setTopCourses] = useState([]);
+  const [allCourses, setAllCourses] = useState([]);
   const [statsData, setStatsData] = useState({ courseCount: 0, totalStudents: 0, avgRating: 0 });
   const [loading, setLoading] = useState(true);
 
@@ -194,13 +195,15 @@ export default function Home({ darkMode = false }) {
         const res = await authFetch(`${API_URL}/courses`);
         const data = await res.json();
 
-        const sorted = [...data].sort((a, b) => b.rating - a.rating);
+        const courses = Array.isArray(data) ? data : [];
+        setAllCourses(courses);
+        const sorted = [...courses].sort((a, b) => b.rating - a.rating);
         setTopCourses(sorted.slice(0, 4));
 
-        const courseCount = data.length;
-        const totalStudents = data.reduce((s, c) => s + (c.students_count || c.studentsCount || 0), 0);
+        const courseCount = courses.length;
+        const totalStudents = courses.reduce((s, c) => s + (c.studentsCount || 0), 0);
         const avgRating = courseCount > 0
-          ? (data.reduce((s, c) => s + (c.rating || 0), 0) / courseCount).toFixed(2)
+          ? parseFloat((courses.reduce((s, c) => s + (parseFloat(c.rating) || 0), 0) / courseCount).toFixed(2))
           : 0;
 
         setStatsData({ courseCount, totalStudents, avgRating });
@@ -228,7 +231,7 @@ export default function Home({ darkMode = false }) {
   const stats = [
     { label: "Courses Available", value: statsData.courseCount - 1, color: "text-[#1976D2]", suffix: "+", decimals: 0 },
     { label: "Active Learners", value: statsData.totalStudents, color: "text-[#22C55E]", suffix: "", decimals: 0 },
-    { label: "Average Rating", value: parseFloat(statsData.avgRating), color: "text-yellow-500", suffix: "", decimals: 2 },
+    { label: "Average Rating", value: statsData.avgRating, color: "text-yellow-500", suffix: "", decimals: 2 },
   ];
 
   const formatStat = (stat) => {
@@ -242,7 +245,12 @@ export default function Home({ darkMode = false }) {
     ? "linear-gradient(135deg, #020b18 0%, #041530 25%, #0a2550 50%, #0d3272 65%, #1048a0 85%, #1565C0 100%)"
     : "linear-gradient(135deg, #0D47A1 0%, #1565C0 50%, #1976D2 100%)";
 
-  if (loading) return <div className="spinner">Loading...</div>;
+  if (loading) return (
+    <div className="min-h-screen flex flex-col items-center justify-center" style={{ backgroundColor: darkMode ? "#060f1e" : "#F4F8FD" }}>
+      <div className="w-10 h-10 border-4 border-[#1976D2] border-t-transparent rounded-full animate-spin mb-4" />
+      <p style={{ color: darkMode ? "#f1f5f9" : "#111827" }}>Loading...</p>
+    </div>
+  );
 
   return (
     <main className={`min-h-screen transition-colors duration-300 ${darkMode ? "bg-[#060f1e] text-slate-100" : "bg-white text-gray-900"}`}>
@@ -317,7 +325,7 @@ export default function Home({ darkMode = false }) {
           <nav aria-label="Course categories">
             <ul className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 md:gap-6 items-stretch">
               {CATEGORIES.map((cat) => {
-                const count = topCourses.filter((c) => c.category === cat.name).length;
+                const count = allCourses.filter((c) => c.category === cat.name).length;
                 return (
                   <li key={cat.id} className="w-full h-full">
                     <Link
