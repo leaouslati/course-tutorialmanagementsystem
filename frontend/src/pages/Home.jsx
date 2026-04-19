@@ -3,9 +3,9 @@ import { BookOpen, TrendingUp, Users, Award, Code2, Star, Zap, Globe, Pencil } f
 import { Link } from "react-router-dom";
 import CourseCard from "../components/CourseCard";
 import Button from "../components/Button";
-import { courses } from "../data/mockdata.js";
 import CountUp from "react-countup";
 import { useAuth } from "./AuthContext";
+import { authFetch } from "../utils/authFetch";
 
 const CATEGORIES = [
   { id: 1, icon: "💻", name: "Programming" },
@@ -59,10 +59,7 @@ function FeatureCard({ feature, darkMode }) {
   const toggle = () => setFlipped((f) => !f);
 
   return (
-
-    <li
-      className="list-none w-full sm:h-[220px] md:h-[240px] lg:h-[256px]"
-    >
+    <li className="list-none w-full sm:h-[220px] md:h-[240px] lg:h-[256px]">
       <div
         className="relative w-full h-full cursor-pointer"
         style={{ perspective: "1000px" }}
@@ -75,7 +72,7 @@ function FeatureCard({ feature, darkMode }) {
         aria-pressed={flipped}
         aria-label={`${feature.title} — press to ${flipped ? "see overview" : "see details"}`}
       >
-        {/* ── Mobile:  */}
+        {/* ── Mobile */}
         <div className="sm:hidden w-full">
           <div
             className={`w-full rounded-lg p-3 border overflow-hidden transition-all duration-300 h-[210px] ${darkMode
@@ -111,7 +108,7 @@ function FeatureCard({ feature, darkMode }) {
           </div>
         </div>
 
-        {/* ── Desktop: */}
+        {/* ── Desktop */}
         <div
           className="hidden sm:block relative w-full h-full"
           style={{
@@ -187,10 +184,34 @@ export default function Home({ darkMode = false }) {
     { icon: <Award className="w-12 h-12 text-[#1976D2] mb-4 mx-auto" />, title: "Certifications", frontDesc: "Earn recognized certificates upon course completion for your portfolio.", backDesc: "Verified certificates | Portfolio showcase | Employer recognition" },
   ];
 
-  const [topCourses] = useState(() => [...courses].sort((a, b) => b.rating - a.rating).slice(0, 4));
-  const courseCount = courses.length;
-  const totalStudents = courses.reduce((s, c) => s + (c.studentsCount || 0), 0);
-  const avgRating = (courses.reduce((s, c) => s + (c.rating || 0), 0) / courseCount).toFixed(2);
+  const [topCourses, setTopCourses] = useState([]);
+  const [statsData, setStatsData] = useState({ courseCount: 0, totalStudents: 0, avgRating: 0 });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const res = await authFetch('/api/courses');
+        const data = await res.json();
+
+        const sorted = [...data].sort((a, b) => b.rating - a.rating);
+        setTopCourses(sorted.slice(0, 4));
+
+        const courseCount = data.length;
+        const totalStudents = data.reduce((s, c) => s + (c.students_count || c.studentsCount || 0), 0);
+        const avgRating = courseCount > 0
+          ? (data.reduce((s, c) => s + (c.rating || 0), 0) / courseCount).toFixed(2)
+          : 0;
+
+        setStatsData({ courseCount, totalStudents, avgRating });
+      } catch (err) {
+        console.error('Failed to fetch courses:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCourses();
+  }, []);
 
   const statsRef = useRef(null);
   const [startCount, setStartCount] = useState(false);
@@ -205,9 +226,9 @@ export default function Home({ darkMode = false }) {
   }, []);
 
   const stats = [
-    { label: "Courses Available", value: courseCount - 1, color: "text-[#1976D2]", suffix: "+", decimals: 0 },
-    { label: "Active Learners", value: totalStudents, color: "text-[#22C55E]", suffix: "", decimals: 0 },
-    { label: "Average Rating", value: parseFloat(avgRating), color: "text-yellow-500", suffix: "", decimals: 2 },
+    { label: "Courses Available", value: statsData.courseCount - 1, color: "text-[#1976D2]", suffix: "+", decimals: 0 },
+    { label: "Active Learners", value: statsData.totalStudents, color: "text-[#22C55E]", suffix: "", decimals: 0 },
+    { label: "Average Rating", value: parseFloat(statsData.avgRating), color: "text-yellow-500", suffix: "", decimals: 2 },
   ];
 
   const formatStat = (stat) => {
@@ -220,6 +241,8 @@ export default function Home({ darkMode = false }) {
   const heroBg = darkMode
     ? "linear-gradient(135deg, #020b18 0%, #041530 25%, #0a2550 50%, #0d3272 65%, #1048a0 85%, #1565C0 100%)"
     : "linear-gradient(135deg, #0D47A1 0%, #1565C0 50%, #1976D2 100%)";
+
+  if (loading) return <div className="spinner">Loading...</div>;
 
   return (
     <main className={`min-h-screen transition-colors duration-300 ${darkMode ? "bg-[#060f1e] text-slate-100" : "bg-white text-gray-900"}`}>
@@ -248,7 +271,6 @@ export default function Home({ darkMode = false }) {
               Learn from industry experts, grow your skills, and advance your career at your own pace.
             </p>
             <nav aria-label="Primary actions" className="flex flex-row flex-wrap gap-4 justify-center">
-              {/* Explore Courses — always visible */}
               <Link to="/courses">
                 <Button
                   variant="hero"
@@ -261,8 +283,6 @@ export default function Home({ darkMode = false }) {
                   Explore Courses
                 </Button>
               </Link>
-
-              {/* Sign Up — only visible when not logged in */}
               {!isLoggedIn && (
                 <Link to="/register">
                   <Button
@@ -285,8 +305,7 @@ export default function Home({ darkMode = false }) {
       {/* 2. Categories */}
       <section
         aria-labelledby="categories-heading"
-        className={`py-10 sm:py-14 md:py-20 px-4 sm:px-6 lg:px-8 transition-colors duration-300 ${darkMode ? "bg-[#060f1e]" : "bg-white"
-          }`}
+        className={`py-10 sm:py-14 md:py-20 px-4 sm:px-6 lg:px-8 transition-colors duration-300 ${darkMode ? "bg-[#060f1e]" : "bg-white"}`}
       >
         <div className="max-w-7xl mx-auto">
           <SectionHeader
@@ -298,7 +317,7 @@ export default function Home({ darkMode = false }) {
           <nav aria-label="Course categories">
             <ul className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 md:gap-6 items-stretch">
               {CATEGORIES.map((cat) => {
-                const count = courses.filter((c) => c.category === cat.name).length;
+                const count = topCourses.filter((c) => c.category === cat.name).length;
                 return (
                   <li key={cat.id} className="w-full h-full">
                     <Link
@@ -312,12 +331,10 @@ export default function Home({ darkMode = false }) {
                       <span role="img" aria-hidden="true" className="text-2xl sm:text-3xl md:text-4xl mb-2 sm:mb-3 block">
                         {cat.icon}
                       </span>
-                      <h3 className={`font-bold text-xs sm:text-sm md:text-base lg:text-lg leading-tight mb-1 ${darkMode ? "text-slate-100" : "text-gray-900"
-                        }`}>
+                      <h3 className={`font-bold text-xs sm:text-sm md:text-base lg:text-lg leading-tight mb-1 ${darkMode ? "text-slate-100" : "text-gray-900"}`}>
                         {cat.name}
                       </h3>
-                      <p className={`text-[10px] sm:text-xs md:text-sm font-medium ${darkMode ? "text-slate-400" : "text-slate-400"
-                        }`}>
+                      <p className={`text-[10px] sm:text-xs md:text-sm font-medium ${darkMode ? "text-slate-400" : "text-slate-400"}`}>
                         {count} {count === 1 ? "course" : "courses"}
                       </p>
                       <div className="mt-2 sm:mt-3 h-0.5 w-0 group-hover:w-full bg-[#1976D2] transition-all duration-300 rounded-full mx-auto" />
@@ -333,8 +350,7 @@ export default function Home({ darkMode = false }) {
       {/* 3. Featured Courses */}
       <section
         aria-labelledby="featured-heading"
-        className={`py-10 sm:py-14 md:py-20 px-4 sm:px-6 lg:px-8 transition-colors duration-300 ${darkMode ? "bg-[#0a1628]" : "bg-[#F4F8FD]"
-          }`}
+        className={`py-10 sm:py-14 md:py-20 px-4 sm:px-6 lg:px-8 transition-colors duration-300 ${darkMode ? "bg-[#0a1628]" : "bg-[#F4F8FD]"}`}
       >
         <div className="max-w-7xl mx-auto">
           <SectionHeader
@@ -375,8 +391,7 @@ export default function Home({ darkMode = false }) {
       <section
         ref={statsRef}
         aria-labelledby="stats-heading"
-        className={`py-10 sm:py-14 md:py-16 px-4 sm:px-6 lg:px-8 transition-colors duration-300 ${darkMode ? "bg-[#060f1e]" : "bg-white"
-          }`}
+        className={`py-10 sm:py-14 md:py-16 px-4 sm:px-6 lg:px-8 transition-colors duration-300 ${darkMode ? "bg-[#060f1e]" : "bg-white"}`}
       >
         <div className="max-w-7xl mx-auto">
           <SectionHeader id="stats-heading" title="Our Numbers Speak" darkMode={darkMode} />
@@ -384,11 +399,11 @@ export default function Home({ darkMode = false }) {
             {stats.map((stat, idx) => (
               <div key={idx} className="flex flex-col items-center">
                 <dt className={`font-extrabold tracking-tight ${stat.color}`} style={{ fontSize: "clamp(1.5rem, 5vw, 3rem)" }}>
-                 {startCount
-  ? stat.value >= 1000 && stat.label !== "Average Rating"
-    ? <CountUp end={stat.value} duration={1.2} decimals={0} formattingFn={(v) => `${(v / 1000).toFixed(1).replace(/\.0$/, "")}k`} />
-    : <CountUp end={stat.value} duration={1.2} decimals={stat.decimals} suffix={stat.suffix} />
-  : formatStat(stat)}
+                  {startCount
+                    ? stat.value >= 1000 && stat.label !== "Average Rating"
+                      ? <CountUp end={stat.value} duration={1.2} decimals={0} formattingFn={(v) => `${(v / 1000).toFixed(1).replace(/\.0$/, "")}k`} />
+                      : <CountUp end={stat.value} duration={1.2} decimals={stat.decimals} suffix={stat.suffix} />
+                    : formatStat(stat)}
                 </dt>
                 <dd
                   className={`font-medium mt-1 ${darkMode ? "text-slate-400" : "text-gray-500"}`}
@@ -405,8 +420,7 @@ export default function Home({ darkMode = false }) {
       {/* 5. Why Learn With Us */}
       <section
         aria-labelledby="features-heading"
-        className={`py-10 sm:py-14 md:py-20 px-4 sm:px-6 lg:px-8 transition-colors duration-300 ${darkMode ? "bg-[#0a1628]" : "bg-[#F4F8FD]"
-          }`}
+        className={`py-10 sm:py-14 md:py-20 px-4 sm:px-6 lg:px-8 transition-colors duration-300 ${darkMode ? "bg-[#0a1628]" : "bg-[#F4F8FD]"}`}
       >
         <div className="max-w-7xl mx-auto">
           <SectionHeader
