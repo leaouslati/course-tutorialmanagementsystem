@@ -6,6 +6,7 @@ import authRoutes from './routes/auth.routes.js'
 import courseRoutes from './routes/courses.routes.js'
 import enrollmentRoutes from './routes/enrollments.routes.js'
 import userRoutes from './routes/users.routes.js'
+import lessonRoutes from './routes/lessons.routes.js'
 
 dotenv.config()
 const app = express()
@@ -18,6 +19,7 @@ app.use('/api/auth', authRoutes)
 app.use('/api/courses', courseRoutes)
 app.use('/api/enrollments', enrollmentRoutes)
 app.use('/api/users', userRoutes)
+app.use('/api/lessons', lessonRoutes)
 app.use(errorMiddleware)
 
 const PORT = process.env.PORT || 3000
