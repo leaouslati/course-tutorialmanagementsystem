@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { ChevronDown, Lock } from "lucide-react";
 import { useAuth } from "../pages/AuthContext";
-
+import { authFetch, API_URL } from '../api';
 
 const LessonModal = ({ lesson, moduleName, onClose, darkMode }) => {
   const embedUrl = lesson.url || lesson.videoUrl?.replace("watch?v=", "embed/");
@@ -164,12 +164,24 @@ const ModuleAccordion = ({ modules = [], enrolled = false, courseId, darkMode = 
     setActiveModName(moduleName);
   };
 
-  const closeLesson = () => {
+ const closeLesson = async () => {
     if (activeLesson) {
       const updatedCompleted = { ...completed, [activeLesson.id]: true };
       setCompleted(updatedCompleted);
       const doneLessons = Object.keys(updatedCompleted).length;
       updateProgress(courseId, doneLessons, totalLessons);
+
+      // Save progress to API
+      const newProgress = Math.round((doneLessons / totalLessons) * 100);
+      try {
+          await authFetch(`${API_URL}/enrollments/${courseId}/progress`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ progress: newProgress }),
+        });
+      } catch (err) {
+        console.error('Failed to save progress:', err);
+      }
     }
     setActiveLesson(null);
   };
