@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { ChevronDown, Lock } from "lucide-react";
 import { useAuth } from "../pages/AuthContext";
-import { authFetch } from '../utils/authFetch';
+import { authFetch } from '../api';
 
 const LessonModal = ({ lesson, moduleName, onClose, darkMode }) => {
   const embedUrl = lesson.url || lesson.videoUrl?.replace("watch?v=", "embed/");

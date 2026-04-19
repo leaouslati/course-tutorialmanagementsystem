@@ -5,7 +5,7 @@ import CourseCard from "../components/CourseCard";
 import Button from "../components/Button";
 import CountUp from "react-countup";
 import { useAuth } from "./AuthContext";
-import { authFetch } from "../utils/authFetch";
+import { authFetch } from "../api";
 
 const CATEGORIES = [
   { id: 1, icon: "💻", name: "Programming" },

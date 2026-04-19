@@ -19,10 +19,13 @@ export default function Navbar({ darkMode = false, toggleTheme = () => { } }) {
 
   const publicLinks = [
     { name: "Home", path: "/" },
+    { name: "Browse", path: "/packages" },
     { name: "Courses", path: "/courses" },
   ];
   const studentLinks = [
     { name: "My Enrollments", path: "/enrollments" },
+    { name: "Wishlist", path: "/wishlist" },
+    { name: "Dashboard", path: "/dashboard" },
     { name: "Profile", path: "/profile" },
   ];
   const instructorLinks = [
