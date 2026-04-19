@@ -1,7 +1,7 @@
 import pool from '../config/db.js';
 
 // getMyEnrollments
-const getMyEnrollments = async (req, res) => {
+export const getMyEnrollments = async (req, res) => {
   try {
     const result = await pool.query(
       `SELECT e.*, c.title, c.short_description, c.image_url, c.rating, c.students_count
@@ -19,7 +19,7 @@ const getMyEnrollments = async (req, res) => {
 };
 
 // enroll
-const enroll = async (req, res) => {
+export const enroll = async (req, res) => {
   try {
     const { courseId } = req.body;
 
@@ -47,7 +47,7 @@ const enroll = async (req, res) => {
 };
 
 // unenroll
-const unenroll = async (req, res) => {
+export const unenroll = async (req, res) => {
   try {
     const { courseId } = req.params;
 
@@ -68,7 +68,7 @@ const unenroll = async (req, res) => {
 };
 
 // updateProgress
-const updateProgress = async (req, res) => {
+export const updateProgress = async (req, res) => {
   try {
     const { courseId } = req.params;
     const { progress } = req.body;
@@ -95,5 +95,3 @@ const updateProgress = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
-
-export { getMyEnrollments, enroll, unenroll, updateProgress };
