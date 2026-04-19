@@ -1,10 +1,10 @@
-const express = require('express');
-const router = express.Router();
-const { createModule } = require('../controllers/modules.controller');
-const authMiddleware = require('../middleware/auth.middleware');
-const instructorOnly = require('../middleware/instructorOnly.middleware');
+import { Router } from 'express'
+import { createModule } from '../controllers/modules.controller.js'
+import { authMiddleware } from '../middleware/auth.middleware.js'
+import { instructorOnly } from '../middleware/instructorOnly.middleware.js'
 
-// POST /api/modules
-router.post('/', authMiddleware, instructorOnly, createModule);
+const router = Router()
 
-module.exports = router;
+router.post('/', authMiddleware, instructorOnly, createModule)
+
+export default router

@@ -44,6 +44,7 @@ export default function CourseDetails({ darkMode = false }) {
   const [checkingEnrollment, setCheckingEnrollment] = useState(true);
   const [enrolling, setEnrolling] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
+  const [enrollError, setEnrollError] = useState("");
 
   useEffect(() => {
     const fetchCourse = async () => {
@@ -225,11 +226,17 @@ export default function CourseDetails({ darkMode = false }) {
 
     try {
       setEnrolling(true);
+      setEnrollError("");
 
       const res = await authFetch(`${API_URL}/enrollments`, {
         method: "POST",
         body: JSON.stringify({ courseId: course.id }),
       });
+
+      if (res.status === 409) {
+        setEnrolled(true);
+        return;
+      }
 
       const data = await res.json();
 
@@ -241,7 +248,7 @@ export default function CourseDetails({ darkMode = false }) {
       setShowPopup(true);
     } catch (error) {
       console.error("handleEnroll error:", error);
-      alert(error.message || "Failed to enroll");
+      setEnrollError(error.message || "Failed to enroll");
     } finally {
       setEnrolling(false);
     }
@@ -419,6 +426,10 @@ export default function CourseDetails({ darkMode = false }) {
                     ? "Enroll Now"
                     : "Log in to Enroll"}
                 </Button>
+
+                {enrollError && (
+                  <p className="text-xs text-red-500 text-center -mt-2">{enrollError}</p>
+                )}
 
                 {enrolled && (
                   <Link

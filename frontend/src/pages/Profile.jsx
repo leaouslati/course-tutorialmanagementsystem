@@ -602,12 +602,13 @@ function EditModal({ user, setUser, onClose, darkMode }) {
 function BadgeCard({ icon, title, desc, earned, bg, border, darkMode }) {
   return (
     <div
-      className="rounded-xl border-2 p-4 flex items-start gap-4 transition-all duration-200"
+      className="rounded-xl p-4 flex items-start gap-4 transition-all duration-200"
       style={{
-        backgroundColor: earned ? (darkMode ? "#0f1f3d" : "#ffffff") : darkMode ? "#0a1628" : "#f8fafc",
-        borderColor: earned ? (darkMode ? "#1e3f7a" : undefined) : darkMode ? "#1a3a6b" : "#e2e8f0",
-        borderStyle: earned ? "solid" : "dashed",
-        opacity: earned ? 1 : darkMode ? 0.4 : 0.5,
+        backgroundColor: darkMode ? "#0f1f3d" : "#ffffff",
+        border: earned
+          ? "1px solid rgba(25,118,210,0.4)"
+          : `1px solid ${darkMode ? "rgba(255,255,255,0.06)" : "#e2e8f0"}`,
+        opacity: earned ? 1 : darkMode ? 0.4 : 0.55,
         filter: earned ? "none" : "grayscale(1)",
       }}
     >
@@ -770,7 +771,14 @@ export default function Profile({ darkMode = false }) {
   }, []);
 
   if (loading) {
-    return <div className="p-6">Loading profile...</div>;
+    return (
+      <div className="flex flex-col items-center justify-center gap-4 py-24" style={{ backgroundColor: darkMode ? "#060f1e" : "#F4F8FD", minHeight: "100vh" }}>
+        <div className="w-10 h-10 border-4 border-[#1976D2] border-t-transparent rounded-full animate-spin" />
+        <p className="text-sm font-medium" style={{ color: darkMode ? "#64748b" : "#94a3b8" }}>
+          Loading profile…
+        </p>
+      </div>
+    );
   }
 
   if (loadError) {
@@ -819,7 +827,7 @@ export default function Profile({ darkMode = false }) {
   const progressVal = isInstructor ? Math.min(createdCount * 18, 100) : avgProgress;
 
   const completedHours = enrolledCourses
-    .reduce((sum, course) => sum + (progress(course) * Number(course.duration || 0)) / 100, 0)
+    .reduce((sum, course) => sum + (progress(course) * Number(course.duration || 0)) / 100 / 60, 0)
     .toFixed(1);
 
   const lvl = getLevel(LEVELS, avgProgress);
