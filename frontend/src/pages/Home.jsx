@@ -5,7 +5,7 @@ import CourseCard from "../components/CourseCard";
 import Button from "../components/Button";
 import CountUp from "react-countup";
 import { useAuth } from "./AuthContext";
-import { authFetch } from "../api";
+import { authFetch, API_URL } from "../api";
 
 const CATEGORIES = [
   { id: 1, icon: "💻", name: "Programming" },
@@ -191,7 +191,7 @@ export default function Home({ darkMode = false }) {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const res = await authFetch('/api/courses');
+        const res = await authFetch(`${API_URL}/courses`);
         const data = await res.json();
 
         const sorted = [...data].sort((a, b) => b.rating - a.rating);
