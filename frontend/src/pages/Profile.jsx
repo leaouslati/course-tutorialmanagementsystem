@@ -811,10 +811,9 @@ export default function Profile({ darkMode = false }) {
   );
 
   const totalStudents = createdCourses.reduce((a, c) => a + (Number(c.studentsCount) || 0), 0);
-  const avgRating = createdCourses.length
-    ? (
-        createdCourses.reduce((a, c) => a + (Number(c.rating) || 0), 0) / createdCourses.length
-      ).toFixed(1)
+  const ratedCourses = createdCourses.filter((c) => Number(c.rating) > 0);
+  const avgRating = ratedCourses.length
+    ? (ratedCourses.reduce((a, c) => a + Number(c.rating), 0) / ratedCourses.length).toFixed(1)
     : "—";
 
   const progressVal = isInstructor ? Math.min(createdCount * 18, 100) : avgProgress;
