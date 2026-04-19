@@ -98,6 +98,7 @@ export default function CourseDetails({ darkMode = false }) {
 
         const alreadyEnrolled = enrollmentList.some((item) => {
           return (
+            String(item.id) === String(id) ||
             String(item.courseId) === String(id) ||
             String(item.course_id) === String(id) ||
             String(item.course?.id) === String(id)

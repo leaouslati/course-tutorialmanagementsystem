@@ -720,6 +720,7 @@ export default function Profile({ darkMode = false }) {
   const [showInstructorIDCard, setShowInstructorIDCard] = useState(false);
   const [enrolledCourses, setEnrolledCourses] = useState([]);
   const [createdCourses, setCreatedCourses] = useState([]);
+  const [createdCourseDetails, setCreatedCourseDetails] = useState([]);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -727,23 +728,36 @@ export default function Profile({ darkMode = false }) {
         setLoading(true);
         setLoadError("");
 
-        const res = await authFetch("/api/users/me");
-        const data = await res.json();
+        const userRes = await authFetch("/api/users/me");
+        const userData = await userRes.json();
 
-        if (!res.ok) {
-          throw new Error(data.message || "Failed to load profile");
+        if (!userRes.ok) {
+          throw new Error(userData.message || "Failed to load profile");
         }
 
-        setUser(data);
+        setUser(userData);
 
-        if (data.role === "instructor") {
-          const coursesRes = await authFetch("/api/courses?instructorId=me");
-          const coursesData = await coursesRes.json();
-          setCreatedCourses(Array.isArray(coursesData) ? coursesData : []);
-        } else {
-          const enrollRes = await authFetch("/api/enrollments");
-          const enrollData = await enrollRes.json();
+        const enrollRes = await authFetch("/api/enrollments");
+        const enrollData = await enrollRes.json();
+        if (enrollRes.ok) {
           setEnrolledCourses(Array.isArray(enrollData) ? enrollData : []);
+        }
+
+        const createdRes = await authFetch("/api/courses?instructorId=me");
+        const createdData = await createdRes.json();
+        if (createdRes.ok) {
+          const courseList = Array.isArray(createdData) ? createdData : [];
+          setCreatedCourses(courseList);
+
+          const detailResults = await Promise.all(
+            courseList.map(async (course) => {
+              const res = await authFetch(`/api/courses/${course.id}`);
+              if (!res.ok) return null;
+              return await res.json();
+            })
+          );
+
+          setCreatedCourseDetails(detailResults.filter(Boolean));
         }
       } catch (error) {
         setLoadError(error.message || "Failed to load profile");
@@ -769,28 +783,43 @@ export default function Profile({ darkMode = false }) {
 
   const isInstructor = user.role === "instructor";
 
-  // progress is tracked locally in AuthContext (localStorage) keyed by course id
-  const progress = (course) => currentUser?.progress?.[course.id] ?? 0;
-
   const enrolledCount = enrolledCourses.length;
   const createdCount = createdCourses.length;
+
+  const progress = (course) => Number(course.progress ?? 0);
+
   const finished = enrolledCourses.filter((c) => progress(c) === 100).length;
   const avgProgress = enrolledCourses.length
     ? Math.round(enrolledCourses.reduce((s, c) => s + progress(c), 0) / enrolledCourses.length)
     : 0;
 
-  // module/lesson counts are not available from the course list endpoint
-  const totalModules = 0;
-  const totalLessons = 0;
-  const totalStudents = createdCourses.reduce((a, c) => a + (c.studentsCount || 0), 0);
-  const avgRating = createdCourses.length
-    ? (createdCourses.reduce((a, c) => a + (c.rating || 0), 0) / createdCourses.length).toFixed(1)
+  const totalModules = createdCourseDetails.reduce(
+    (sum, course) => sum + (Array.isArray(course.modules) ? course.modules.length : 0),
+    0
+  );
+
+  const totalLessons = createdCourseDetails.reduce(
+    (sum, course) =>
+      sum +
+      (Array.isArray(course.modules)
+        ? course.modules.reduce(
+            (lessonSum, module) => lessonSum + (Array.isArray(module.lessons) ? module.lessons.length : 0),
+            0
+          )
+        : 0),
+    0
+  );
+
+  const totalStudents = createdCourses.reduce((a, c) => a + (Number(c.studentsCount) || 0), 0);
+  const ratedCourses = createdCourses.filter((c) => Number(c.rating) > 0);
+  const avgRating = ratedCourses.length
+    ? (ratedCourses.reduce((a, c) => a + Number(c.rating), 0) / ratedCourses.length).toFixed(1)
     : "—";
 
   const progressVal = isInstructor ? Math.min(createdCount * 18, 100) : avgProgress;
 
   const completedHours = enrolledCourses
-    .reduce((s, c) => s + (progress(c) * c.duration) / 100, 0)
+    .reduce((sum, course) => sum + (progress(course) * Number(course.duration || 0)) / 100, 0)
     .toFixed(1);
 
   const lvl = getLevel(LEVELS, avgProgress);
