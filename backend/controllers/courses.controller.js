@@ -1,7 +1,6 @@
 import jwt from 'jsonwebtoken'
 import pool from '../config/db.js'
 
-// Normalize DB row (snake_case) → camelCase for the frontend
 const normalize = (row) => ({
   id: row.id,
   title: row.title,
@@ -17,6 +16,29 @@ const normalize = (row) => ({
   instructorName: row.instructor_name ?? null,
   createdAt: row.created_at,
 })
+
+export const getStats = async (req, res) => {
+  try {
+    const [coursesResult, studentsResult, ratingResult] = await Promise.all([
+      pool.query('SELECT COUNT(*) FROM courses'),
+      pool.query('SELECT SUM(students_count) FROM courses'),
+      pool.query('SELECT AVG(rating) FROM courses'),
+    ])
+
+    const totalCourses = parseInt(coursesResult.rows[0].count, 10)
+    const totalStudents = parseInt(studentsResult.rows[0].sum ?? 0, 10)
+    const avg = parseFloat(ratingResult.rows[0].avg ?? 0)
+
+    res.json({
+      totalCourses,
+      totalStudents,
+      averageRating: avg.toFixed(1),
+    })
+  } catch (error) {
+    console.error('getStats error:', error)
+    res.status(500).json({ message: 'Server error' })
+  }
+}
 
 export const getCourses = async (req, res) => {
   try {

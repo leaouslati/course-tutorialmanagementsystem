@@ -4,7 +4,8 @@ import {
   getCourseById,
   createCourse,
   updateCourse,
-  deleteCourse
+  deleteCourse,
+  getStats,
 } from '../controllers/courses.controller.js'
 
 import { authMiddleware } from '../middleware/auth.middleware.js'
@@ -13,6 +14,7 @@ import { instructorOnly } from '../middleware/instructorOnly.middleware.js'
 const router = Router()
 
 router.get('/', getCourses)
+router.get('/stats', getStats)
 router.get('/:id', getCourseById)
 
 router.post('/', authMiddleware, instructorOnly, createCourse)
