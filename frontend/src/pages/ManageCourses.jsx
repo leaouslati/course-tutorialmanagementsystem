@@ -365,11 +365,26 @@ export default function ManageCourses({ darkMode = false }) {
         </p>
 
         {filteredCourses.length === 0 ? (
-          <div className="rounded-2xl border-dashed py-20 text-center" style={{ border: `1px dashed ${darkMode ? "#1a3a6b" : "#d1d5db"}`, color: mutedCol }} role="status">
-            <BookOpen className="mx-auto mb-3 h-8 w-8 opacity-40" aria-hidden="true" />
-            <p className="font-semibold">No matching courses found.</p>
-            <p className="text-xs mt-1 opacity-70">Try a different search or add a new course.</p>
-          </div>
+  <div className="flex flex-col items-center justify-center py-20 gap-4 text-center">
+    <BookOpen className="w-10 h-10 opacity-40" style={{ color: mutedCol }} />
+
+    <h2 className="text-lg font-semibold" style={{ color: headingCol }}>
+      No courses yet
+    </h2>
+
+    <p className="text-sm" style={{ color: subCol }}>
+      You haven’t created any courses yet. Start by adding your first course.
+    </p>
+
+    <Button
+      variant="primary"
+      size="md"
+      darkMode={darkMode}
+      onClick={openAdd}
+    >
+      Add Course
+    </Button>
+  </div>
         ) : (
           <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 list-none p-0" aria-label="Course catalog">
             {filteredCourses.map((course) => {
