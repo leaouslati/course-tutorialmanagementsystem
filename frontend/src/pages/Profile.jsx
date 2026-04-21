@@ -1084,6 +1084,39 @@ export default function Profile({ darkMode = false }) {
           </div>
         </section>
 
+        {!isInstructor && enrolledCourses.length === 0 && (
+          <section className="w-full max-w-5xl">
+            <div
+              className="flex flex-col items-center justify-center py-16 text-center gap-4 rounded-2xl"
+              style={{ backgroundColor: cardBg, border: `1px solid ${cardBorder}` }}
+            >
+              <BookOpen className="w-10 h-10 opacity-40" style={{ color: mutedCol }} />
+
+              <h2 className="text-lg font-semibold" style={{ color: headingCol }}>
+                Start learning
+              </h2>
+
+              <p className="text-sm" style={{ color: subCol }}>
+                You haven’t enrolled in any courses yet. Explore courses and begin your journey.
+              </p>
+
+              <Link
+                to="/courses"
+                className="px-6 py-3 rounded-xl font-semibold text-white transition"
+                style={{ backgroundColor: "#1976D2" }}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.backgroundColor = darkMode ? "#1565C0" : "#2196F3")
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.backgroundColor = "#1976D2")
+                }
+              >
+                Browse Courses
+              </Link>
+            </div>
+          </section>
+        )}
+
         <section aria-labelledby="actions-heading" className="w-full max-w-5xl">
           <h3 id="actions-heading" className="text-base font-bold uppercase tracking-widest mb-4" style={{ color: sectionLbl }}>
             Quick Actions
