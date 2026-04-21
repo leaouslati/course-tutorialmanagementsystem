@@ -191,17 +191,50 @@ function Enrollments({ darkMode = false }) {
             )}
 
             {enrollments.length === 0 ? (
-              <div className="text-center">
-                <h2 style={{ color: headingCol }}>No Enrollments Yet</h2>
-                <Button onClick={() => navigate("/courses")}>Browse Courses</Button>
-              </div>
-            ) : visibleCourses.length === 0 ? (
-              <div className="text-center">
-                <Bookmark className="mx-auto mb-3 w-8 h-8 opacity-40" style={{ color: mutedCol }} />
-                <h2 className="text-lg font-semibold mb-2" style={{ color: headingCol }}>No bookmarked courses</h2>
-                <Button onClick={() => setBookmarkFilter("all")}>Show all enrolled</Button>
-              </div>
-            ) : (
+  <div className="flex flex-col items-center justify-center py-20 gap-4 text-center">
+    <Bookmark className="w-10 h-10 opacity-40" style={{ color: mutedCol }} />
+
+    <h2 className="text-lg font-semibold" style={{ color: headingCol }}>
+      No enrollments yet
+    </h2>
+
+    <p className="text-sm" style={{ color: subCol }}>
+      You haven’t enrolled in any courses yet. Start learning now!
+    </p>
+
+    <Button
+      variant="primary"
+      size="md"
+      darkMode={darkMode}
+      onClick={() => navigate("/courses")}
+    >
+      Browse Courses
+    </Button>
+  </div>
+
+) : visibleCourses.length === 0 ? (
+  <div className="flex flex-col items-center justify-center py-20 gap-4 text-center">
+    <Bookmark className="w-10 h-10 opacity-40" style={{ color: mutedCol }} />
+
+    <h2 className="text-lg font-semibold" style={{ color: headingCol }}>
+      No bookmarked courses
+    </h2>
+
+    <p className="text-sm" style={{ color: subCol }}>
+      You haven’t bookmarked any courses yet.
+    </p>
+
+    <Button
+      variant="primary"
+      size="md"
+      darkMode={darkMode}
+      onClick={() => setBookmarkFilter("all")}
+    >
+      Show all enrolled
+    </Button>
+  </div>
+
+) : (
               <ol className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6" aria-label="Enrolled courses">
                 {visibleCourses.map((course) => {
                   const progress = Math.min(100, Math.max(0, Number(course.progress ?? 0)));
