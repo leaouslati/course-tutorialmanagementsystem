@@ -1,5 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
-import { LayoutGrid, Clock, X, AlertTriangle, Bookmark, BookmarkCheck, Loader2 } from "lucide-react";
+import { LayoutGrid, Clock, X, AlertTriangle, Bookmark, BookmarkCheck } from "lucide-react";
+import LoadingSpinner from "../components/LoadingSpinner";
+import ErrorMessage from "../components/ErrorMessage";
 import { useState, useEffect } from "react";
 import { useAuth } from "../pages/AuthContext";
 import { authFetch, API_URL } from "../api";
@@ -146,17 +148,10 @@ function Enrollments({ darkMode = false }) {
         </header>
 
         {/* ── Loading ── */}
-        {loading && (
-          <div className="flex flex-col items-center justify-center gap-4 py-24">
-            <Loader2 className="w-10 h-10 animate-spin" style={{ color: "#1976D2" }} />
-            <p style={{ color: mutedCol }}>Loading your courses…</p>
-          </div>
-        )}
+        {loading && <LoadingSpinner darkMode={darkMode} message="Loading your courses…" />}
 
         {/* ── Error ── */}
-        {!loading && error && (
-          <div className="text-red-500 text-center">{error}</div>
-        )}
+        {!loading && error && <ErrorMessage message={error} darkMode={darkMode} />}
 
         {/* ── Content ── */}
         {!loading && !error && (

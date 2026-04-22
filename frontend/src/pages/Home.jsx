@@ -3,6 +3,7 @@ import { BookOpen, TrendingUp, Users, Award, Code2, Star, Zap, Globe, Pencil } f
 import { Link } from "react-router-dom";
 import CourseCard from "../components/CourseCard";
 import Button from "../components/Button";
+import LoadingSpinner from "../components/LoadingSpinner";
 import CountUp from "react-countup";
 import { useAuth } from "./AuthContext";
 import { authFetch, API_URL } from "../api";
@@ -247,12 +248,7 @@ export default function Home({ darkMode = false }) {
     ? "linear-gradient(135deg, #020b18 0%, #041530 25%, #0a2550 50%, #0d3272 65%, #1048a0 85%, #1565C0 100%)"
     : "linear-gradient(135deg, #0D47A1 0%, #1565C0 50%, #1976D2 100%)";
 
-  if (loading) return (
-    <div className="min-h-screen flex flex-col items-center justify-center" style={{ backgroundColor: darkMode ? "#060f1e" : "#F4F8FD" }}>
-      <div className="w-10 h-10 border-4 border-[#1976D2] border-t-transparent rounded-full animate-spin mb-4" />
-      <p style={{ color: darkMode ? "#f1f5f9" : "#111827" }}>Loading...</p>
-    </div>
-  );
+  if (loading) return <LoadingSpinner darkMode={darkMode} message="Loading..." fullPage />;
 
   return (
     <main className={`min-h-screen transition-colors duration-300 ${darkMode ? "bg-[#060f1e] text-slate-100" : "bg-white text-gray-900"}`}>

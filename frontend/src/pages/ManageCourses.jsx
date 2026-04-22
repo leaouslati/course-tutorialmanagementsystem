@@ -1,10 +1,12 @@
 import React, { useEffect, useMemo, useState } from "react";
 import {
-  PlusCircle, Edit, Trash2, CheckCircle, AlertCircle,
+  PlusCircle, Edit, Trash2, AlertCircle,
   Search as SearchIcon, BookOpen, Clock, Star, User, XCircle,
   AlertTriangle, Layers, ChevronDown, PlayCircle,
 } from "lucide-react";
 import Button from "../components/Button";
+import LoadingSpinner from "../components/LoadingSpinner";
+import Toast from "../components/Toast";
 import { authFetch } from "../api";
 
 const difficultyOptions = ["Beginner", "Intermediate", "Advanced"];
@@ -31,19 +33,6 @@ const emptyForm = {
   image: "",
 };
 
-function Spinner({ darkMode }) {
-  return (
-    <div className="flex items-center justify-center py-20">
-      <div
-        className="h-10 w-10 animate-spin rounded-full border-4"
-        style={{
-          borderColor: darkMode ? "#1e3a8a" : "#93c5fd",
-          borderTopColor: "transparent",
-        }}
-      />
-    </div>
-  );
-}
 
 function Field({ label, error, children, htmlFor, labelCol }) {
   return (
@@ -892,11 +881,6 @@ export default function ManageCourses({ darkMode = false }) {
     })();
   }, []);
 
-  useEffect(() => {
-    if (!toast.text) return;
-    const t = setTimeout(() => setToast({ text: "", type: "success" }), 2800);
-    return () => clearTimeout(t);
-  }, [toast.text]);
 
   const filteredCourses = useMemo(() => {
     const q = search.toLowerCase().trim();
@@ -1000,37 +984,16 @@ export default function ManageCourses({ darkMode = false }) {
     }
   };
 
-  if (loading) return <Spinner darkMode={darkMode} />;
+  if (loading) return <LoadingSpinner darkMode={darkMode} message="Loading courses…" fullPage />;
 
   return (
     <div className="min-h-screen transition-colors duration-300" style={{ backgroundColor: pageBg }}>
-      <div aria-live="polite" aria-atomic="true" className="fixed top-4 right-4 z-50 pointer-events-none">
-        {toast.text && (
-          <div
-            className="pointer-events-auto flex items-center gap-3 rounded-2xl px-5 py-3 text-sm font-medium shadow-lg"
-            style={
-              toast.type === "error"
-                ? {
-                    backgroundColor: darkMode ? "rgba(239,68,68,0.15)" : "#fef2f2",
-                    border: `1px solid ${darkMode ? "#7f1d1d" : "#fca5a5"}`,
-                    color: darkMode ? "#f87171" : "#b91c1c",
-                  }
-                : {
-                    backgroundColor: darkMode ? "rgba(34,197,94,0.15)" : "#f0fdf4",
-                    border: `1px solid ${darkMode ? "#166534" : "#86efac"}`,
-                    color: darkMode ? "#4ade80" : "#15803d",
-                  }
-            }
-          >
-            {toast.type === "error" ? (
-              <AlertCircle className="h-4 w-4 shrink-0" aria-hidden="true" />
-            ) : (
-              <CheckCircle className="h-4 w-4 shrink-0" aria-hidden="true" />
-            )}
-            {toast.text}
-          </div>
-        )}
-      </div>
+      <Toast
+        message={toast.text}
+        type={toast.type}
+        onClose={() => setToast({ text: "", type: "success" })}
+        darkMode={darkMode}
+      />
 
       <main className="w-full px-4 sm:px-6 py-6 sm:py-10">
         <header className="mb-6 sm:mb-8">

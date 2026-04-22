@@ -7,6 +7,8 @@ import {
   BookOpen, TrendingUp, Layers, BarChart2, ArrowRight,
   Star, Zap, Target, Shield, Award, Clock, PlusCircle
 } from "lucide-react";
+import LoadingSpinner from "../components/LoadingSpinner";
+import ErrorMessage from "../components/ErrorMessage";
 
 const LEVELS = [
   { min: 80, label: "Expert", colorClass: "text-rose-500", bgClass: "bg-rose-50", hex: "#f43f5e" },
@@ -770,19 +772,14 @@ export default function Profile({ darkMode = false }) {
     fetchProfile();
   }, []);
 
-  if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center gap-4 py-24" style={{ backgroundColor: darkMode ? "#060f1e" : "#F4F8FD", minHeight: "100vh" }}>
-        <div className="w-10 h-10 border-4 border-[#1976D2] border-t-transparent rounded-full animate-spin" />
-        <p className="text-sm font-medium" style={{ color: darkMode ? "#64748b" : "#94a3b8" }}>
-          Loading profile…
-        </p>
-      </div>
-    );
-  }
+  if (loading) return <LoadingSpinner darkMode={darkMode} message="Loading profile…" fullPage />;
 
   if (loadError) {
-    return <div className="p-6 text-red-500">{loadError}</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: darkMode ? "#060f1e" : "#F4F8FD" }}>
+        <ErrorMessage message={loadError} darkMode={darkMode} />
+      </div>
+    );
   }
 
   if (!user) {
