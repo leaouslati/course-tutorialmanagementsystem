@@ -122,3 +122,20 @@ export const updateProgress = async (req, res) => {
     res.status(500).json({ message: 'Server error' })
   }
 }
+
+// GET /api/enrollments/:courseId/status
+export const getEnrollmentStatus = async (req, res) => {
+  try {
+    const { courseId } = req.params
+
+    const result = await pool.query(
+      'SELECT id FROM enrollments WHERE user_id = $1 AND course_id = $2',
+      [req.user.id, courseId]
+    )
+
+    res.json({ enrolled: result.rows.length > 0 })
+  } catch (error) {
+    console.error('getEnrollmentStatus error:', error)
+    res.status(500).json({ message: 'Server error' })
+  }
+}
