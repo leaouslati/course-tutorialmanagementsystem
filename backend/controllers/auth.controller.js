@@ -68,11 +68,16 @@ export const checkEmail = async (req, res) => {
     if (!email) return res.status(400).json({ error: 'Email is required' })
     if (!isValidEmail(email)) return res.status(400).json({ error: 'Invalid email format' })
 
-    const result = await pool.query('SELECT id FROM users WHERE email = $1', [email])
+    const result = await pool.query(
+      'SELECT id FROM users WHERE email = $1',
+      [email]
+    )
+
     if (result.rows.length === 0) {
       return res.status(404).json({ message: 'No account found with this email' })
     }
-    return res.json({ message: 'Email found' })
+
+    return res.status(200).json({ message: 'Email found' })
   } catch (error) {
     console.error('checkEmail error:', error)
     return res.status(500).json({ message: 'Internal server error' })
@@ -126,7 +131,43 @@ export const login = async (req, res) => {
   }
 }
 
-// RESET / FORGOT PASSWORD
+// RESET PASSWORD
+export const resetPassword = async (req, res) => {
+  try {
+    const { email, newPassword } = req.body
+
+    if (!email || !newPassword) {
+      return res.status(400).json({ message: 'Email and new password are required' })
+    }
+
+    const userResult = await pool.query(
+      'SELECT id FROM users WHERE email = $1',
+      [email]
+    )
+
+    if (userResult.rows.length === 0) {
+      return res.status(404).json({ message: 'No account found with this email' })
+    }
+
+    if (newPassword.length < 8) {
+      return res.status(400).json({ message: 'Password must be at least 8 characters long' })
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10)
+
+    await pool.query(
+      'UPDATE users SET password_hash = $1 WHERE email = $2',
+      [hashedPassword, email]
+    )
+
+    return res.status(200).json({ message: 'Password updated successfully' })
+  } catch (error) {
+    console.error('Reset password error:', error)
+    return res.status(500).json({ message: 'Internal server error' })
+  }
+}
+
+// FORGOT PASSWORD
 export const forgotPassword = async (req, res) => {
   try {
     const email = req.body.email?.trim().toLowerCase()

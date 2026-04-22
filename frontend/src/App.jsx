@@ -9,10 +9,11 @@ import Register from "./pages/Register.jsx";
 import Profile from "./pages/Profile.jsx";
 import ManageCourses from "./pages/ManageCourses.jsx";
 import CourseDetails from "./pages/CourseDetails.jsx";
+import NotFound from "./pages/NotFound.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import RoleRoute from "./components/RoleRoute.jsx";
 //import Footer from "./components/Footer.jsx";
-import './index.css';
+import "./index.css";
 
 function App() {
   const [darkMode, setDarkMode] = useState(
@@ -41,6 +42,7 @@ function App() {
         <Route path="/courses/:id" element={<CourseDetails darkMode={darkMode} />} />
         <Route path="/login" element={<Login darkMode={darkMode} />} />
         <Route path="/register" element={<Register darkMode={darkMode} />} />
+
         <Route
           path="/enrollments"
           element={
@@ -49,6 +51,7 @@ function App() {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/profile"
           element={
@@ -57,6 +60,7 @@ function App() {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/manage-courses"
           element={
@@ -67,8 +71,10 @@ function App() {
             </ProtectedRoute>
           }
         />
-        {/* Redirect /management → /manage-courses so the old URL doesn't show a blank page */}
+
         <Route path="/management" element={<Navigate to="/manage-courses" replace />} />
+
+        <Route path="*" element={<NotFound darkMode={darkMode} />} />
       </Routes>
     </div>
   );

@@ -1062,8 +1062,10 @@ export default function ManageCourses({ darkMode = false }) {
             role="status"
           >
             <BookOpen className="mx-auto mb-3 h-8 w-8 opacity-40" aria-hidden="true" />
-            <p className="font-semibold">No matching courses found.</p>
-            <p className="text-xs mt-1 opacity-70">Try a different search or add a new course.</p>
+            <p className="font-semibold">{search ? "No matching courses found." : "No courses yet."}</p>
+            <p className="text-xs mt-1 opacity-70">
+              {search ? "Try a different search or add a new course." : "Start by adding your first course."}
+            </p>
           </div>
         ) : (
           <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 list-none p-0" aria-label="Course catalog">
