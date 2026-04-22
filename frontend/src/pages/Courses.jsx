@@ -2,7 +2,9 @@ import React, { useState, useEffect, useCallback } from "react";
 import CourseCard from "../components/CourseCard";
 import EmptyState from "../components/EmptyState";
 import Button from "../components/Button";
-import { Search, RotateCcw, BookOpen, X, Loader2, AlertCircle } from "lucide-react";
+import { Search, RotateCcw, BookOpen, X } from "lucide-react";
+import LoadingSpinner from "../components/LoadingSpinner";
+import ErrorMessage from "../components/ErrorMessage";
 import { useSearchParams } from "react-router-dom";
 import { useAuth } from "../pages/AuthContext";
 import { API_URL, authFetch } from "../api";
@@ -97,34 +99,16 @@ function Courses({ darkMode = false }) {
   const renderContent = () => {
     if (loading) {
       return (
-        <div
-          className="col-span-full flex flex-col items-center justify-center py-20 gap-4"
-          role="status"
-          aria-label="Loading courses"
-        >
-          <Loader2
-            className="animate-spin"
-            size={40}
-            style={{ color: "#1976D2" }}
-            aria-hidden="true"
-          />
-          <p className="text-sm font-medium" style={{ color: subCol }}>
-            Loading courses…
-          </p>
+        <div className="col-span-full" role="status" aria-label="Loading courses">
+          <LoadingSpinner darkMode={darkMode} message="Loading courses…" />
         </div>
       );
     }
 
     if (error) {
       return (
-        <div className="col-span-full flex flex-col items-center justify-center py-20 gap-4">
-          <AlertCircle size={40} style={{ color: "#ef4444" }} aria-hidden="true" />
-          <p className="text-sm font-semibold" style={{ color: "#ef4444" }}>
-            {error}
-          </p>
-          <Button variant="primary" size="md" darkMode={darkMode} onClick={fetchCourses}>
-            Try Again
-          </Button>
+        <div className="col-span-full">
+          <ErrorMessage message={error} onRetry={fetchCourses} darkMode={darkMode} />
         </div>
       );
     }

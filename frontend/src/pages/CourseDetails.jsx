@@ -18,6 +18,8 @@ import {
 } from "lucide-react";
 import Button from "../components/Button";
 import ModuleAccordion from "../components/ModuleAccordion.jsx";
+import LoadingSpinner from "../components/LoadingSpinner";
+import ErrorMessage from "../components/ErrorMessage";
 
 const toastStyle = `
   @keyframes toastFade {
@@ -137,17 +139,7 @@ export default function CourseDetails({ darkMode = false }) {
   const backLink = darkMode ? "#94a3b8" : "#6b7280";
   const iconTileBg = darkMode ? "rgba(25,118,210,0.15)" : "#E3F2FD";
 
-  if (loading) {
-    return (
-      <main
-        className="min-h-screen flex flex-col items-center justify-center px-4 py-6 transition-colors duration-300"
-        style={{ backgroundColor: pageBg }}
-      >
-        <div className="w-10 h-10 border-4 border-[#1976D2] border-t-transparent rounded-full animate-spin mb-4" />
-        <p style={{ color: headingCol }}>Loading course...</p>
-      </main>
-    );
-  }
+  if (loading) return <LoadingSpinner darkMode={darkMode} message="Loading course..." fullPage />;
 
   if (notFound) {
     return (
@@ -176,23 +168,9 @@ export default function CourseDetails({ darkMode = false }) {
 
   if (fetchError) {
     return (
-      <main
-        className="min-h-screen flex flex-col items-center justify-center px-4 py-6 transition-colors duration-300"
-        style={{ backgroundColor: pageBg }}
-      >
-        <h1
-          className="font-bold mb-3 text-center"
-          style={{
-            fontSize: "clamp(1.25rem, 4vw, 1.75rem)",
-            color: darkMode ? "#f1f5f9" : "#111827",
-          }}
-        >
-          {fetchError}
-        </h1>
-        <Link
-          to="/courses"
-          className="text-sm font-medium text-[#1976D2] underline underline-offset-4 hover:opacity-75 transition-opacity"
-        >
+      <main className="min-h-screen flex flex-col items-center justify-center" style={{ backgroundColor: pageBg }}>
+        <ErrorMessage message={fetchError} darkMode={darkMode} />
+        <Link to="/courses" className="text-sm font-medium text-[#1976D2] underline underline-offset-4 hover:opacity-75 transition-opacity">
           Back to Courses
         </Link>
       </main>
