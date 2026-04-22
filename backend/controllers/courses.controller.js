@@ -85,7 +85,8 @@ export const getCourses = async (req, res) => {
 
     res.json(result.rows.map(normalize))
   } catch (error) {
-    console.error('getCourses error:', error)
+    console.error('getCourses error full:', error)
+    console.error('getCourses error string:', JSON.stringify(error, null, 2))
     res.status(500).json({ message: 'Server error' })
   }
 }
