@@ -82,25 +82,6 @@ export const getCourses = async (req, res) => {
   }
 }
 
-// GET /api/courses/stats — aggregate stats for the home page
-export const getStats = async (req, res) => {
-  try {
-    const [coursesRes, studentsRes, ratingRes] = await Promise.all([
-      pool.query('SELECT COUNT(*) FROM courses'),
-      pool.query('SELECT SUM(students_count) FROM courses'),
-      pool.query('SELECT AVG(rating) FROM courses'),
-    ])
-
-    res.json({
-      totalCourses: parseInt(coursesRes.rows[0].count, 10),
-      totalStudents: parseInt(studentsRes.rows[0].sum ?? 0, 10),
-      averageRating: parseFloat(ratingRes.rows[0].avg ?? 0).toFixed(1),
-    })
-  } catch (error) {
-    console.error('getStats error:', error)
-    res.status(500).json({ message: 'Server error' })
-  }
-}
 
 // GET /api/courses/:id — single course with modules + lessons
 export const getCourseById = async (req, res) => {
@@ -248,3 +229,23 @@ export const deleteCourse = async (req, res) => {
     res.status(500).json({ message: 'Server error' })
   }
 }
+
+// GET /api/stats — aggregate stats for the home page
+export const getStats = async (req, res) => {
+  try {
+    const [coursesRes, studentsRes, ratingRes] = await Promise.all([
+      pool.query('SELECT COUNT(*) FROM courses'),
+      pool.query('SELECT SUM(students_count) FROM courses'),
+      pool.query('SELECT AVG(rating) FROM courses'),
+    ]);
+
+    res.json({
+      totalCourses: parseInt(coursesRes.rows[0].count, 10),
+      totalStudents: parseInt(studentsRes.rows[0].sum ?? 0, 10),
+      averageRating: parseFloat(ratingRes.rows[0].avg ?? 0).toFixed(2),
+    });
+  } catch (error) {
+    console.error('getStats error:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
