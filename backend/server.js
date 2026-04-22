@@ -2,6 +2,7 @@ import express from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
 import { errorMiddleware } from './middleware/error.middleware.js'
+import { loggerMiddleware } from './middleware/logger.middleware.js'
 import authRoutes from './routes/auth.routes.js'
 import courseRoutes from './routes/courses.routes.js'
 import enrollmentRoutes from './routes/enrollments.routes.js'
@@ -12,8 +13,18 @@ import moduleRoutes from './routes/modules.routes.js'
 dotenv.config()
 const app = express()
 
-app.use(cors({ origin: '*' }))
+app.use(cors({
+  origin: [
+    'http://localhost:5173',
+    'http://localhost:3000',
+    'https://course-tutorialmanagementsystem.vercel.app',
+  ],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
+}))
 app.use(express.json())
+app.use(loggerMiddleware)
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }))
 app.use('/api/auth', authRoutes)

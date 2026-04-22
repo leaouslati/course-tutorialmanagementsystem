@@ -18,6 +18,7 @@ const normalize = (row) => ({
   createdAt: row.created_at,
 })
 
+// GET /api/courses — supports ?category, ?difficulty, ?search, ?instructorId, ?sortRating, ?sortTime
 export const getCourses = async (req, res) => {
   try {
     const { category, difficulty, instructorId, search, sortRating, sortTime } = req.query
@@ -83,6 +84,27 @@ export const getCourses = async (req, res) => {
   }
 }
 
+// GET /api/courses/stats — aggregate stats for the home page
+export const getStats = async (req, res) => {
+  try {
+    const [coursesRes, studentsRes, ratingRes] = await Promise.all([
+      pool.query('SELECT COUNT(*) FROM courses'),
+      pool.query('SELECT SUM(students_count) FROM courses'),
+      pool.query('SELECT AVG(rating) FROM courses'),
+    ])
+
+    res.json({
+      totalCourses: parseInt(coursesRes.rows[0].count, 10),
+      totalStudents: parseInt(studentsRes.rows[0].sum ?? 0, 10),
+      averageRating: parseFloat(ratingRes.rows[0].avg ?? 0).toFixed(1),
+    })
+  } catch (error) {
+    console.error('getStats error:', error)
+    res.status(500).json({ message: 'Server error' })
+  }
+}
+
+// GET /api/courses/:id — single course with modules + lessons
 export const getCourseById = async (req, res) => {
   try {
     const { id } = req.params
@@ -138,16 +160,19 @@ export const getCourseById = async (req, res) => {
   }
 }
 
+// POST /api/courses — instructor only
 export const createCourse = async (req, res) => {
   try {
     if (req.user.role !== 'instructor') {
       return res.status(403).json({ message: 'Access denied. Instructors only.' })
     }
 
-    const { title, shortDescription, description, category, difficulty, duration, image } = req.body
+    const title = req.body.title?.trim()
+    const description = req.body.description?.trim()
+    const { shortDescription, category, difficulty, duration, image } = req.body
 
     if (!title || !description) {
-      return res.status(400).json({ message: 'Title and description are required.' })
+      return res.status(400).json({ error: 'title and description are required' })
     }
 
     const result = await pool.query(
@@ -164,9 +189,19 @@ export const createCourse = async (req, res) => {
   }
 }
 
+// PUT /api/courses/:id — instructor owner only
 export const updateCourse = async (req, res) => {
   try {
     const { id } = req.params
+
+    // Require at least one field in the body
+    const { title, shortDescription, description, category, difficulty, duration, image } = req.body
+    const hasField = [title, shortDescription, description, category, difficulty, duration, image]
+      .some((v) => v !== undefined)
+
+    if (!hasField) {
+      return res.status(400).json({ error: 'Request body must include at least one field to update' })
+    }
 
     const courseResult = await pool.query('SELECT * FROM courses WHERE id = $1', [id])
     if (courseResult.rows.length === 0) return res.status(404).json({ message: 'Course not found.' })
@@ -174,8 +209,6 @@ export const updateCourse = async (req, res) => {
     if (courseResult.rows[0].instructor_id !== req.user.id) {
       return res.status(403).json({ message: 'You do not own this course.' })
     }
-
-    const { title, shortDescription, description, category, difficulty, duration, image } = req.body
 
     const updated = await pool.query(
       `UPDATE courses
@@ -198,6 +231,7 @@ export const updateCourse = async (req, res) => {
   }
 }
 
+// DELETE /api/courses/:id — instructor owner only
 export const deleteCourse = async (req, res) => {
   try {
     const { id } = req.params

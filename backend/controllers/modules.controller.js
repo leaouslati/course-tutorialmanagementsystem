@@ -2,10 +2,11 @@ import pool from '../config/db.js'
 
 export const createModule = async (req, res) => {
   try {
-    const { courseId, title } = req.body
+    const courseId = req.body.courseId
+    const title = req.body.title?.trim()
 
     if (!courseId || !title) {
-      return res.status(400).json({ message: 'courseId and title are required' })
+      return res.status(400).json({ error: 'courseId and title are required' })
     }
 
     const courseResult = await pool.query(

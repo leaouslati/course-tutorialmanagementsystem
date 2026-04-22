@@ -18,7 +18,7 @@ const normalizeCourse = (row) => ({
   progress: row.progress ?? 0,
 })
 
-// GET /api/enrollments
+// GET /api/enrollments — all courses the logged-in student is enrolled in
 export const getMyEnrollments = async (req, res) => {
   try {
     const result = await pool.query(
@@ -40,16 +40,37 @@ export const getMyEnrollments = async (req, res) => {
   }
 }
 
-// POST /api/enrollments
+// GET /api/enrollments/:courseId/status — check if current user is enrolled
+export const getEnrollmentStatus = async (req, res) => {
+  try {
+    const { courseId } = req.params
+
+    const result = await pool.query(
+      'SELECT id FROM enrollments WHERE user_id = $1 AND course_id = $2',
+      [req.user.id, courseId]
+    )
+
+    res.json({ enrolled: result.rows.length > 0 })
+  } catch (error) {
+    console.error('getEnrollmentStatus error:', error)
+    res.status(500).json({ message: 'Server error' })
+  }
+}
+
+// POST /api/enrollments — enroll the logged-in student in a course
 export const enroll = async (req, res) => {
   try {
     const { courseId } = req.body
 
     if (!courseId) {
-      return res.status(400).json({ message: 'courseId is required' })
+      return res.status(400).json({ error: 'courseId is required' })
     }
 
-    // Check for existing enrollment
+    // Only students can enroll
+    if (req.user.role !== 'student') {
+      return res.status(403).json({ message: 'Instructors cannot enroll in courses' })
+    }
+
     const existing = await pool.query(
       'SELECT id FROM enrollments WHERE user_id = $1 AND course_id = $2',
       [req.user.id, courseId]
@@ -73,7 +94,7 @@ export const enroll = async (req, res) => {
   }
 }
 
-// DELETE /api/enrollments/:courseId
+// DELETE /api/enrollments/:courseId — unenroll from a course
 export const unenroll = async (req, res) => {
   try {
     const { courseId } = req.params
@@ -94,14 +115,18 @@ export const unenroll = async (req, res) => {
   }
 }
 
-// PUT /api/enrollments/:courseId/progress
+// PUT /api/enrollments/:courseId/progress — update lesson progress (0–100)
 export const updateProgress = async (req, res) => {
   try {
     const { courseId } = req.params
     const { progress } = req.body
 
+    if (progress === undefined || progress === null) {
+      return res.status(400).json({ error: 'progress is required' })
+    }
+
     if (typeof progress !== 'number' || progress < 0 || progress > 100) {
-      return res.status(400).json({ message: 'Progress must be a number between 0 and 100.' })
+      return res.status(400).json({ error: 'progress must be a number between 0 and 100' })
     }
 
     const result = await pool.query(

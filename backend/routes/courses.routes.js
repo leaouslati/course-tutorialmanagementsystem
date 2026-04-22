@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import {
   getCourses,
+  getStats,
   getCourseById,
   createCourse,
   updateCourse,
@@ -13,6 +14,8 @@ import { instructorOnly } from '../middleware/instructorOnly.middleware.js'
 const router = Router()
 
 router.get('/', getCourses)
+// /stats must be before /:id so Express doesn't treat "stats" as an id param
+router.get('/stats', getStats)
 router.get('/:id', getCourseById)
 
 router.post('/', authMiddleware, instructorOnly, createCourse)

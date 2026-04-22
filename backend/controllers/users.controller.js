@@ -1,80 +1,75 @@
-import bcrypt from 'bcryptjs';
-import db from "../config/db.js"; // adjust path if needed
+import bcrypt from 'bcryptjs'
+import db from '../config/db.js'
 
-// ==========================
-// GET LOGGED-IN USER PROFILE
-// ==========================
+const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+
+// GET /api/users/me — return the logged-in user's profile
 export const getMe = async (req, res) => {
   try {
-    const userId = req.user.id;
-
     const result = await db.query(
       `SELECT id, name, email, role, avatar, joined_date
        FROM users
        WHERE id = $1`,
-      [userId]
-    );
+      [req.user.id]
+    )
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({ message: 'User not found' })
     }
 
-    return res.json(result.rows[0]);
+    return res.json(result.rows[0])
   } catch (error) {
-    console.error("getMe error:", error);
-    return res.status(500).json({ message: "Server error" });
+    console.error('getMe error:', error)
+    return res.status(500).json({ message: 'Server error' })
   }
-};
+}
 
-// ==========================
-// UPDATE LOGGED-IN USER
-// ==========================
+// PUT /api/users/me — update name, email, or password
 export const updateMe = async (req, res) => {
   try {
-    const userId = req.user.id;
-    const { name, email, currentPassword, newPassword } = req.body;
+    const { currentPassword, newPassword } = req.body
+    const name = req.body.name?.trim()
+    const email = req.body.email?.trim().toLowerCase()
 
-    // 1. Get current user
+    // Validate email format if a new email is provided
+    if (email !== undefined && !isValidEmail(email)) {
+      return res.status(400).json({ error: 'Invalid email format' })
+    }
+
+    // If changing password, currentPassword must be provided
+    if (newPassword && !currentPassword) {
+      return res.status(400).json({ error: 'currentPassword is required when setting a new password' })
+    }
+
+    if (newPassword && newPassword.trim().length < 8) {
+      return res.status(400).json({ error: 'New password must be at least 8 characters' })
+    }
+
     const userResult = await db.query(
-      `SELECT * FROM users WHERE id = $1`,
-      [userId]
-    );
+      'SELECT * FROM users WHERE id = $1',
+      [req.user.id]
+    )
 
     if (userResult.rows.length === 0) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({ message: 'User not found' })
     }
 
-    const user = userResult.rows[0];
+    const user = userResult.rows[0]
 
-    // 2. Prepare updated values (keep old if not provided)
-    const updatedName = name ?? user.name;
-    const updatedEmail = email ?? user.email;
+    const updatedName = name || user.name
+    const updatedEmail = email || user.email
+    let updatedPasswordHash = user.password_hash
 
-    let updatedPasswordHash = user.password_hash;
-
-    // 3. Handle password change
     if (newPassword) {
-      if (!currentPassword) {
-        return res.status(400).json({
-          message: "Current password is required",
-        });
-      }
-
-      const isMatch = await bcrypt.compare(
-        currentPassword,
-        user.password_hash
-      );
+      const isMatch = await bcrypt.compare(currentPassword, user.password_hash)
 
       if (!isMatch) {
-        return res.status(401).json({
-          message: "Incorrect current password",
-        });
+        return res.status(401).json({ message: 'Incorrect current password' })
       }
 
-      updatedPasswordHash = await bcrypt.hash(newPassword, 10);
+      updatedPasswordHash = await bcrypt.hash(newPassword.trim(), 10)
     }
 
-    // 4. Update user in DB
     const updatedUser = await db.query(
       `UPDATE users
        SET name = $1,
@@ -82,12 +77,12 @@ export const updateMe = async (req, res) => {
            password_hash = $3
        WHERE id = $4
        RETURNING id, name, email, role, avatar, joined_date`,
-      [updatedName, updatedEmail, updatedPasswordHash, userId]
-    );
+      [updatedName, updatedEmail, updatedPasswordHash, req.user.id]
+    )
 
-    return res.json(updatedUser.rows[0]);
+    return res.json(updatedUser.rows[0])
   } catch (error) {
-    console.error("updateMe error:", error);
-    return res.status(500).json({ message: "Server error" });
+    console.error('updateMe error:', error)
+    return res.status(500).json({ message: 'Server error' })
   }
-};
+}
