@@ -9,6 +9,7 @@ import enrollmentRoutes from './routes/enrollments.routes.js'
 import userRoutes from './routes/users.routes.js'
 import lessonRoutes from './routes/lessons.routes.js'
 import moduleRoutes from './routes/modules.routes.js'
+import { loggerMiddleware } from './middleware/logger.middleware.js';
 
 dotenv.config()
 const app = express()
@@ -27,6 +28,7 @@ app.use(express.json())
 app.use(loggerMiddleware)
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }))
+app.use(loggerMiddleware);
 app.use('/api/auth', authRoutes)
 app.use('/api/courses', courseRoutes)
 app.use('/api/enrollments', enrollmentRoutes)
