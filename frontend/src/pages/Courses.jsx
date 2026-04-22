@@ -9,7 +9,8 @@ import { API_URL, authFetch } from "../api";
 
 function Courses({ darkMode = false }) {
   const { currentUser } = useAuth();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+
   const [search, setSearch] = useState("");
   const [sortRating, setSortRating] = useState("");
   const [sortTime, setSortTime] = useState("");
@@ -19,10 +20,19 @@ function Courses({ darkMode = false }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Sync category from URL params on mount
+  // Sync filters from URL params on mount / URL change
   useEffect(() => {
-    const cat = searchParams.get("category");
-    if (cat) setCategory(cat);
+    const cat = searchParams.get("category") || "";
+    const diff = searchParams.get("difficulty") || "";
+    const q = searchParams.get("search") || "";
+    const rating = searchParams.get("sortRating") || "";
+    const time = searchParams.get("sortTime") || "";
+
+    setCategory(cat);
+    setDifficulty(diff);
+    setSearch(q);
+    setSortRating(rating);
+    setSortTime(time);
   }, [searchParams]);
 
   // Fetch courses whenever filters change
@@ -32,11 +42,14 @@ function Courses({ darkMode = false }) {
 
     try {
       const params = new URLSearchParams();
-      if (category)   params.set("category",   category);
-      if (difficulty) params.set("difficulty",  difficulty);
-      if (search)     params.set("search",      search);
-      if (sortRating) params.set("sortRating",  sortRating);
-      if (sortTime)   params.set("sortTime",    sortTime);
+
+      if (category) params.set("category", category);
+      if (difficulty) params.set("difficulty", difficulty);
+      if (search) params.set("search", search);
+      if (sortRating) params.set("sortRating", sortRating);
+      if (sortTime) params.set("sortTime", sortTime);
+
+      setSearchParams(params);
 
       const url = `${API_URL}/courses${params.toString() ? `?${params.toString()}` : ""}`;
       const res = await authFetch(url);
@@ -53,7 +66,7 @@ function Courses({ darkMode = false }) {
     } finally {
       setLoading(false);
     }
-  }, [category, difficulty, search, sortRating, sortTime]);
+  }, [category, difficulty, search, sortRating, sortTime, setSearchParams]);
 
   useEffect(() => {
     fetchCourses();
@@ -65,17 +78,16 @@ function Courses({ darkMode = false }) {
     setSortTime("");
     setDifficulty("");
     setCategory("");
+    setSearchParams({});
   };
 
-  // ── Theme tokens ──────────────────────────────────────────────────────────
-  const pageBg          = darkMode ? "#060f1e" : "#F4F8FD";
-  const cardBg          = darkMode ? "#0f1f3d" : "#ffffff";
-  const cardBorder      = darkMode ? "#1a3a6b" : "transparent";
-  const headingCol      = darkMode ? "#f1f5f9" : "#111827";
-  const subCol          = darkMode ? "#94a3b8" : "#4b5563";
-  const inputText       = darkMode ? "#f1f5f9" : "#1f2937";
-  const inputPlaceholder= darkMode ? "#64748b" : "#9ca3af";
-  const countText       = darkMode ? "#94a3b8" : "#4b5563";
+  const pageBg = darkMode ? "#060f1e" : "#F4F8FD";
+  const cardBg = darkMode ? "#0f1f3d" : "#ffffff";
+  const headingCol = darkMode ? "#f1f5f9" : "#111827";
+  const subCol = darkMode ? "#94a3b8" : "#4b5563";
+  const inputText = darkMode ? "#f1f5f9" : "#1f2937";
+  const inputPlaceholder = darkMode ? "#64748b" : "#9ca3af";
+  const countText = darkMode ? "#94a3b8" : "#4b5563";
 
   const btnBase = {
     backgroundColor: cardBg,
@@ -83,6 +95,7 @@ function Courses({ darkMode = false }) {
     border: `1px solid ${darkMode ? "#1a3a6b" : "transparent"}`,
     boxShadow: darkMode ? "none" : "0 2px 8px 0 rgba(0,0,0,0.08)",
   };
+
   const btnActive = {
     backgroundColor: "#1976D2",
     color: "#ffffff",
@@ -93,7 +106,6 @@ function Courses({ darkMode = false }) {
   const filterBtnClass =
     "px-3 py-2 sm:px-4 text-sm sm:text-base rounded-lg transition-all duration-150 whitespace-nowrap";
 
-  // ── Render ─────────────────────────────────────────────────────────────────
   const renderContent = () => {
     if (loading) {
       return (
@@ -135,9 +147,11 @@ function Courses({ darkMode = false }) {
         <EmptyState
           darkMode={darkMode}
           icon={
-            hasActiveFilters
-              ? <Search className="w-10 h-10 sm:w-12 sm:h-12" style={{ color: "#60a5fa" }} />
-              : <BookOpen className="w-10 h-10 sm:w-12 sm:h-12" style={{ color: "#60a5fa" }} />
+            hasActiveFilters ? (
+              <Search className="w-10 h-10 sm:w-12 sm:h-12" style={{ color: "#60a5fa" }} />
+            ) : (
+              <BookOpen className="w-10 h-10 sm:w-12 sm:h-12" style={{ color: "#60a5fa" }} />
+            )
           }
           title={hasActiveFilters ? "No courses found" : "No courses available"}
           message={
@@ -167,8 +181,6 @@ function Courses({ darkMode = false }) {
       style={{ backgroundColor: pageBg }}
     >
       <main className="max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 pb-8 sm:pb-12">
-
-        {/* ── Header ── */}
         <header className="mb-4 sm:mb-6">
           <h1
             className="font-bold text-left mb-2"
@@ -184,10 +196,7 @@ function Courses({ darkMode = false }) {
           </p>
         </header>
 
-        {/* ── Filters ── */}
         <div className="flex flex-col gap-3 sm:gap-4 mb-5 sm:mb-6">
-
-          {/* Search */}
           <div className="relative w-full">
             <Search
               className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5"
@@ -210,10 +219,7 @@ function Courses({ darkMode = false }) {
             />
           </div>
 
-          {/* Filter buttons row */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3">
-
-            {/* Difficulty filters */}
             <div className="flex flex-wrap gap-2">
               {["", "Beginner", "Intermediate", "Advanced"].map((level) => (
                 <button
@@ -222,35 +228,17 @@ function Courses({ darkMode = false }) {
                   className={`${filterBtnClass} w-full sm:w-auto`}
                   style={difficulty === level ? btnActive : btnBase}
                   aria-pressed={difficulty === level}
-                  onMouseEnter={(e) => {
-                    if (difficulty !== level)
-                      e.currentTarget.style.backgroundColor = darkMode ? "#1a3a6b" : "#f0f0f0";
-                  }}
-                  onMouseLeave={(e) => {
-                    if (difficulty !== level)
-                      e.currentTarget.style.backgroundColor = cardBg;
-                  }}
                 >
                   {level === "" ? "All Levels" : level}
                 </button>
               ))}
             </div>
 
-            {/* Sort + reset */}
             <div className="flex items-center gap-2 sm:gap-3">
               <button
                 onClick={() => setSortRating(sortRating === "desc" ? "asc" : "desc")}
                 className={filterBtnClass}
                 style={{ ...(sortRating ? btnActive : btnBase), width: "100px", flexShrink: 0 }}
-                aria-label={`Sort by rating ${sortRating === "asc" ? "descending" : "ascending"}`}
-                onMouseEnter={(e) => {
-                  if (!sortRating)
-                    e.currentTarget.style.backgroundColor = darkMode ? "#1a3a6b" : "#f0f0f0";
-                }}
-                onMouseLeave={(e) => {
-                  if (!sortRating)
-                    e.currentTarget.style.backgroundColor = cardBg;
-                }}
               >
                 <span className="flex items-center justify-center gap-1">
                   Rating {sortRating === "asc" ? "↑" : sortRating === "desc" ? "↓" : ""}
@@ -261,15 +249,6 @@ function Courses({ darkMode = false }) {
                 onClick={() => setSortTime(sortTime === "desc" ? "asc" : "desc")}
                 className={filterBtnClass}
                 style={{ ...(sortTime ? btnActive : btnBase), width: "110px", flexShrink: 0 }}
-                aria-label={`Sort by duration ${sortTime === "asc" ? "descending" : "ascending"}`}
-                onMouseEnter={(e) => {
-                  if (!sortTime)
-                    e.currentTarget.style.backgroundColor = darkMode ? "#1a3a6b" : "#f0f0f0";
-                }}
-                onMouseLeave={(e) => {
-                  if (!sortTime)
-                    e.currentTarget.style.backgroundColor = cardBg;
-                }}
               >
                 <span className="flex items-center justify-center gap-1">
                   Duration {sortTime === "asc" ? "↑" : sortTime === "desc" ? "↓" : ""}
@@ -287,7 +266,6 @@ function Courses({ darkMode = false }) {
             </div>
           </div>
 
-          {/* Active filter chips */}
           {category && (
             <div className="flex flex-wrap items-center gap-2" aria-label="Active filters">
               <span className="text-xs font-semibold" style={{ color: countText }}>
@@ -305,7 +283,6 @@ function Courses({ darkMode = false }) {
             </div>
           )}
 
-          {/* Course count — only shown when not loading and no error */}
           {!loading && !error && courses.length > 0 && (
             <p
               className="text-xs sm:text-sm"
@@ -318,13 +295,11 @@ function Courses({ darkMode = false }) {
           )}
         </div>
 
-        {/* ── Course Grid ── */}
         <section aria-label="Course listings">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
             {renderContent()}
           </div>
         </section>
-
       </main>
     </div>
   );
