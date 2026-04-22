@@ -197,6 +197,127 @@ const seed = async () => {
       )
     }
 
+    console.log('Seeding destinations...')
+    const destinationsData = [
+      { country: 'France', city: 'Paris' },
+      { country: 'Japan', city: 'Tokyo' },
+      { country: 'Italy', city: 'Rome' },
+      { country: 'Thailand', city: 'Bangkok' },
+      { country: 'USA', city: 'New York' },
+    ];
+    const destinationIdMap = {};
+    for (const d of destinationsData) {
+      const result = await client.query(
+        `INSERT INTO Destinations (country, city, description, climate_info) VALUES ($1, $2, $3, $4) RETURNING destination_id`,
+        [d.country, d.city, 'Beautiful destination', 'Temperate climate']
+      );
+      destinationIdMap[d.city] = result.rows[0].destination_id;
+    }
+
+    console.log('Seeding hotels...')
+    const hotelsData = [
+      { name: 'Hotel Paris Luxe', destination: 'Paris', price: 200, rating: 4.8 },
+      { name: 'Tokyo Grand Hotel', destination: 'Tokyo', price: 180, rating: 4.7 },
+      { name: 'Rome Imperial', destination: 'Rome', price: 150, rating: 4.6 },
+      { name: 'Bangkok Paradise', destination: 'Bangkok', price: 120, rating: 4.5 },
+      { name: 'NYC Central', destination: 'New York', price: 250, rating: 4.9 },
+    ];
+    const hotelIdMap = {};
+    for (const h of hotelsData) {
+      const result = await client.query(
+        `INSERT INTO Hotels (hotel_name, destination_id, room_types, price_per_night, status_availability, rating) VALUES ($1, $2, $3, $4, $5, $6) RETURNING hotel_id`,
+        [h.name, destinationIdMap[h.destination], '{Single,Double,Suite}', h.price, 'available', h.rating]
+      );
+      hotelIdMap[h.name] = result.rows[0].hotel_id;
+    }
+
+    console.log('Seeding flights...')
+    const flightsData = [
+      { airline: 'Air France', dep: 'CDG', arr: 'NRT', depTime: '2024-12-01 10:00', arrTime: '2024-12-02 08:00', price: 800 },
+      { airline: 'Japan Airlines', dep: 'NRT', arr: 'FCO', depTime: '2024-12-05 14:00', arrTime: '2024-12-05 20:00', price: 600 },
+      { airline: 'Alitalia', dep: 'FCO', arr: 'BKK', depTime: '2024-12-10 16:00', arrTime: '2024-12-11 12:00', price: 700 },
+      { airline: 'Thai Airways', dep: 'BKK', arr: 'JFK', depTime: '2024-12-15 18:00', arrTime: '2024-12-16 14:00', price: 900 },
+      { airline: 'Delta', dep: 'JFK', arr: 'CDG', depTime: '2024-12-20 22:00', arrTime: '2024-12-21 10:00', price: 750 },
+    ];
+    const flightIdMap = {};
+    for (const f of flightsData) {
+      const result = await client.query(
+        `INSERT INTO Flights (airline_name, departure_location, departure_time, arrival_location, arrival_time, seat_availability, price) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING flight_id`,
+        [f.airline, f.dep, f.depTime, f.arr, f.arrTime, '{Economy,Business}', f.price]
+      );
+      flightIdMap[f.airline] = result.rows[0].flight_id;
+    }
+
+    console.log('Seeding tours...')
+    const toursData = [
+      { name: 'Eiffel Tower Tour', destination: 'Paris', duration: 3, price: 50 },
+      { name: 'Tokyo Culture Experience', destination: 'Tokyo', duration: 5, price: 80 },
+      { name: 'Rome Historical Walk', destination: 'Rome', duration: 4, price: 60 },
+      { name: 'Bangkok Street Food Tour', destination: 'Bangkok', duration: 2, price: 40 },
+      { name: 'NYC Skyline Cruise', destination: 'New York', duration: 3, price: 70 },
+    ];
+    const tourIdMap = {};
+    for (const t of toursData) {
+      const result = await client.query(
+        `INSERT INTO Tours (tour_name, destination_id, duration, included_services, price) VALUES ($1, $2, $3, $4, $5) RETURNING tour_id`,
+        [t.name, destinationIdMap[t.destination], t.duration, '{Guide,Transport}', t.price]
+      );
+      tourIdMap[t.name] = result.rows[0].tour_id;
+    }
+
+    console.log('Seeding travel packages...')
+    const packagesData = [
+      { name: 'Paris Adventure', destination: 'Paris', price: 1500, duration: 7, description: 'Explore the city of lights with luxury hotels and cultural tours.' },
+      { name: 'Tokyo Discovery', destination: 'Tokyo', price: 2000, duration: 10, description: 'Immerse yourself in Japanese culture and modern wonders.' },
+      { name: 'Rome Romance', destination: 'Rome', price: 1200, duration: 6, description: 'Fall in love with ancient history and Italian cuisine.' },
+      { name: 'Bangkok Escape', destination: 'Bangkok', price: 800, duration: 5, description: 'Relax in tropical paradise with beach activities.' },
+      { name: 'NYC Experience', destination: 'New York', price: 1800, duration: 8, description: 'Live the fast-paced life of the Big Apple.' },
+    ];
+    const packageIdMap = {};
+    for (const p of packagesData) {
+      const result = await client.query(
+        `INSERT INTO TravelPackages (package_name, destination_id, staff_id, total_price, travel_date, return_date, duration, description, status_availability, available_slots, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW()) RETURNING package_id`,
+        [p.name, destinationIdMap[p.destination], userIdMap['u2'], p.price, '2024-12-01', '2024-12-08', p.duration, p.description, 'active', 20]
+      );
+      packageIdMap[p.name] = result.rows[0].package_id;
+    }
+
+    console.log('Seeding package relations...')
+    // PackageHotels
+    await client.query(`INSERT INTO PackageHotels (package_id, hotel_id) VALUES ($1, $2)`, [packageIdMap['Paris Adventure'], hotelIdMap['Hotel Paris Luxe']]);
+    await client.query(`INSERT INTO PackageHotels (package_id, hotel_id) VALUES ($1, $2)`, [packageIdMap['Tokyo Discovery'], hotelIdMap['Tokyo Grand Hotel']]);
+    await client.query(`INSERT INTO PackageHotels (package_id, hotel_id) VALUES ($1, $2)`, [packageIdMap['Rome Romance'], hotelIdMap['Rome Imperial']]);
+    await client.query(`INSERT INTO PackageHotels (package_id, hotel_id) VALUES ($1, $2)`, [packageIdMap['Bangkok Escape'], hotelIdMap['Bangkok Paradise']]);
+    await client.query(`INSERT INTO PackageHotels (package_id, hotel_id) VALUES ($1, $2)`, [packageIdMap['NYC Experience'], hotelIdMap['NYC Central']]);
+
+    // PackageFlights
+    await client.query(`INSERT INTO PackageFlights (package_id, flight_id) VALUES ($1, $2)`, [packageIdMap['Paris Adventure'], flightIdMap['Air France']]);
+    await client.query(`INSERT INTO PackageFlights (package_id, flight_id) VALUES ($1, $2)`, [packageIdMap['Tokyo Discovery'], flightIdMap['Japan Airlines']]);
+    await client.query(`INSERT INTO PackageFlights (package_id, flight_id) VALUES ($1, $2)`, [packageIdMap['Rome Romance'], flightIdMap['Alitalia']]);
+    await client.query(`INSERT INTO PackageFlights (package_id, flight_id) VALUES ($1, $2)`, [packageIdMap['Bangkok Escape'], flightIdMap['Thai Airways']]);
+    await client.query(`INSERT INTO PackageFlights (package_id, flight_id) VALUES ($1, $2)`, [packageIdMap['NYC Experience'], flightIdMap['Delta']]);
+
+    // PackageTours
+    await client.query(`INSERT INTO PackageTours (package_id, tour_id) VALUES ($1, $2)`, [packageIdMap['Paris Adventure'], tourIdMap['Eiffel Tower Tour']]);
+    await client.query(`INSERT INTO PackageTours (package_id, tour_id) VALUES ($1, $2)`, [packageIdMap['Tokyo Discovery'], tourIdMap['Tokyo Culture Experience']]);
+    await client.query(`INSERT INTO PackageTours (package_id, tour_id) VALUES ($1, $2)`, [packageIdMap['Rome Romance'], tourIdMap['Rome Historical Walk']]);
+    await client.query(`INSERT INTO PackageTours (package_id, tour_id) VALUES ($1, $2)`, [packageIdMap['Bangkok Escape'], tourIdMap['Bangkok Street Food Tour']]);
+    await client.query(`INSERT INTO PackageTours (package_id, tour_id) VALUES ($1, $2)`, [packageIdMap['NYC Experience'], tourIdMap['NYC Skyline Cruise']]);
+
+    // PackageMoods
+    const moods = [
+      { package: 'Paris Adventure', moods: ['Adventure', 'Cultural'] },
+      { package: 'Tokyo Discovery', moods: ['Adventure', 'Cultural'] },
+      { package: 'Rome Romance', moods: ['Relaxation', 'Cultural'] },
+      { package: 'Bangkok Escape', moods: ['Relaxation', 'Family'] },
+      { package: 'NYC Experience', moods: ['Adventure', 'Romantic'] },
+    ];
+    for (const m of moods) {
+      for (const mood of m.moods) {
+        await client.query(`INSERT INTO PackageMoods (package_id, mood) VALUES ($1, $2)`, [packageIdMap[m.package], mood]);
+      }
+    }
+
     await client.query('COMMIT')
     console.log('✅ Database seeded successfully!')
 
