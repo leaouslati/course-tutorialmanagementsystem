@@ -191,30 +191,31 @@ export default function Home({ darkMode = false }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchCourses = async () => {
+    const fetchData = async () => {
       try {
-        const res = await authFetch(`${API_URL}/courses`);
-        const data = await res.json();
-
-        const courses = Array.isArray(data) ? data : [];
+        // Fetch courses
+        const resCourses = await authFetch(`${API_URL}/courses`);
+        const dataCourses = await resCourses.json();
+        const courses = Array.isArray(dataCourses) ? dataCourses : [];
         setAllCourses(courses);
         const sorted = [...courses].sort((a, b) => b.rating - a.rating);
         setTopCourses(sorted.slice(0, 4));
 
-        const courseCount = courses.length;
-        const totalStudents = courses.reduce((s, c) => s + (c.studentsCount || 0), 0);
-        const avgRating = courseCount > 0
-          ? parseFloat((courses.reduce((s, c) => s + (parseFloat(c.rating) || 0), 0) / courseCount).toFixed(2))
-          : 0;
-
-        setStatsData({ courseCount, totalStudents, avgRating });
+        // Fetch stats from API
+        const resStats = await fetch(`${API_URL}/courses/stats`);
+        const dataStats = await resStats.json();
+        setStatsData({
+          courseCount: dataStats.totalCourses || 0,
+          totalStudents: dataStats.totalStudents || 0,
+          avgRating: dataStats.averageRating ? parseFloat(dataStats.averageRating) : 0,
+        });
       } catch (err) {
-        console.error('Failed to fetch courses:', err);
+        console.error('Failed to fetch data:', err);
       } finally {
         setLoading(false);
       }
     };
-    fetchCourses();
+    fetchData();
   }, []);
 
   const statsRef = useRef(null);
@@ -231,7 +232,7 @@ export default function Home({ darkMode = false }) {
   }, [loading]);
 
   const stats = [
-    { label: "Courses Available", value: statsData.courseCount - 1, color: "text-[#1976D2]", suffix: "+", decimals: 0 },
+    { label: "Courses Available", value: statsData.courseCount, color: "text-[#1976D2]", suffix: "+", decimals: 0 },
     { label: "Active Learners", value: statsData.totalStudents, color: "text-[#22C55E]", suffix: "", decimals: 0 },
     { label: "Average Rating", value: statsData.avgRating, color: "text-yellow-500", suffix: "", decimals: 2 },
   ];
