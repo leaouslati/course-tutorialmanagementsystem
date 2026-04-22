@@ -5,7 +5,7 @@ import {
   getCourseById,
   createCourse,
   updateCourse,
-  deleteCourse
+  deleteCourse,
 } from '../controllers/courses.controller.js'
 
 import { authMiddleware } from '../middleware/auth.middleware.js'

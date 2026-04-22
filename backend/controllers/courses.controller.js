@@ -1,7 +1,6 @@
 import jwt from 'jsonwebtoken'
 import pool from '../config/db.js'
 
-// Normalize DB row (snake_case) → camelCase for the frontend
 const normalize = (row) => ({
   id: row.id,
   title: row.title,
@@ -18,7 +17,6 @@ const normalize = (row) => ({
   createdAt: row.created_at,
 })
 
-// GET /api/courses — supports ?category, ?difficulty, ?search, ?instructorId, ?sortRating, ?sortTime
 export const getCourses = async (req, res) => {
   try {
     const { category, difficulty, instructorId, search, sortRating, sortTime } = req.query
