@@ -2,10 +2,10 @@ import React, { useEffect, useMemo, useState } from "react";
 import {
   PlusCircle, Edit, Trash2, CheckCircle, AlertCircle,
   Search as SearchIcon, BookOpen, Clock, Star, User, XCircle,
-  AlertTriangle,
+  AlertTriangle, Layers, ChevronDown, PlayCircle,
 } from "lucide-react";
 import Button from "../components/Button";
-import { authFetch, API_URL } from "../api";
+import { authFetch } from "../api";
 
 const difficultyOptions = ["Beginner", "Intermediate", "Advanced"];
 const categoryOptions = ["Programming", "Web Development", "Design", "Mathematics", "Language"];
@@ -330,7 +330,7 @@ function DeleteModal({ open, onClose, onConfirm, title, darkMode, deleting }) {
 }
 
 /* ─── Module Form Modal ─────────────────────────────────────────────────── */
-function ModuleModal({ open, onClose, onSave, courseId, darkMode }) {
+function ModuleModal({ open, onClose, onSave, courseId, darkMode, saving }) {
   const [title, setTitle] = useState("");
   const [error, setError] = useState("");
   const titleId = "module-modal-title";
@@ -432,12 +432,17 @@ function ModuleModal({ open, onClose, onSave, courseId, darkMode }) {
               size="md"
               darkMode={darkMode}
               onClick={handleSave}
-              icon={<PlusCircle className="h-4 w-4" />}
+              disabled={saving}
+              icon={
+                saving
+                  ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white inline-block" />
+                  : <PlusCircle className="h-4 w-4" />
+              }
               className="flex-1 shadow"
             >
-              Add Module
+              {saving ? "Creating…" : "Add Module"}
             </Button>
-            <Button variant="secondary" size="md" darkMode={darkMode} onClick={onClose} className="flex-1">
+            <Button variant="secondary" size="md" darkMode={darkMode} onClick={onClose} disabled={saving} className="flex-1">
               Cancel
             </Button>
           </div>
@@ -448,7 +453,7 @@ function ModuleModal({ open, onClose, onSave, courseId, darkMode }) {
 }
 
 /* ─── Lesson Form Modal ─────────────────────────────────────────────────── */
-function LessonModal({ open, onClose, onSave, moduleId, darkMode }) {
+function LessonModal({ open, onClose, onSave, moduleId, darkMode, saving }) {
   const [form, setForm] = useState({ title: "", content: "", duration: "", videoUrl: "" });
   const [errors, setErrors] = useState({});
   const titleId = "lesson-modal-title";
@@ -590,15 +595,226 @@ function LessonModal({ open, onClose, onSave, moduleId, darkMode }) {
               size="md"
               darkMode={darkMode}
               onClick={handleSave}
-              icon={<PlusCircle className="h-4 w-4" />}
+              disabled={saving}
+              icon={
+                saving
+                  ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white inline-block" />
+                  : <PlusCircle className="h-4 w-4" />
+              }
               className="flex-1 shadow"
             >
-              Add Lesson
+              {saving ? "Creating…" : "Add Lesson"}
             </Button>
-            <Button variant="secondary" size="md" darkMode={darkMode} onClick={onClose} className="flex-1">
+            <Button variant="secondary" size="md" darkMode={darkMode} onClick={onClose} disabled={saving} className="flex-1">
               Cancel
             </Button>
           </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Modules Panel Modal ───────────────────────────────────────────────── */
+function ModulesModal({ open, onClose, course, modules, lessons, onAddModuleClick, onAddLessonClick, darkMode }) {
+  const titleId = "modules-modal-title";
+  const [expandedModuleId, setExpandedModuleId] = useState(null);
+
+  const cardBg = darkMode ? "#0f1f3d" : "#ffffff";
+  const rowBg = darkMode ? "#0a1628" : "#f8fafc";
+  const rowBorder = darkMode ? "#1a3a6b" : "#e2e8f0";
+  const lessonsBg = darkMode ? "#060f1e" : "#f1f5f9";
+  const headingCol = darkMode ? "#f1f5f9" : "#1f2937";
+  const mutedCol = darkMode ? "#64748b" : "#9ca3af";
+  const emptyCol = darkMode ? "#475569" : "#9ca3af";
+  const lessonText = darkMode ? "#94a3b8" : "#4b5563";
+
+  // Reset expanded state when modal opens
+  useEffect(() => { if (open) setExpandedModuleId(null); }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    const handleKey = (e) => { if (e.key === "Escape") onClose(); };
+    document.addEventListener("keydown", handleKey);
+    return () => document.removeEventListener("keydown", handleKey);
+  }, [open, onClose]);
+
+  if (!open) return null;
+
+  const moduleList = modules || [];
+
+  const toggleModule = (id) => setExpandedModuleId((prev) => (prev === id ? null : id));
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby={titleId}
+    >
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} aria-hidden="true" />
+      <div
+        className="relative z-10 w-full max-w-md rounded-2xl shadow-2xl overflow-hidden"
+        style={{ backgroundColor: cardBg }}
+      >
+        {/* Header */}
+        <div
+          className="flex items-center justify-between px-5 py-4"
+          style={{ background: "linear-gradient(90deg,#0D47A1 0%,#1565C0 60%,#1976D2 100%)" }}
+        >
+          <div>
+            <h2 id={titleId} className="text-base font-extrabold text-white tracking-tight leading-snug">
+              {course?.title}
+            </h2>
+            <p style={{ fontSize: 12, color: "#bfdbfe", marginTop: 2 }}>
+              {moduleList.length} module{moduleList.length !== 1 ? "s" : ""}
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            aria-label="Close"
+            style={{ background: "none", border: "none", cursor: "pointer", padding: 4, color: "rgba(255,255,255,0.85)", display: "flex" }}
+          >
+            <XCircle style={{ width: 26, height: 26 }} strokeWidth={1.8} aria-hidden="true" />
+          </button>
+        </div>
+
+        {/* Module list */}
+        <div className="p-4 max-h-[28rem] overflow-y-auto">
+          {moduleList.length === 0 ? (
+            <div className="py-10 text-center">
+              <Layers className="mx-auto mb-3 h-8 w-8 opacity-30" style={{ color: emptyCol }} aria-hidden="true" />
+              <p className="text-sm font-semibold" style={{ color: emptyCol }}>No modules yet</p>
+              <p className="text-xs mt-1 opacity-70" style={{ color: emptyCol }}>Add the first module to get started.</p>
+            </div>
+          ) : (
+            <ul className="space-y-2 list-none p-0">
+              {moduleList.map((mod, idx) => {
+                const modLessons = lessons[mod.id] || [];
+                const isExpanded = expandedModuleId === mod.id;
+                return (
+                  <li
+                    key={mod.id}
+                    className="rounded-xl overflow-hidden"
+                    style={{ border: `1px solid ${rowBorder}` }}
+                  >
+                    {/* Module header row */}
+                    <div
+                      className="flex items-center gap-3 px-4 py-3"
+                      style={{ backgroundColor: rowBg }}
+                    >
+                      {/* Clickable area — toggles lessons */}
+                      <button
+                        onClick={() => toggleModule(mod.id)}
+                        className="flex-1 text-left min-w-0"
+                        style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}
+                        aria-expanded={isExpanded}
+                      >
+                        <p className="text-xs font-bold uppercase tracking-wide mb-0.5" style={{ color: mutedCol }}>
+                          Module {idx + 1}
+                        </p>
+                        <p className="text-sm font-semibold leading-snug truncate" style={{ color: headingCol }}>
+                          {mod.title}
+                        </p>
+                        <p className="text-xs mt-0.5" style={{ color: mutedCol }}>
+                          {modLessons.length > 0
+                            ? `${modLessons.length} lesson${modLessons.length !== 1 ? "s" : ""} — click to ${isExpanded ? "hide" : "view"}`
+                            : "No lessons yet"}
+                        </p>
+                      </button>
+
+                      {/* Chevron toggle */}
+                      <button
+                        onClick={() => toggleModule(mod.id)}
+                        aria-label={isExpanded ? "Collapse lessons" : "Expand lessons"}
+                        style={{ background: "none", border: "none", cursor: "pointer", padding: 4, color: mutedCol, display: "flex", flexShrink: 0 }}
+                      >
+                        <ChevronDown
+                          className="h-4 w-4 transition-transform duration-200"
+                          style={{ transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)" }}
+                          aria-hidden="true"
+                        />
+                      </button>
+
+                      {/* Add lesson button */}
+                      <button
+                        onClick={() => onAddLessonClick(mod.id)}
+                        className="shrink-0 flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-lg"
+                        style={{
+                          backgroundColor: darkMode ? "rgba(25,118,210,0.15)" : "#dbeafe",
+                          color: darkMode ? "#60a5fa" : "#1d4ed8",
+                          border: "none",
+                          cursor: "pointer",
+                        }}
+                      >
+                        <PlusCircle className="h-3.5 w-3.5" aria-hidden="true" />
+                        Lesson
+                      </button>
+                    </div>
+
+                    {/* Lessons dropdown */}
+                    {isExpanded && (
+                      <div style={{ backgroundColor: lessonsBg }}>
+                        {modLessons.length === 0 ? (
+                          <p
+                            className="px-5 py-3 text-xs italic"
+                            style={{ color: emptyCol }}
+                          >
+                            No lessons added yet. Click "+ Lesson" to add one.
+                          </p>
+                        ) : (
+                          <ul className="list-none p-0 divide-y" style={{ borderColor: rowBorder }}>
+                            {modLessons.map((lesson, lIdx) => (
+                              <li
+                                key={lesson.id}
+                                className="flex items-start gap-3 px-5 py-2.5"
+                              >
+                                <PlayCircle
+                                  className="h-3.5 w-3.5 mt-0.5 shrink-0"
+                                  style={{ color: "#1976D2" }}
+                                  aria-hidden="true"
+                                />
+                                <div className="min-w-0">
+                                  <p className="text-xs font-semibold leading-snug" style={{ color: lessonText }}>
+                                    {lIdx + 1}. {lesson.title}
+                                  </p>
+                                  {lesson.duration > 0 && (
+                                    <p className="text-xs mt-0.5" style={{ color: mutedCol }}>
+                                      {lesson.duration} min
+                                    </p>
+                                  )}
+                                </div>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div
+          className="px-4 py-3 flex gap-3"
+          style={{ borderTop: `1px solid ${rowBorder}` }}
+        >
+          <Button
+            variant="primary"
+            size="sm"
+            darkMode={darkMode}
+            onClick={onAddModuleClick}
+            icon={<PlusCircle className="h-3.5 w-3.5" />}
+            className="flex-1"
+          >
+            Add Module
+          </Button>
+          <Button variant="secondary" size="sm" darkMode={darkMode} onClick={onClose} className="flex-1">
+            Close
+          </Button>
         </div>
       </div>
     </div>
@@ -620,6 +836,9 @@ export default function ManageCourses({ darkMode = false }) {
   const [lessons, setLessons] = useState({});
   const [moduleModalCourseId, setModuleModalCourseId] = useState(null);
   const [lessonModalModuleId, setLessonModalModuleId] = useState(null);
+  const [contentPanelCourse, setContentPanelCourse] = useState(null);
+  const [moduleSaving, setModuleSaving] = useState(false);
+  const [lessonSaving, setLessonSaving] = useState(false);
 
   const pageBg = darkMode ? "#060f1e" : "#F4F8FD";
   const cardBg = darkMode ? "#0f1f3d" : "#ffffff";
@@ -641,7 +860,30 @@ export default function ManageCourses({ darkMode = false }) {
       try {
         const res = await authFetch("/api/courses?instructorId=me");
         const data = await res.json();
-        setCourses(Array.isArray(data) ? data : []);
+        const courseList = Array.isArray(data) ? data : [];
+        setCourses(courseList);
+
+        // Fetch existing modules and lessons for each course so they show on load
+        const moduleMap = {};
+        const lessonMap = {};
+        await Promise.all(
+          courseList.map(async (c) => {
+            try {
+              const r = await authFetch(`/api/courses/${c.id}`);
+              const d = await r.json();
+              if (Array.isArray(d.modules)) {
+                moduleMap[c.id] = d.modules;
+                d.modules.forEach((mod) => {
+                  if (Array.isArray(mod.lessons)) lessonMap[mod.id] = mod.lessons;
+                });
+              }
+            } catch {
+              // non-fatal — course card still renders without modules
+            }
+          })
+        );
+        setModules(moduleMap);
+        setLessons(lessonMap);
       } catch {
         notify("Failed to load courses", "error");
       } finally {
@@ -685,7 +927,7 @@ export default function ManageCourses({ darkMode = false }) {
           body: JSON.stringify(form),
         });
         const updated = await res.json();
-        if (!res.ok) throw new Error(updated.message || "Failed to update course");
+        if (!res.ok) throw new Error(updated.error || updated.message || "Failed to update course");
         setCourses((p) => p.map((c) => (c.id === editingCourse.id ? updated : c)));
         notify("Course updated successfully.");
       } else {
@@ -694,7 +936,7 @@ export default function ManageCourses({ darkMode = false }) {
           body: JSON.stringify(form),
         });
         const created = await res.json();
-        if (!res.ok) throw new Error(created.message || "Failed to create course");
+        if (!res.ok) throw new Error(created.error || created.message || "Failed to create course");
         setCourses((p) => [created, ...p]);
         notify("Course added to the catalog.");
       }
@@ -721,36 +963,40 @@ export default function ManageCourses({ darkMode = false }) {
   };
 
   const handleAddModule = async ({ courseId, title }) => {
+    setModuleSaving(true);
     try {
-      const res = await authFetch(`${API_URL}/modules`, {
+      const res = await authFetch("/api/modules", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ courseId, title }),
       });
-      if (!res.ok) throw new Error("Failed");
-      const newModule = await res.json();
-      setModules((prev) => ({ ...prev, [courseId]: [newModule, ...(prev[courseId] || [])] }));
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || data.message || "Failed to add module");
+      setModules((prev) => ({ ...prev, [courseId]: [...(prev[courseId] || []), data] }));
       setModuleModalCourseId(null);
       notify("Module added successfully.");
-    } catch {
-      notify("Failed to add module.", "error");
+    } catch (err) {
+      notify(err.message || "Failed to add module.", "error");
+    } finally {
+      setModuleSaving(false);
     }
   };
 
   const handleAddLesson = async ({ moduleId, title, content, duration, videoUrl }) => {
+    setLessonSaving(true);
     try {
-      const res = await authFetch(`${API_URL}/lessons`, {
+      const res = await authFetch("/api/lessons", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ moduleId, title, content, duration, videoUrl }),
       });
-      if (!res.ok) throw new Error("Failed");
-      const newLesson = await res.json();
-      setLessons((prev) => ({ ...prev, [moduleId]: [newLesson, ...(prev[moduleId] || [])] }));
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || data.message || "Failed to add lesson");
+      setLessons((prev) => ({ ...prev, [moduleId]: [...(prev[moduleId] || []), data] }));
       setLessonModalModuleId(null);
       notify("Lesson added successfully.");
-    } catch {
-      notify("Failed to add lesson.", "error");
+    } catch (err) {
+      notify(err.message || "Failed to add lesson.", "error");
+    } finally {
+      setLessonSaving(false);
     }
   };
 
@@ -955,52 +1201,25 @@ export default function ManageCourses({ darkMode = false }) {
                         >
                           Delete
                         </Button>
-                        <Button
-                          variant="secondary"
-                          size="sm"
-                          darkMode={darkMode}
-                          onClick={() => setModuleModalCourseId(course.id)}
-                          aria-label={`Add module to ${course.title}`}
-                          icon={<PlusCircle className="h-3.5 w-3.5" />}
-                          className="flex-1"
-                        >
-                          + Module
-                        </Button>
                       </div>
 
-                      {(modules[course.id] || []).map((mod) => (
-                        <div
-                          key={mod.id}
-                          className="mt-2 rounded-lg px-3 py-2"
-                          style={{ backgroundColor: darkMode ? "#0a1628" : "#f1f5f9" }}
-                        >
-                          <div className="flex items-center justify-between">
-                            <span
-                              className="text-xs font-semibold"
-                              style={{ color: darkMode ? "#94a3b8" : "#374151" }}
-                            >
-                              {mod.title}
-                            </span>
-                            <button
-                              onClick={() => setLessonModalModuleId(mod.id)}
-                              className="text-xs font-medium"
-                              style={{ color: "#1976D2", background: "none", border: "none", cursor: "pointer" }}
-                            >
-                              + Lesson
-                            </button>
-                          </div>
-
-                          {(lessons[mod.id] || []).map((lesson) => (
-                            <div
-                              key={lesson.id}
-                              className="mt-1 pl-3 text-xs"
-                              style={{ color: darkMode ? "#64748b" : "#6b7280" }}
-                            >
-                              • {lesson.title}
-                            </div>
-                          ))}
-                        </div>
-                      ))}
+                      {/* Opens the modules popup */}
+                      <button
+                        onClick={() => setContentPanelCourse(course)}
+                        className="mt-2 w-full flex items-center justify-center gap-2 rounded-xl py-2 text-xs font-semibold transition-colors"
+                        style={{
+                          backgroundColor: darkMode ? "#0a1628" : "#f1f5f9",
+                          color: darkMode ? "#94a3b8" : "#374151",
+                          border: `1px solid ${darkMode ? "#1a3a6b" : "#e2e8f0"}`,
+                          cursor: "pointer",
+                        }}
+                        aria-label={`Manage content for ${course.title}`}
+                      >
+                        <Layers className="h-3.5 w-3.5" aria-hidden="true" />
+                        {(modules[course.id] || []).length > 0
+                          ? `${(modules[course.id] || []).length} Module${(modules[course.id] || []).length !== 1 ? "s" : ""} — Manage`
+                          : "Manage Content"}
+                      </button>
                     </div>
                   </article>
                 </li>
@@ -1033,20 +1252,34 @@ export default function ManageCourses({ darkMode = false }) {
         deleting={deleting}
       />
 
+      {/* Modules panel — opens from the card's "Manage Content" button */}
+      <ModulesModal
+        open={!!contentPanelCourse}
+        onClose={() => setContentPanelCourse(null)}
+        course={contentPanelCourse}
+        modules={modules[contentPanelCourse?.id] || []}
+        lessons={lessons}
+        onAddModuleClick={() => setModuleModalCourseId(contentPanelCourse?.id)}
+        onAddLessonClick={(moduleId) => setLessonModalModuleId(moduleId)}
+        darkMode={darkMode}
+      />
+
       <ModuleModal
         open={!!moduleModalCourseId}
-        onClose={() => setModuleModalCourseId(null)}
+        onClose={() => { if (!moduleSaving) setModuleModalCourseId(null); }}
         onSave={handleAddModule}
         courseId={moduleModalCourseId}
         darkMode={darkMode}
+        saving={moduleSaving}
       />
 
       <LessonModal
         open={!!lessonModalModuleId}
-        onClose={() => setLessonModalModuleId(null)}
+        onClose={() => { if (!lessonSaving) setLessonModalModuleId(null); }}
         onSave={handleAddLesson}
         moduleId={lessonModalModuleId}
         darkMode={darkMode}
+        saving={lessonSaving}
       />
     </div>
   );
