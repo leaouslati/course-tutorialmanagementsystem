@@ -5,11 +5,11 @@ export const createLesson = async (req, res) => {
     const { moduleId, title, content, duration, videoUrl } = req.body
 
     if (!moduleId) {
-      return res.status(400).json({ message: 'moduleId is required' })
+      return res.status(400).json({ error: 'moduleId is required' })
     }
 
     if (!title || !title.trim()) {
-      return res.status(400).json({ message: 'Title is required' })
+      return res.status(400).json({ error: 'title is required' })
     }
 
     const moduleResult = await pool.query(

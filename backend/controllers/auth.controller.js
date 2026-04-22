@@ -2,17 +2,31 @@ import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import pool from '../config/db.js'
 
+// Simple email format check
+const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+
 // REGISTER
 export const register = async (req, res) => {
   try {
-    const { name, email, password, role } = req.body
+    const name = req.body.name?.trim()
+    const email = req.body.email?.trim().toLowerCase()
+    const password = req.body.password?.trim()
+    const role = req.body.role?.trim()
 
     if (!name || !email || !password || !role) {
-      return res.status(400).json({ message: 'All fields are required' })
+      return res.status(400).json({ error: 'name, email, password, and role are all required' })
+    }
+
+    if (!isValidEmail(email)) {
+      return res.status(400).json({ error: 'Invalid email format' })
+    }
+
+    if (password.length < 8) {
+      return res.status(400).json({ error: 'Password must be at least 8 characters' })
     }
 
     if (!['student', 'instructor'].includes(role)) {
-      return res.status(400).json({ message: 'Role must be student or instructor' })
+      return res.status(400).json({ error: 'Role must be student or instructor' })
     }
 
     const existingUser = await pool.query(
@@ -49,8 +63,10 @@ export const register = async (req, res) => {
 // CHECK EMAIL (used by forgot-password flow)
 export const checkEmail = async (req, res) => {
   try {
-    const { email } = req.body
-    if (!email) return res.status(400).json({ message: 'Email is required' })
+    const email = req.body.email?.trim().toLowerCase()
+
+    if (!email) return res.status(400).json({ error: 'Email is required' })
+    if (!isValidEmail(email)) return res.status(400).json({ error: 'Invalid email format' })
 
     const result = await pool.query('SELECT id FROM users WHERE email = $1', [email])
     if (result.rows.length === 0) {
@@ -66,10 +82,15 @@ export const checkEmail = async (req, res) => {
 // LOGIN
 export const login = async (req, res) => {
   try {
-    const { email, password } = req.body
+    const email = req.body.email?.trim().toLowerCase()
+    const password = req.body.password?.trim()
 
     if (!email || !password) {
-      return res.status(400).json({ message: 'Email and password are required' })
+      return res.status(400).json({ error: 'Email and password are required' })
+    }
+
+    if (!isValidEmail(email)) {
+      return res.status(400).json({ error: 'Invalid email format' })
     }
 
     const result = await pool.query(
@@ -97,12 +118,7 @@ export const login = async (req, res) => {
 
     return res.status(200).json({
       token,
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role
-      }
+      user: { id: user.id, name: user.name, email: user.email, role: user.role }
     })
   } catch (error) {
     console.error('Login error:', error)
@@ -110,13 +126,22 @@ export const login = async (req, res) => {
   }
 }
 
-// FORGOT PASSWORD (your existing one)
+// RESET / FORGOT PASSWORD
 export const forgotPassword = async (req, res) => {
   try {
-    const { email, newPassword } = req.body
+    const email = req.body.email?.trim().toLowerCase()
+    const newPassword = req.body.newPassword?.trim()
 
     if (!email || !newPassword) {
-      return res.status(400).json({ message: 'Email and new password are required' })
+      return res.status(400).json({ error: 'Email and newPassword are required' })
+    }
+
+    if (!isValidEmail(email)) {
+      return res.status(400).json({ error: 'Invalid email format' })
+    }
+
+    if (newPassword.length < 8) {
+      return res.status(400).json({ error: 'New password must be at least 8 characters' })
     }
 
     const userResult = await pool.query(
@@ -125,7 +150,7 @@ export const forgotPassword = async (req, res) => {
     )
 
     if (userResult.rows.length === 0) {
-      return res.status(404).json({ message: 'User not found' })
+      return res.status(404).json({ message: 'No account found with this email' })
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10)
