@@ -2,11 +2,10 @@ import pool from '../config/db.js'
 
 export const createModule = async (req, res) => {
   try {
-    const courseId = req.body.courseId
-    const title = req.body.title?.trim()
+    const { courseId, title } = req.body
 
     if (!courseId || !title) {
-      return res.status(400).json({ error: 'courseId and title are required' })
+      return res.status(400).json({ message: 'courseId and title are required' })
     }
 
     const courseResult = await pool.query(
@@ -42,5 +41,44 @@ export const createModule = async (req, res) => {
   } catch (err) {
     console.error('createModule error:', err)
     return res.status(500).json({ message: 'Internal server error' })
+  }
+}
+
+export const deleteModule = async (req, res) => {
+  try {
+    const { id } = req.params
+
+    const moduleResult = await pool.query(
+      'SELECT * FROM modules WHERE id = $1',
+      [id]
+    )
+
+    if (moduleResult.rows.length === 0) {
+      return res.status(404).json({ message: 'Module not found' })
+    }
+
+    const moduleRow = moduleResult.rows[0]
+
+    const courseResult = await pool.query(
+      'SELECT * FROM courses WHERE id = $1',
+      [moduleRow.course_id]
+    )
+
+    if (courseResult.rows.length === 0) {
+      return res.status(404).json({ message: 'Parent course not found' })
+    }
+
+    const course = courseResult.rows[0]
+
+    if (course.instructor_id !== req.user.id) {
+      return res.status(403).json({ message: 'Forbidden: you do not own this course' })
+    }
+
+    await pool.query('DELETE FROM modules WHERE id = $1', [id])
+
+    return res.status(204).send()
+  } catch (error) {
+    console.error('deleteModule error:', error)
+    return res.status(500).json({ message: 'Server error' })
   }
 }
