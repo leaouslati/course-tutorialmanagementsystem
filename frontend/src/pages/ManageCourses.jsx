@@ -255,7 +255,12 @@ function CourseModal({ open, onClose, onSave, initial, isEditing, darkMode, savi
   );
 }
 
-function DeleteModal({ open, onClose, onConfirm, title, darkMode, deleting }) {
+function DeleteModal({
+  open, onClose, onConfirm, title, darkMode, deleting,
+  heading = "Delete Course?",
+  description = null,
+  confirmLabel = "Delete Course",
+}) {
   const cardBg = darkMode ? "#0f1f3d" : "#ffffff";
   const headingCol = darkMode ? "#f1f5f9" : "#111827";
   const bodyText = darkMode ? "#cbd5e1" : "#6b7280";
@@ -273,7 +278,7 @@ function DeleteModal({ open, onClose, onConfirm, title, darkMode, deleting }) {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" role="alertdialog" aria-modal="true">
+    <div className="fixed inset-0 z-60 flex items-center justify-center p-4" role="alertdialog" aria-modal="true">
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} aria-hidden="true" />
       <div
         className="relative z-10 w-full max-w-sm rounded-2xl p-6 shadow-2xl text-center"
@@ -286,10 +291,12 @@ function DeleteModal({ open, onClose, onConfirm, title, darkMode, deleting }) {
           <AlertTriangle className="h-6 w-6" style={{ color: "#ef4444" }} />
         </div>
         <h3 className="text-lg font-extrabold mb-1" style={{ color: headingCol }}>
-          Delete Course?
+          {heading}
         </h3>
         <p className="text-sm mb-6" style={{ color: bodyText }}>
-          "<span className="font-semibold" style={{ color: nameCol }}>{title}</span>" will be permanently removed.
+          {description ?? (
+            <>"<span className="font-semibold" style={{ color: nameCol }}>{title}</span>" will be permanently removed.</>
+          )}
         </p>
         <div className="flex gap-3">
           <Button
@@ -307,7 +314,7 @@ function DeleteModal({ open, onClose, onConfirm, title, darkMode, deleting }) {
             }
             className="flex-1"
           >
-            {deleting ? "Deleting…" : "Delete Course"}
+            {deleting ? "Deleting…" : confirmLabel}
           </Button>
           <Button variant="secondary" size="md" darkMode={darkMode} onClick={onClose} className="flex-1">
             Cancel
@@ -605,7 +612,19 @@ function LessonModal({ open, onClose, onSave, moduleId, darkMode, saving }) {
 }
 
 /* ─── Modules Panel Modal ───────────────────────────────────────────────── */
-function ModulesModal({ open, onClose, course, modules, lessons, onAddModuleClick, onAddLessonClick, darkMode }) {
+function ModulesModal({
+  open,
+  onClose,
+  course,
+  modules,
+  lessons,
+  onAddModuleClick,
+  onAddLessonClick,
+  onDeleteModuleClick,
+  onDeleteLessonClick,
+  onDeleteCourseClick,
+  darkMode,
+}) {
   const titleId = "modules-modal-title";
   const [expandedModuleId, setExpandedModuleId] = useState(null);
 
@@ -726,19 +745,35 @@ function ModulesModal({ open, onClose, course, modules, lessons, onAddModuleClic
                       </button>
 
                       {/* Add lesson button */}
-                      <button
-                        onClick={() => onAddLessonClick(mod.id)}
-                        className="shrink-0 flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-lg"
-                        style={{
-                          backgroundColor: darkMode ? "rgba(25,118,210,0.15)" : "#dbeafe",
-                          color: darkMode ? "#60a5fa" : "#1d4ed8",
-                          border: "none",
-                          cursor: "pointer",
-                        }}
-                      >
-                        <PlusCircle className="h-3.5 w-3.5" aria-hidden="true" />
-                        Lesson
-                      </button>
+                      <div className="shrink-0 flex items-center gap-2">
+  <button
+    onClick={() => onAddLessonClick(mod.id)}
+    className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-lg"
+    style={{
+      backgroundColor: darkMode ? "rgba(25,118,210,0.15)" : "#dbeafe",
+      color: darkMode ? "#60a5fa" : "#1d4ed8",
+      border: "none",
+      cursor: "pointer",
+    }}
+  >
+    <PlusCircle className="h-3.5 w-3.5" aria-hidden="true" />
+    Lesson
+  </button>
+
+  <button
+    onClick={() => onDeleteModuleClick(mod.id)}
+    className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-lg"
+    style={{
+      backgroundColor: darkMode ? "rgba(239,68,68,0.15)" : "#fee2e2",
+      color: "#dc2626",
+      border: "none",
+      cursor: "pointer",
+    }}
+  >
+    <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
+    Delete
+  </button>
+</div>
                     </div>
 
                     {/* Lessons dropdown */}
@@ -755,25 +790,41 @@ function ModulesModal({ open, onClose, course, modules, lessons, onAddModuleClic
                           <ul className="list-none p-0 divide-y" style={{ borderColor: rowBorder }}>
                             {modLessons.map((lesson, lIdx) => (
                               <li
-                                key={lesson.id}
-                                className="flex items-start gap-3 px-5 py-2.5"
-                              >
-                                <PlayCircle
-                                  className="h-3.5 w-3.5 mt-0.5 shrink-0"
-                                  style={{ color: "#1976D2" }}
-                                  aria-hidden="true"
-                                />
-                                <div className="min-w-0">
-                                  <p className="text-xs font-semibold leading-snug" style={{ color: lessonText }}>
-                                    {lIdx + 1}. {lesson.title}
-                                  </p>
-                                  {lesson.duration > 0 && (
-                                    <p className="text-xs mt-0.5" style={{ color: mutedCol }}>
-                                      {lesson.duration} min
-                                    </p>
-                                  )}
-                                </div>
-                              </li>
+  key={lesson.id}
+  className="flex items-start justify-between gap-3 px-5 py-2.5"
+>
+  <div className="flex items-start gap-3 min-w-0">
+    <PlayCircle
+      className="h-3.5 w-3.5 mt-0.5 shrink-0"
+      style={{ color: "#1976D2" }}
+      aria-hidden="true"
+    />
+    <div className="min-w-0">
+      <p className="text-xs font-semibold leading-snug" style={{ color: lessonText }}>
+        {lIdx + 1}. {lesson.title}
+      </p>
+      {lesson.duration > 0 && (
+        <p className="text-xs mt-0.5" style={{ color: mutedCol }}>
+          {lesson.duration} min
+        </p>
+      )}
+    </div>
+  </div>
+
+  <button
+    onClick={() => onDeleteLessonClick(mod.id, lesson.id)}
+    className="shrink-0 flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-lg"
+    style={{
+      backgroundColor: darkMode ? "rgba(239,68,68,0.15)" : "#fee2e2",
+      color: "#dc2626",
+      border: "none",
+      cursor: "pointer",
+    }}
+  >
+    <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
+    Delete
+  </button>
+</li>
                             ))}
                           </ul>
                         )}
@@ -800,6 +851,16 @@ function ModulesModal({ open, onClose, course, modules, lessons, onAddModuleClic
             className="flex-1"
           >
             Add Module
+          </Button>
+          <Button
+            variant="danger"
+            size="sm"
+            darkMode={darkMode}
+            onClick={onDeleteCourseClick}
+            icon={<Trash2 className="h-3.5 w-3.5" />}
+            className="flex-1"
+          >
+            Delete Course
           </Button>
           <Button variant="secondary" size="sm" darkMode={darkMode} onClick={onClose} className="flex-1">
             Close
@@ -828,6 +889,10 @@ export default function ManageCourses({ darkMode = false }) {
   const [contentPanelCourse, setContentPanelCourse] = useState(null);
   const [moduleSaving, setModuleSaving] = useState(false);
   const [lessonSaving, setLessonSaving] = useState(false);
+  const [deleteModuleTarget, setDeleteModuleTarget] = useState(null);
+  const [deleteLessonTarget, setDeleteLessonTarget] = useState(null);
+  const [moduleDeleting, setModuleDeleting] = useState(false);
+  const [lessonDeleting, setLessonDeleting] = useState(false);
 
   const pageBg = darkMode ? "#060f1e" : "#F4F8FD";
   const cardBg = darkMode ? "#0f1f3d" : "#ffffff";
@@ -983,7 +1048,65 @@ export default function ManageCourses({ darkMode = false }) {
       setLessonSaving(false);
     }
   };
+  const handleDeleteModule = (courseId, moduleId) => {
+    const mod = (modules[courseId] || []).find((m) => m.id === moduleId);
+    setDeleteModuleTarget({ courseId, moduleId, title: mod?.title || "This module" });
+  };
 
+  const confirmDeleteModule = async () => {
+    if (!deleteModuleTarget) return;
+    const { courseId, moduleId } = deleteModuleTarget;
+    setModuleDeleting(true);
+    try {
+      const res = await authFetch(`/api/modules/${moduleId}`, { method: "DELETE" });
+      if (!res.ok) {
+        let message = "Failed to delete module";
+        try { const d = await res.json(); message = d.message || d.error || message; } catch {}
+        throw new Error(message);
+      }
+      setModules((prev) => ({
+        ...prev,
+        [courseId]: (prev[courseId] || []).filter((m) => m.id !== moduleId),
+      }));
+      setLessons((prev) => { const updated = { ...prev }; delete updated[moduleId]; return updated; });
+      setDeleteModuleTarget(null);
+      notify("Module deleted");
+    } catch (err) {
+      notify(err.message || "Failed to delete module", "error");
+    } finally {
+      setModuleDeleting(false);
+    }
+  };
+
+  const handleDeleteLesson = (moduleId, lessonId) => {
+    const lesson = (lessons[moduleId] || []).find((l) => l.id === lessonId);
+    setDeleteLessonTarget({ moduleId, lessonId, title: lesson?.title || "This lesson" });
+  };
+
+  const confirmDeleteLesson = async () => {
+    if (!deleteLessonTarget) return;
+    const { moduleId, lessonId } = deleteLessonTarget;
+    setLessonDeleting(true);
+    try {
+      const res = await authFetch(`/api/lessons/${lessonId}`, { method: "DELETE" });
+      if (!res.ok) {
+        let message = "Failed to delete lesson";
+        try { const d = await res.json(); message = d.message || d.error || message; } catch {}
+        throw new Error(message);
+      }
+      setLessons((prev) => ({
+        ...prev,
+        [moduleId]: (prev[moduleId] || []).filter((l) => l.id !== lessonId),
+      }));
+      setDeleteLessonTarget(null);
+      notify("Lesson deleted");
+    } catch (err) {
+      notify(err.message || "Failed to delete lesson", "error");
+    } finally {
+      setLessonDeleting(false);
+    }
+  };
+  
   if (loading) return <LoadingSpinner darkMode={darkMode} message="Loading courses…" fullPage />;
 
   return (
@@ -1217,16 +1340,45 @@ export default function ManageCourses({ darkMode = false }) {
         deleting={deleting}
       />
 
+      <DeleteModal
+        open={!!deleteModuleTarget}
+        onClose={() => !moduleDeleting && setDeleteModuleTarget(null)}
+        onConfirm={confirmDeleteModule}
+        darkMode={darkMode}
+        deleting={moduleDeleting}
+        heading="Delete Module?"
+        description="All lessons inside this module will also be permanently deleted."
+        confirmLabel="Delete Module"
+      />
+
+      <DeleteModal
+        open={!!deleteLessonTarget}
+        onClose={() => !lessonDeleting && setDeleteLessonTarget(null)}
+        onConfirm={confirmDeleteLesson}
+        darkMode={darkMode}
+        deleting={lessonDeleting}
+        heading="Delete Lesson?"
+        description={
+          <>
+            "<span style={{ fontWeight: 600 }}>{deleteLessonTarget?.title}</span>" will be permanently removed.
+          </>
+        }
+        confirmLabel="Delete Lesson"
+      />
+
       {/* Modules panel — opens from the card's "Manage Content" button */}
       <ModulesModal
-        open={!!contentPanelCourse}
-        onClose={() => setContentPanelCourse(null)}
-        course={contentPanelCourse}
-        modules={modules[contentPanelCourse?.id] || []}
-        lessons={lessons}
-        onAddModuleClick={() => setModuleModalCourseId(contentPanelCourse?.id)}
-        onAddLessonClick={(moduleId) => setLessonModalModuleId(moduleId)}
-        darkMode={darkMode}
+         open={!!contentPanelCourse}
+  onClose={() => setContentPanelCourse(null)}
+  course={contentPanelCourse}
+  modules={modules[contentPanelCourse?.id] || []}
+  lessons={lessons}
+  onAddModuleClick={() => setModuleModalCourseId(contentPanelCourse?.id)}
+  onAddLessonClick={(moduleId) => setLessonModalModuleId(moduleId)}
+  onDeleteModuleClick={(moduleId) => handleDeleteModule(contentPanelCourse?.id, moduleId)}
+  onDeleteLessonClick={(moduleId, lessonId) => handleDeleteLesson(moduleId, lessonId)}
+  onDeleteCourseClick={() => setDeleteTarget({ id: contentPanelCourse?.id, title: contentPanelCourse?.title })}
+  darkMode={darkMode}
       />
 
       <ModuleModal

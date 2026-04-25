@@ -36,11 +36,13 @@ export const getCourses = async (req, res) => {
 
     if (instructorId) {
       let resolvedId = instructorId
+
       if (instructorId === 'me') {
         const header = req.headers.authorization
         if (!header || !header.startsWith('Bearer ')) {
           return res.status(401).json({ message: 'Authentication required.' })
         }
+
         try {
           const decoded = jwt.verify(header.split(' ')[1], process.env.JWT_SECRET || 'secret')
           resolvedId = decoded.id
@@ -48,6 +50,7 @@ export const getCourses = async (req, res) => {
           return res.status(401).json({ message: 'Invalid or expired token' })
         }
       }
+
       params.push(resolvedId)
       conditions.push(`c.instructor_id = $${params.length}`)
     }
@@ -62,9 +65,13 @@ export const getCourses = async (req, res) => {
     const orderParts = []
     if (sortRating === 'asc') orderParts.push('c.rating ASC')
     else if (sortRating === 'desc') orderParts.push('c.rating DESC')
+
     if (sortTime === 'asc') orderParts.push('c.duration ASC')
     else if (sortTime === 'desc') orderParts.push('c.duration DESC')
-    const order = orderParts.length > 0 ? `ORDER BY ${orderParts.join(', ')}` : 'ORDER BY c.id DESC'
+
+    const order = orderParts.length > 0
+      ? `ORDER BY ${orderParts.join(', ')}`
+      : 'ORDER BY c.id DESC'
 
     const result = await pool.query(
       `SELECT c.*, u.name AS instructor_name
@@ -77,7 +84,8 @@ export const getCourses = async (req, res) => {
 
     res.json(result.rows.map(normalize))
   } catch (error) {
-    console.error('getCourses error:', error)
+    console.error('getCourses error full:', error)
+    console.error('getCourses error string:', JSON.stringify(error, null, 2))
     res.status(500).json({ message: 'Server error' })
   }
 }
@@ -95,7 +103,10 @@ export const getCourseById = async (req, res) => {
        WHERE c.id = $1`,
       [id]
     )
-    if (courseResult.rows.length === 0) return res.status(404).json({ message: 'Course not found.' })
+
+    if (courseResult.rows.length === 0) {
+      return res.status(404).json({ message: 'Course not found.' })
+    }
 
     const modulesResult = await pool.query(
       'SELECT * FROM modules WHERE course_id = $1 ORDER BY module_order ASC',
@@ -104,16 +115,22 @@ export const getCourseById = async (req, res) => {
     const moduleRows = modulesResult.rows
 
     let modules = []
+
     if (moduleRows.length > 0) {
       const moduleIds = moduleRows.map((m) => m.id)
+
       const lessonsResult = await pool.query(
         'SELECT * FROM lessons WHERE module_id = ANY($1::uuid[]) ORDER BY lesson_order ASC',
         [moduleIds]
       )
 
       const lessonsByModule = {}
+
       for (const lesson of lessonsResult.rows) {
-        if (!lessonsByModule[lesson.module_id]) lessonsByModule[lesson.module_id] = []
+        if (!lessonsByModule[lesson.module_id]) {
+          lessonsByModule[lesson.module_id] = []
+        }
+
         lessonsByModule[lesson.module_id].push({
           id: lesson.id,
           title: lesson.title,
@@ -183,7 +200,10 @@ export const updateCourse = async (req, res) => {
     }
 
     const courseResult = await pool.query('SELECT * FROM courses WHERE id = $1', [id])
-    if (courseResult.rows.length === 0) return res.status(404).json({ message: 'Course not found.' })
+
+    if (courseResult.rows.length === 0) {
+      return res.status(404).json({ message: 'Course not found.' })
+    }
 
     if (courseResult.rows[0].instructor_id !== req.user.id) {
       return res.status(403).json({ message: 'You do not own this course.' })
@@ -216,7 +236,10 @@ export const deleteCourse = async (req, res) => {
     const { id } = req.params
 
     const courseResult = await pool.query('SELECT * FROM courses WHERE id = $1', [id])
-    if (courseResult.rows.length === 0) return res.status(404).json({ message: 'Course not found.' })
+
+    if (courseResult.rows.length === 0) {
+      return res.status(404).json({ message: 'Course not found.' })
+    }
 
     if (courseResult.rows[0].instructor_id !== req.user.id) {
       return res.status(403).json({ message: 'You do not own this course.' })
