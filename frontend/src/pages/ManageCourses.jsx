@@ -255,7 +255,12 @@ function CourseModal({ open, onClose, onSave, initial, isEditing, darkMode, savi
   );
 }
 
-function DeleteModal({ open, onClose, onConfirm, title, darkMode, deleting }) {
+function DeleteModal({
+  open, onClose, onConfirm, title, darkMode, deleting,
+  heading = "Delete Course?",
+  description = null,
+  confirmLabel = "Delete Course",
+}) {
   const cardBg = darkMode ? "#0f1f3d" : "#ffffff";
   const headingCol = darkMode ? "#f1f5f9" : "#111827";
   const bodyText = darkMode ? "#cbd5e1" : "#6b7280";
@@ -273,7 +278,7 @@ function DeleteModal({ open, onClose, onConfirm, title, darkMode, deleting }) {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" role="alertdialog" aria-modal="true">
+    <div className="fixed inset-0 z-60 flex items-center justify-center p-4" role="alertdialog" aria-modal="true">
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} aria-hidden="true" />
       <div
         className="relative z-10 w-full max-w-sm rounded-2xl p-6 shadow-2xl text-center"
@@ -286,10 +291,12 @@ function DeleteModal({ open, onClose, onConfirm, title, darkMode, deleting }) {
           <AlertTriangle className="h-6 w-6" style={{ color: "#ef4444" }} />
         </div>
         <h3 className="text-lg font-extrabold mb-1" style={{ color: headingCol }}>
-          Delete Course?
+          {heading}
         </h3>
         <p className="text-sm mb-6" style={{ color: bodyText }}>
-          "<span className="font-semibold" style={{ color: nameCol }}>{title}</span>" will be permanently removed.
+          {description ?? (
+            <>"<span className="font-semibold" style={{ color: nameCol }}>{title}</span>" will be permanently removed.</>
+          )}
         </p>
         <div className="flex gap-3">
           <Button
@@ -307,7 +314,7 @@ function DeleteModal({ open, onClose, onConfirm, title, darkMode, deleting }) {
             }
             className="flex-1"
           >
-            {deleting ? "Deleting…" : "Delete Course"}
+            {deleting ? "Deleting…" : confirmLabel}
           </Button>
           <Button variant="secondary" size="md" darkMode={darkMode} onClick={onClose} className="flex-1">
             Cancel
@@ -615,6 +622,7 @@ function ModulesModal({
   onAddLessonClick,
   onDeleteModuleClick,
   onDeleteLessonClick,
+  onDeleteCourseClick,
   darkMode,
 }) {
   const titleId = "modules-modal-title";
@@ -844,6 +852,16 @@ function ModulesModal({
           >
             Add Module
           </Button>
+          <Button
+            variant="danger"
+            size="sm"
+            darkMode={darkMode}
+            onClick={onDeleteCourseClick}
+            icon={<Trash2 className="h-3.5 w-3.5" />}
+            className="flex-1"
+          >
+            Delete Course
+          </Button>
           <Button variant="secondary" size="sm" darkMode={darkMode} onClick={onClose} className="flex-1">
             Close
           </Button>
@@ -871,6 +889,10 @@ export default function ManageCourses({ darkMode = false }) {
   const [contentPanelCourse, setContentPanelCourse] = useState(null);
   const [moduleSaving, setModuleSaving] = useState(false);
   const [lessonSaving, setLessonSaving] = useState(false);
+  const [deleteModuleTarget, setDeleteModuleTarget] = useState(null);
+  const [deleteLessonTarget, setDeleteLessonTarget] = useState(null);
+  const [moduleDeleting, setModuleDeleting] = useState(false);
+  const [lessonDeleting, setLessonDeleting] = useState(false);
 
   const pageBg = darkMode ? "#060f1e" : "#F4F8FD";
   const cardBg = darkMode ? "#0f1f3d" : "#ffffff";
@@ -1026,71 +1048,62 @@ export default function ManageCourses({ darkMode = false }) {
       setLessonSaving(false);
     }
   };
-    const handleDeleteModule = async (courseId, moduleId) => {
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this module? All lessons inside it will also be deleted."
-    );
-    if (!confirmed) return;
+  const handleDeleteModule = (courseId, moduleId) => {
+    const mod = (modules[courseId] || []).find((m) => m.id === moduleId);
+    setDeleteModuleTarget({ courseId, moduleId, title: mod?.title || "This module" });
+  };
 
+  const confirmDeleteModule = async () => {
+    if (!deleteModuleTarget) return;
+    const { courseId, moduleId } = deleteModuleTarget;
+    setModuleDeleting(true);
     try {
-      const res = await authFetch(`/api/modules/${moduleId}`, {
-        method: "DELETE",
-      });
-
+      const res = await authFetch(`/api/modules/${moduleId}`, { method: "DELETE" });
       if (!res.ok) {
         let message = "Failed to delete module";
-        try {
-          const data = await res.json();
-          message = data.message || data.error || message;
-        } catch {}
+        try { const d = await res.json(); message = d.message || d.error || message; } catch {}
         throw new Error(message);
       }
-
       setModules((prev) => ({
         ...prev,
-        [courseId]: (prev[courseId] || []).filter((mod) => mod.id !== moduleId),
+        [courseId]: (prev[courseId] || []).filter((m) => m.id !== moduleId),
       }));
-
-      setLessons((prev) => {
-        const updated = { ...prev };
-        delete updated[moduleId];
-        return updated;
-      });
-
+      setLessons((prev) => { const updated = { ...prev }; delete updated[moduleId]; return updated; });
+      setDeleteModuleTarget(null);
       notify("Module deleted");
     } catch (err) {
       notify(err.message || "Failed to delete module", "error");
+    } finally {
+      setModuleDeleting(false);
     }
   };
 
-  const handleDeleteLesson = async (moduleId, lessonId) => {
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this lesson?"
-    );
-    if (!confirmed) return;
+  const handleDeleteLesson = (moduleId, lessonId) => {
+    const lesson = (lessons[moduleId] || []).find((l) => l.id === lessonId);
+    setDeleteLessonTarget({ moduleId, lessonId, title: lesson?.title || "This lesson" });
+  };
 
+  const confirmDeleteLesson = async () => {
+    if (!deleteLessonTarget) return;
+    const { moduleId, lessonId } = deleteLessonTarget;
+    setLessonDeleting(true);
     try {
-      const res = await authFetch(`/api/lessons/${lessonId}`, {
-        method: "DELETE",
-      });
-
+      const res = await authFetch(`/api/lessons/${lessonId}`, { method: "DELETE" });
       if (!res.ok) {
         let message = "Failed to delete lesson";
-        try {
-          const data = await res.json();
-          message = data.message || data.error || message;
-        } catch {}
+        try { const d = await res.json(); message = d.message || d.error || message; } catch {}
         throw new Error(message);
       }
-
       setLessons((prev) => ({
         ...prev,
-        [moduleId]: (prev[moduleId] || []).filter((lesson) => lesson.id !== lessonId),
+        [moduleId]: (prev[moduleId] || []).filter((l) => l.id !== lessonId),
       }));
-
+      setDeleteLessonTarget(null);
       notify("Lesson deleted");
     } catch (err) {
       notify(err.message || "Failed to delete lesson", "error");
+    } finally {
+      setLessonDeleting(false);
     }
   };
   
@@ -1327,6 +1340,32 @@ export default function ManageCourses({ darkMode = false }) {
         deleting={deleting}
       />
 
+      <DeleteModal
+        open={!!deleteModuleTarget}
+        onClose={() => !moduleDeleting && setDeleteModuleTarget(null)}
+        onConfirm={confirmDeleteModule}
+        darkMode={darkMode}
+        deleting={moduleDeleting}
+        heading="Delete Module?"
+        description="All lessons inside this module will also be permanently deleted."
+        confirmLabel="Delete Module"
+      />
+
+      <DeleteModal
+        open={!!deleteLessonTarget}
+        onClose={() => !lessonDeleting && setDeleteLessonTarget(null)}
+        onConfirm={confirmDeleteLesson}
+        darkMode={darkMode}
+        deleting={lessonDeleting}
+        heading="Delete Lesson?"
+        description={
+          <>
+            "<span style={{ fontWeight: 600 }}>{deleteLessonTarget?.title}</span>" will be permanently removed.
+          </>
+        }
+        confirmLabel="Delete Lesson"
+      />
+
       {/* Modules panel — opens from the card's "Manage Content" button */}
       <ModulesModal
          open={!!contentPanelCourse}
@@ -1338,6 +1377,7 @@ export default function ManageCourses({ darkMode = false }) {
   onAddLessonClick={(moduleId) => setLessonModalModuleId(moduleId)}
   onDeleteModuleClick={(moduleId) => handleDeleteModule(contentPanelCourse?.id, moduleId)}
   onDeleteLessonClick={(moduleId, lessonId) => handleDeleteLesson(moduleId, lessonId)}
+  onDeleteCourseClick={() => setDeleteTarget({ id: contentPanelCourse?.id, title: contentPanelCourse?.title })}
   darkMode={darkMode}
       />
 
