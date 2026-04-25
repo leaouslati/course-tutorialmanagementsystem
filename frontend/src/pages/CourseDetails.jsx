@@ -89,26 +89,12 @@ export default function CourseDetails({ darkMode = false }) {
 
       try {
         setCheckingEnrollment(true);
-
-        const res = await authFetch(`${API_URL}/enrollments`);
+        const res = await authFetch(`${API_URL}/enrollments/${id}/status`);
         const data = await res.json();
 
-        if (!res.ok) {
-          throw new Error(data.message || "Failed to load enrollments");
-        }
+        if (!res.ok) throw new Error(data.message || "Failed to check enrollment");
 
-        const enrollmentList = Array.isArray(data) ? data : [];
-
-        const alreadyEnrolled = enrollmentList.some((item) => {
-          return (
-            String(item.id) === String(id) ||
-            String(item.courseId) === String(id) ||
-            String(item.course_id) === String(id) ||
-            String(item.course?.id) === String(id)
-          );
-        });
-
-        setEnrolled(alreadyEnrolled);
+        setEnrolled(data.enrolled);
       } catch (error) {
         console.error("checkEnrollment error:", error);
         setEnrolled(false);

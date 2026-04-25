@@ -1,22 +1,22 @@
-import pool from '../config/db.js'
+  import pool from '../config/db.js'
 
-// Normalize a course row (snake_case → camelCase) + attach progress
-const normalizeCourse = (row) => ({
-  id: row.id,
-  title: row.title,
-  shortDescription: row.short_description,
-  description: row.description,
-  category: row.category,
-  difficulty: row.difficulty,
-  duration: row.duration,
-  rating: row.rating,
-  studentsCount: row.students_count ?? 0,
-  image: row.image_url,
-  instructorId: row.instructor_id,
-  instructorName: row.instructor_name ?? null,
-  createdAt: row.created_at,
-  progress: row.progress ?? 0,
-})
+  // Normalize a course row (snake_case → camelCase) + attach progress
+  const normalizeCourse = (row) => ({
+    id: row.id,
+    title: row.title,
+    shortDescription: row.short_description,
+    description: row.description,
+    category: row.category,
+    difficulty: row.difficulty,
+    duration: row.duration,
+    rating: row.rating,
+    studentsCount: row.students_count ?? 0,
+    image: row.image_url,
+    instructorId: row.instructor_id,
+    instructorName: row.instructor_name ?? null,
+    createdAt: row.created_at,
+    progress: row.progress ?? 0,
+  })
 
 // GET /api/enrollments — all courses the logged-in student is enrolled in
 export const getMyEnrollments = async (req, res) => {
@@ -33,12 +33,12 @@ export const getMyEnrollments = async (req, res) => {
       [req.user.id]
     )
 
-    res.json(result.rows.map(normalizeCourse))
-  } catch (error) {
-    console.error('getMyEnrollments error:', error)
-    res.status(500).json({ message: 'Server error' })
+      res.json(result.rows.map(normalizeCourse))
+    } catch (error) {
+      console.error('getMyEnrollments error:', error)
+      res.status(500).json({ message: 'Server error' })
+    }
   }
-}
 
 // GET /api/enrollments/:courseId/status — check if current user is enrolled
 export const getEnrollmentStatus = async (req, res) => {
@@ -92,28 +92,27 @@ export const enroll = async (req, res) => {
     console.error('enroll error:', error)
     res.status(500).json({ message: 'Server error' })
   }
-}
 
 // DELETE /api/enrollments/:courseId — unenroll from a course
 export const unenroll = async (req, res) => {
   try {
     const { courseId } = req.params
 
-    const result = await pool.query(
-      'DELETE FROM enrollments WHERE user_id = $1 AND course_id = $2',
-      [req.user.id, courseId]
-    )
+      const result = await pool.query(
+        'DELETE FROM enrollments WHERE user_id = $1 AND course_id = $2',
+        [req.user.id, courseId]
+      )
 
-    if (result.rowCount === 0) {
-      return res.status(404).json({ message: 'Enrollment not found.' })
+      if (result.rowCount === 0) {
+        return res.status(404).json({ message: 'Enrollment not found.' })
+      }
+
+      res.status(204).send()
+    } catch (error) {
+      console.error('unenroll error:', error)
+      res.status(500).json({ message: 'Server error' })
     }
-
-    res.status(204).send()
-  } catch (error) {
-    console.error('unenroll error:', error)
-    res.status(500).json({ message: 'Server error' })
   }
-}
 
 // PUT /api/enrollments/:courseId/progress — update lesson progress (0–100)
 export const updateProgress = async (req, res) => {
@@ -128,22 +127,21 @@ export const updateProgress = async (req, res) => {
     if (typeof progress !== 'number' || progress < 0 || progress > 100) {
       return res.status(400).json({ error: 'progress must be a number between 0 and 100' })
     }
-
-    const result = await pool.query(
-      `UPDATE enrollments
-       SET progress = $1
-       WHERE user_id = $2 AND course_id = $3
-       RETURNING *`,
-      [progress, req.user.id, courseId]
-    )
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({ message: 'Enrollment not found.' })
-    }
-
-    res.status(200).json(result.rows[0])
-  } catch (error) {
-    console.error('updateProgress error:', error)
-    res.status(500).json({ message: 'Server error' })
   }
-}
+
+  // GET /api/enrollments/:courseId/status
+  export const getEnrollmentStatus = async (req, res) => {
+    try {
+      const { courseId } = req.params
+
+      const result = await pool.query(
+        'SELECT id FROM enrollments WHERE user_id = $1 AND course_id = $2',
+        [req.user.id, courseId]
+      )
+
+      res.json({ enrolled: result.rows.length > 0 })
+    } catch (error) {
+      console.error('getEnrollmentStatus error:', error)
+      res.status(500).json({ message: 'Server error' })
+    }
+  }
