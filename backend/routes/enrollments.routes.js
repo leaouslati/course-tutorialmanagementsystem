@@ -5,7 +5,6 @@ import { authMiddleware } from '../middleware/auth.middleware.js'
 const router = Router()
 
 router.get('/',                    authMiddleware, getMyEnrollments)
-// /status route before /:courseId to avoid param conflict
 router.get('/:courseId/status',    authMiddleware, getEnrollmentStatus)
 router.post('/',                   authMiddleware, enroll)
 router.delete('/:courseId',        authMiddleware, unenroll)

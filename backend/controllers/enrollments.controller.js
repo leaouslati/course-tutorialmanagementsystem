@@ -1,6 +1,5 @@
 import pool from '../config/db.js'
 
-// Normalize a course row (snake_case → camelCase) + attach progress
 const normalizeCourse = (row) => ({
   id: row.id,
   title: row.title,
@@ -32,7 +31,6 @@ export const getMyEnrollments = async (req, res) => {
         ORDER BY e.enrolled_at DESC`,
       [req.user.id]
     )
-
     res.json(result.rows.map(normalizeCourse))
   } catch (error) {
     console.error('getMyEnrollments error:', error)
@@ -66,7 +64,6 @@ export const enroll = async (req, res) => {
       return res.status(400).json({ error: 'courseId is required' })
     }
 
-    // Only students can enroll
     if (req.user.role !== 'student') {
       return res.status(403).json({ message: 'Instructors cannot enroll in courses' })
     }
@@ -131,17 +128,17 @@ export const updateProgress = async (req, res) => {
 
     const result = await pool.query(
       `UPDATE enrollments
-       SET progress = $1
-       WHERE user_id = $2 AND course_id = $3
-       RETURNING *`,
+          SET progress = $1
+        WHERE user_id = $2 AND course_id = $3
+        RETURNING progress`,
       [progress, req.user.id, courseId]
     )
 
-    if (result.rows.length === 0) {
+    if (result.rowCount === 0) {
       return res.status(404).json({ message: 'Enrollment not found.' })
     }
 
-    res.status(200).json(result.rows[0])
+    res.json({ progress: result.rows[0].progress })
   } catch (error) {
     console.error('updateProgress error:', error)
     res.status(500).json({ message: 'Server error' })
