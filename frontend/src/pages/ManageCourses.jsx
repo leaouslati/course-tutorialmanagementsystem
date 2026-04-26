@@ -761,61 +761,62 @@ function ModulesModal({
                         </button>
                       </div>
 
-                      {/* Bottom: lesson count hint + action buttons */}
-                      <div className="flex items-center justify-between mt-2 gap-2">
+                      {/* Lesson count hint */}
+                      <button
+                        onClick={() => toggleModule(mod.id)}
+                        className="mt-1.5"
+                        style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}
+                      >
+                        <p className="text-xs" style={{ color: mutedCol }}>
+                          {modLessons.length > 0
+                            ? `${modLessons.length} lesson${modLessons.length !== 1 ? "s" : ""} — click to ${isExpanded ? "hide" : "view"}`
+                            : "No lessons yet"}
+                        </p>
+                      </button>
+
+                      {/* Action buttons — flex-1 so each always gets equal width */}
+                      <div className="flex items-center gap-1.5 mt-2">
                         <button
-                          onClick={() => toggleModule(mod.id)}
-                          style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}
+                          onClick={() => onAddLessonClick(mod.id)}
+                          className="flex flex-1 items-center justify-center gap-1 text-xs font-semibold px-2 py-1.5 rounded-lg"
+                          style={{
+                            backgroundColor: darkMode ? "rgba(25,118,210,0.15)" : "#dbeafe",
+                            color: darkMode ? "#60a5fa" : "#1d4ed8",
+                            border: "none",
+                            cursor: "pointer",
+                          }}
                         >
-                          <p className="text-xs" style={{ color: mutedCol }}>
-                            {modLessons.length > 0
-                              ? `${modLessons.length} lesson${modLessons.length !== 1 ? "s" : ""} — click to ${isExpanded ? "hide" : "view"}`
-                              : "No lessons yet"}
-                          </p>
+                          <PlusCircle className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                          Lesson
                         </button>
-                        <div className="flex items-center gap-1.5 shrink-0">
-                          <button
-                            onClick={() => onAddLessonClick(mod.id)}
-                            className="flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-lg"
-                            style={{
-                              backgroundColor: darkMode ? "rgba(25,118,210,0.15)" : "#dbeafe",
-                              color: darkMode ? "#60a5fa" : "#1d4ed8",
-                              border: "none",
-                              cursor: "pointer",
-                            }}
-                          >
-                            <PlusCircle className="h-3.5 w-3.5" aria-hidden="true" />
-                            Lesson
-                          </button>
-                          <button
-                            onClick={() => onEditModuleClick(mod)}
-                            aria-label={`Edit module: ${mod.title}`}
-                            className="flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-lg"
-                            style={{
-                              backgroundColor: darkMode ? "rgba(245,158,11,0.15)" : "#fef3c7",
-                              color: darkMode ? "#fbbf24" : "#b45309",
-                              border: "none",
-                              cursor: "pointer",
-                            }}
-                          >
-                            <Edit className="h-3.5 w-3.5" aria-hidden="true" />
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => onDeleteModuleClick(mod.id)}
-                            aria-label={`Delete module: ${mod.title}`}
-                            className="flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-lg"
-                            style={{
-                              backgroundColor: darkMode ? "rgba(239,68,68,0.15)" : "#fee2e2",
-                              color: "#dc2626",
-                              border: "none",
-                              cursor: "pointer",
-                            }}
-                          >
-                            <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
-                            Delete
-                          </button>
-                        </div>
+                        <button
+                          onClick={() => onEditModuleClick(mod)}
+                          aria-label={`Edit module: ${mod.title}`}
+                          className="flex flex-1 items-center justify-center gap-1 text-xs font-semibold px-2 py-1.5 rounded-lg"
+                          style={{
+                            backgroundColor: darkMode ? "rgba(245,158,11,0.15)" : "#fef3c7",
+                            color: darkMode ? "#fbbf24" : "#b45309",
+                            border: "none",
+                            cursor: "pointer",
+                          }}
+                        >
+                          <Edit className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => onDeleteModuleClick(mod.id)}
+                          aria-label={`Delete module: ${mod.title}`}
+                          className="flex flex-1 items-center justify-center gap-1 text-xs font-semibold px-2 py-1.5 rounded-lg"
+                          style={{
+                            backgroundColor: darkMode ? "rgba(239,68,68,0.15)" : "#fee2e2",
+                            color: "#dc2626",
+                            border: "none",
+                            cursor: "pointer",
+                          }}
+                        >
+                          <Trash2 className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                          Delete
+                        </button>
                       </div>
                     </div>
 
@@ -854,33 +855,21 @@ function ModulesModal({
     </div>
   </div>
 
-  <div className="shrink-0 flex items-center gap-1.5">
+  <div className="shrink-0 flex items-center gap-3">
     <button
       onClick={() => onEditLessonClick(mod.id, lesson)}
       aria-label={`Edit lesson: ${lesson.title}`}
-      className="flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-lg"
-      style={{
-        backgroundColor: darkMode ? "rgba(245,158,11,0.15)" : "#fef3c7",
-        color: darkMode ? "#fbbf24" : "#b45309",
-        border: "none",
-        cursor: "pointer",
-      }}
+      className="text-xs font-semibold"
+      style={{ background: "none", border: "none", cursor: "pointer", padding: 0, color: darkMode ? "#fbbf24" : "#b45309" }}
     >
-      <Edit className="h-3.5 w-3.5" aria-hidden="true" />
       Edit
     </button>
     <button
       onClick={() => onDeleteLessonClick(mod.id, lesson.id)}
       aria-label={`Delete lesson: ${lesson.title}`}
-      className="flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-lg"
-      style={{
-        backgroundColor: darkMode ? "rgba(239,68,68,0.15)" : "#fee2e2",
-        color: "#dc2626",
-        border: "none",
-        cursor: "pointer",
-      }}
+      className="text-xs font-semibold"
+      style={{ background: "none", border: "none", cursor: "pointer", padding: 0, color: "#dc2626" }}
     >
-      <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
       Delete
     </button>
   </div>
