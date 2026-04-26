@@ -123,6 +123,53 @@ We developed a Course Tutorial Management System to help manage tutorials, cours
 ### Course Details Page
 ![Course Details page](./screenshots/CourseDetails-page.png)
 
+### Bookmark Filtering (Enrollments Page)
+![Bookmark Filtering (Enrollments Page)](./screenshots/Bookmarks-Enrollment-page.png)
+
+### Unenroll Confirmation
+![Unenroll Confirmation](./screenshots/Unenroll-Confirmation-page.png)
+
+### Badges and Actions Profile
+![Badges and Actions-Profile](./screenshots/Badges%20and%20Actions-Profile.png)
+
+### Edit Profile Info
+![Edit-Profile-Info](./screenshots/Edit-Profile-Info.png)
+
+### Edit Profile Password
+![Edit-Profile-Password](./screenshots/Edit-Profile-Password.png)
+
+### Instructor Profile
+![Instructor-Profile](./screenshots/Instructor-Profile.png)
+
+### Manage Courses Before ADD
+![Manage Courses Before ADD](./screenshots/Manage-Courses-Before%20ADD.png)
+
+### After Adding Courses
+![After Adding Courses](./screenshots/After%20Adding%20Course.png)
+
+### Delete Course Instructor
+![Delete Course Instructor](./screenshots/Delete%20Course-Instructor.png)
+
+### Add Modules-Manage Courses Page
+![Add Modules-Manage Courses Page](./screenshots/Add%20modules-Manage%20Courses%20Page.png)
+
+### ADD Lessons
+![Add Lessons](./screenshots/Add%20Lessons.png)
+
+### Delete Module Confirmation
+![Delete Module Confirmation](./screenshots/Delete%20Module%20Confirmation.png)
+
+### Delete Lesson Confirmation
+![Delete Lesson Confirmation](./screenshots/Delete%20Lesson%20Confirmation.png)
+
+### Filter By Duration
+![Filter By Duration](./screenshots/Filter%20by%20duration.png)
+
+### Video Lesson
+![Video Lesson](./screenshots/Video%20Lesson.png)
+
+### Course Modules
+![Course Modules](./screenshots/Course%20Modules.png)
 
 ## Team Member Contributions
 
