@@ -56,14 +56,6 @@ const options = {
             email: { type: 'string', format: 'email', example: 'jane@example.com' },
           },
         },
-        ForgotPasswordRequest: {
-          type: 'object',
-          required: ['email', 'newPassword'],
-          properties: {
-            email:       { type: 'string', format: 'email', example: 'jane@example.com' },
-            newPassword: { type: 'string', minLength: 8, example: 'newsecret123' },
-          },
-        },
         ResetPasswordRequest: {
           type: 'object',
           required: ['email', 'newPassword'],
@@ -145,7 +137,7 @@ const options = {
           properties: {
             totalCourses:  { type: 'integer', example: 42 },
             totalStudents: { type: 'integer', example: 1250 },
-            avgRating:     { type: 'number', format: 'float', example: 4.3 },
+            averageRating: { type: 'number', format: 'float', example: 4.3 },
           },
         },
         // ── Modules ──────────────────────────────────────────────────────────
@@ -309,22 +301,6 @@ const options = {
           responses: {
             200: { description: 'Email found', content: { 'application/json': { schema: { $ref: '#/components/schemas/MessageResponse' } } } },
             404: { description: 'No account found', content: { 'application/json': { schema: { $ref: '#/components/schemas/MessageResponse' } } } },
-          },
-        },
-      },
-
-      '/api/auth/forgot-password': {
-        post: {
-          tags: ['Auth'],
-          summary: 'Reset password using email + new password (no token link)',
-          requestBody: {
-            required: true,
-            content: { 'application/json': { schema: { $ref: '#/components/schemas/ForgotPasswordRequest' } } },
-          },
-          responses: {
-            200: { description: 'Password updated', content: { 'application/json': { schema: { $ref: '#/components/schemas/MessageResponse' } } } },
-            400: { description: 'Validation error', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
-            404: { description: 'Email not found', content: { 'application/json': { schema: { $ref: '#/components/schemas/MessageResponse' } } } },
           },
         },
       },

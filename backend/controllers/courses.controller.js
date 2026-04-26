@@ -88,8 +88,7 @@ export const getCourses = async (req, res) => {
 
     res.json(result.rows.map(normalize))
   } catch (error) {
-    console.error('getCourses error full:', error)
-    console.error('getCourses error string:', JSON.stringify(error, null, 2))
+    console.error('getCourses error:', error)
     res.status(500).json({ message: 'Server error' })
   }
 }
@@ -163,10 +162,6 @@ export const getCourseById = async (req, res) => {
 // Create a new course owned by the authenticated instructor
 export const createCourse = async (req, res) => {
   try {
-    if (req.user.role !== 'instructor') {
-      return res.status(403).json({ message: 'Access denied. Instructors only.' })
-    }
-
     const title = req.body.title?.trim()
     const description = req.body.description?.trim()
     const { shortDescription, category, difficulty, duration, image } = req.body

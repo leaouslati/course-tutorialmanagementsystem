@@ -1,5 +1,5 @@
 import express from 'express'
-import { register, login, forgotPassword, checkEmail, resetPassword } from '../controllers/auth.controller.js'
+import { register, login, checkEmail, resetPassword } from '../controllers/auth.controller.js'
 
 const router = express.Router()
 
@@ -11,9 +11,6 @@ router.post('/login', login)
 
 // POST /api/auth/check-email — confirm an email exists before allowing reset  [no auth]
 router.post('/check-email', checkEmail)
-
-// POST /api/auth/forgot-password — reset password directly (no email token)  [no auth]
-router.post('/forgot-password', forgotPassword)
 
 // POST /api/auth/reset-password — update password using email + new password  [no auth]
 router.post('/reset-password', resetPassword)
