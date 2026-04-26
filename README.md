@@ -194,8 +194,6 @@ We developed a Course Tutorial Management System to help manage tutorials, cours
 
     - Set up all Express middleware: JSON parsing, request logger, error handler, authMiddleware, and instructorOnly guard.
 
-    - Wrote the complete OpenAPI 3.0 Swagger specification and mounted interactive docs at `/api/docs`.
-
     - Full backend architecture, JWT authentication, Express middleware, Swagger API documentation, and API integration across Home, AuthContext, ProtectedRoute, and App.jsx 
 
 ### Member 2: Reem Antar 
@@ -308,7 +306,6 @@ We developed a Course Tutorial Management System to help manage tutorials, cours
 | POST | `/auth/register` | No | Register a new user (student or instructor) |
 | POST | `/auth/login` | No | Log in and receive a JWT |
 | POST | `/auth/check-email` | No | Check if an email is already registered |
-| POST | `/auth/forgot-password` | No | Verify the account exists before resetting the password |
 | POST | `/auth/reset-password` | No | Reset the password using the verified email + new password |
 
 **Register request body:**
