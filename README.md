@@ -129,7 +129,14 @@ We developed a Course Tutorial Management System to help manage tutorials, cours
 ### Unenroll Confirmation
 ![Unenroll Confirmation](./screenshots/Unenroll-Confirmation-page.png)
 
+### Badges and Actions Profile
+![Badges and Actions-Profile](./screenshots/Badges%20and%20Actions-Profile.png)
 
+### Edit Profile Info
+![Edit-Profile-Info](./screenshots/Edit-Profile-Info.png)
+
+### Edit Profile Password
+![Edit-Profile-Password](./screenshots/Edit-Profile-Password.png)
 
 ## Team Member Contributions
 
