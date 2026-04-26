@@ -149,7 +149,7 @@ const StatusCircle = ({ completed, locked, darkMode }) => (
 );
 
 // Accordion list of course modules; lessons are sequentially unlocked and progress is persisted to the API
-const ModuleAccordion = ({ modules = [], enrolled = false, courseId, darkMode = false }) => {
+const ModuleAccordion = ({ modules = [], enrolled = false, canWatch = false, courseId, darkMode = false }) => {
   const { updateProgress } = useAuth();
 
   const [openModule, setOpenModule] = useState(null);
@@ -176,19 +176,20 @@ const ModuleAccordion = ({ modules = [], enrolled = false, courseId, darkMode = 
     if (activeLesson) {
       const updatedCompleted = { ...completed, [activeLesson.id]: true };
       setCompleted(updatedCompleted);
-      const doneLessons = Object.keys(updatedCompleted).length;
-      updateProgress(courseId, doneLessons, totalLessons);
 
-      // Save progress to API
-      const newProgress = Math.round((doneLessons / totalLessons) * 100);
-      try {
+      if (enrolled) {
+        const doneLessons = Object.keys(updatedCompleted).length;
+        updateProgress(courseId, doneLessons, totalLessons);
+        const newProgress = Math.round((doneLessons / totalLessons) * 100);
+        try {
           await authFetch(`${API_URL}/enrollments/${courseId}/progress`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ progress: newProgress }),
-        });
-      } catch (err) {
-        console.error('Failed to save progress:', err);
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ progress: newProgress }),
+          });
+        } catch (err) {
+          console.error('Failed to save progress:', err);
+        }
       }
     }
     setActiveLesson(null);
@@ -291,6 +292,7 @@ const ModuleAccordion = ({ modules = [], enrolled = false, courseId, darkMode = 
                       const isDone = isCompleted(lesson.id);
                       const unlocked = isUnlocked(module.lessons, lessonIndex);
                       const locked = enrolled && !unlocked;
+                      const canAccess = enrolled || canWatch;
 
                       return (
                         <li
@@ -339,7 +341,7 @@ const ModuleAccordion = ({ modules = [], enrolled = false, courseId, darkMode = 
                               </span>
                             )}
 
-                            {enrolled && (
+                            {canAccess && (
                               locked ? (
                                 <span
                                   aria-label="Complete the previous lesson to unlock"

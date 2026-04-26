@@ -1,4 +1,5 @@
 import { createContext, useContext, useState } from "react";
+import { authFetch } from "../api";
 
 const AuthContext = createContext(null);
 
@@ -20,17 +21,35 @@ export function AuthProvider({ children }) {
     const token = localStorage.getItem("token");
     return token ? decodeToken(token) : null;
   });
+  const [userName, setUserName] = useState(() => localStorage.getItem("user_name") ?? null);
 
-  // Store the token in localStorage and decode it into currentUser state
-  const login = (token) => {
+  // Store the token, decode it, then immediately fetch the display name so the
+  // Navbar shows the correct name and role-based links without a page refresh.
+  const login = async (token) => {
     localStorage.setItem("token", token);
     setCurrentUser(decodeToken(token));
+    try {
+      const res = await authFetch("/api/users/me");
+      if (res.ok) {
+        const data = await res.json();
+        localStorage.setItem("user_name", data.name);
+        setUserName(data.name);
+      }
+    } catch {}
   };
 
   // Clear the token from localStorage and reset user state
   const logout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("user_name");
     setCurrentUser(null);
+    setUserName(null);
+  };
+
+  // Called after a profile name update so the Navbar reflects the change immediately
+  const updateUserName = (name) => {
+    localStorage.setItem("user_name", name);
+    setUserName(name);
   };
 
   // ── Local UI state helpers (progress & bookmarks) ──────────────────────────
@@ -67,7 +86,7 @@ export function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider
-      value={{ currentUser, login, logout, updateProgress, toggleBookmark, isBookmarked }}
+      value={{ currentUser, userName, login, logout, updateUserName, updateProgress, toggleBookmark, isBookmarked }}
     >
       {children}
     </AuthContext.Provider>

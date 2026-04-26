@@ -182,6 +182,8 @@ export default function CourseDetails({ darkMode = false }) {
     course.instructorName ||
     "Unknown Instructor";
 
+  const isInstructor = currentUser?.role === "instructor";
+
   // Enroll the current user in this course; redirects to login if unauthenticated
   const handleEnroll = async () => {
     if (!currentUser) {
@@ -212,6 +214,7 @@ export default function CourseDetails({ darkMode = false }) {
       }
 
       setEnrolled(true);
+      setCourse((prev) => ({ ...prev, studentsCount: (prev.studentsCount ?? 0) + 1 }));
       setShowPopup(true);
     } catch (error) {
       console.error("handleEnroll error:", error);
@@ -367,44 +370,48 @@ export default function CourseDetails({ darkMode = false }) {
                   </span>
                 </div>
 
-                <Button
-                  variant={enrolled ? "success" : "primary"}
-                  size="lg"
-                  darkMode={darkMode}
-                  onClick={handleEnroll}
-                  disabled={enrolled || enrolling || checkingEnrollment}
-                  fullWidth
-                  className="mt-auto shadow disabled:opacity-80 disabled:cursor-not-allowed"
-                  aria-label={
-                    !currentUser
-                      ? "Log in to enroll in this course"
-                      : enrolled
-                      ? `Already enrolled in ${course.title}`
-                      : `Enroll in ${course.title}`
-                  }
-                >
-                  {checkingEnrollment
-                    ? "Checking enrollment..."
-                    : enrolled
-                    ? "✓ Already Enrolled"
-                    : enrolling
-                    ? "Enrolling..."
-                    : currentUser
-                    ? "Enroll Now"
-                    : "Log in to Enroll"}
-                </Button>
+                {!isInstructor && (
+                  <>
+                    <Button
+                      variant={enrolled ? "success" : "primary"}
+                      size="lg"
+                      darkMode={darkMode}
+                      onClick={handleEnroll}
+                      disabled={enrolled || enrolling || checkingEnrollment}
+                      fullWidth
+                      className="mt-auto shadow disabled:opacity-80 disabled:cursor-not-allowed"
+                      aria-label={
+                        !currentUser
+                          ? "Log in to enroll in this course"
+                          : enrolled
+                          ? `Already enrolled in ${course.title}`
+                          : `Enroll in ${course.title}`
+                      }
+                    >
+                      {checkingEnrollment
+                        ? "Checking enrollment..."
+                        : enrolled
+                        ? "✓ Already Enrolled"
+                        : enrolling
+                        ? "Enrolling..."
+                        : currentUser
+                        ? "Enroll Now"
+                        : "Log in to Enroll"}
+                    </Button>
 
-                {enrollError && (
-                  <p className="text-xs text-red-500 text-center -mt-2">{enrollError}</p>
-                )}
+                    {enrollError && (
+                      <p className="text-xs text-red-500 text-center -mt-2">{enrollError}</p>
+                    )}
 
-                {enrolled && (
-                  <Link
-                    to="/enrollments"
-                    className="text-center text-xs font-medium text-[#1976D2] hover:underline underline-offset-4 transition-colors -mt-2"
-                  >
-                    View in My Enrollments →
-                  </Link>
+                    {enrolled && (
+                      <Link
+                        to="/enrollments"
+                        className="text-center text-xs font-medium text-[#1976D2] hover:underline underline-offset-4 transition-colors -mt-2"
+                      >
+                        View in My Enrollments →
+                      </Link>
+                    )}
+                  </>
                 )}
               </div>
             </div>
@@ -450,6 +457,7 @@ export default function CourseDetails({ darkMode = false }) {
               <ModuleAccordion
                 modules={courseModules}
                 enrolled={enrolled}
+                canWatch={isInstructor}
                 courseId={course.id}
                 darkMode={darkMode}
               />

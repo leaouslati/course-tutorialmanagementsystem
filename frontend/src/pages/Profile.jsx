@@ -5,7 +5,7 @@ import { authFetch } from "../api";
 import {
   Mail, Calendar, User, Users, Edit2, Eye, EyeOff, Lock, X, Flame, CreditCard,
   BookOpen, TrendingUp, Layers, BarChart2, ArrowRight,
-  Star, Zap, Target, Shield, Award, Clock, PlusCircle
+  Star, Zap, Target, Shield, Award, Clock, PlusCircle, CheckCircle
 } from "lucide-react";
 import LoadingSpinner from "../components/LoadingSpinner";
 import ErrorMessage from "../components/ErrorMessage";
@@ -270,19 +270,30 @@ function IDCardModal({ user, subtitle, idPrefix, badge, stats, onClose, darkMode
   );
 }
 
+const PASSWORD_RULES = [
+  { label: "At least 8 characters",          test: (p) => p.length >= 8 },
+  { label: "One uppercase letter (A–Z)",      test: (p) => /[A-Z]/.test(p) },
+  { label: "One lowercase letter (a–z)",      test: (p) => /[a-z]/.test(p) },
+  { label: "One number (0–9)",                test: (p) => /[0-9]/.test(p) },
+  { label: "One special character (!@#$…)",   test: (p) => /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?`~]/.test(p) },
+];
+
 // Modal with two tabs — "Profile Info" (name/email) and "Change Password"
 function EditModal({ user, setUser, onClose, darkMode }) {
+  const { updateUserName } = useAuth();
   const [tab, setTab] = useState("info");
   const [name, setName] = useState(user.name || "");
   const [email, setEmail] = useState(user.email || "");
   const [infoSuccess, setInfoSuccess] = useState(false);
   const [infoError, setInfoError] = useState("");
+  const [infoLoading, setInfoLoading] = useState(false);
   const [currentPw, setCurrentPw] = useState("");
   const [newPw, setNewPw] = useState("");
   const [confirmPw, setConfirmPw] = useState("");
   const [show, setShow] = useState({ current: false, new: false, confirm: false });
   const [pwError, setPwError] = useState("");
   const [pwSuccess, setPwSuccess] = useState(false);
+  const [pwLoading, setPwLoading] = useState(false);
   const trapRef = useFocusTrap(true);
 
   useEscapeKey(onClose);
@@ -296,6 +307,15 @@ function EditModal({ user, setUser, onClose, darkMode }) {
   const inputBorder = darkMode ? "#1a3a6b" : "#e2e8f0";
   const iconCol = darkMode ? "#64748b" : "#94a3b8";
   const mutedCol = darkMode ? "#64748b" : "#64748b";
+
+  const pwScore = PASSWORD_RULES.filter((r) => r.test(newPw)).length;
+  const pwStrengthLabel = ["", "Weak", "Fair", "Good", "Strong", "Very Strong"][pwScore] ?? "";
+  const pwStrengthColor =
+    pwScore <= 1 ? "#ef4444"
+    : pwScore === 2 ? "#f97316"
+    : pwScore === 3 ? "#eab308"
+    : pwScore === 4 ? "#22c55e"
+    : "#16a34a";
 
   const inputStyle = {
     backgroundColor: inputBg,
@@ -311,6 +331,7 @@ function EditModal({ user, setUser, onClose, darkMode }) {
   // PATCH the user's name and email then close the modal on success
   const handleInfoSave = async () => {
     try {
+      setInfoLoading(true);
       setInfoError("");
       setInfoSuccess(false);
 
@@ -332,6 +353,7 @@ function EditModal({ user, setUser, onClose, darkMode }) {
         ...prev,
         ...data,
       }));
+      updateUserName(data.name ?? name);
 
       setInfoSuccess(true);
 
@@ -341,6 +363,8 @@ function EditModal({ user, setUser, onClose, darkMode }) {
       }, 1500);
     } catch (error) {
       setInfoError(error.message || "Failed to update profile");
+    } finally {
+      setInfoLoading(false);
     }
   };
 
@@ -354,8 +378,9 @@ function EditModal({ user, setUser, onClose, darkMode }) {
       return;
     }
 
-    if (newPw.length < 8) {
-      setPwError("New password must be at least 8 characters.");
+    const failedRule = PASSWORD_RULES.find((r) => !r.test(newPw));
+    if (failedRule) {
+      setPwError(failedRule.label + " required.");
       return;
     }
 
@@ -365,6 +390,7 @@ function EditModal({ user, setUser, onClose, darkMode }) {
     }
 
     try {
+      setPwLoading(true);
       const res = await authFetch("/api/users/me", {
         method: "PUT",
         headers: {
@@ -402,6 +428,8 @@ function EditModal({ user, setUser, onClose, darkMode }) {
       }, 1500);
     } catch (error) {
       setPwError(error.message || "Failed to update password");
+    } finally {
+      setPwLoading(false);
     }
   };
 
@@ -509,12 +537,19 @@ function EditModal({ user, setUser, onClose, darkMode }) {
                 </button>
                 <button
                   onClick={handleInfoSave}
-                  className="flex-1 rounded-xl py-2.5 text-sm font-semibold text-white transition"
-                  style={{ backgroundColor: "#1976D2" }}
-                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = darkMode ? "#1565C0" : "#2196F3")}
-                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#1976D2")}
+                  disabled={infoLoading}
+                  className="flex-1 rounded-xl py-2.5 text-sm font-semibold text-white transition flex items-center justify-center gap-2"
+                  style={{ backgroundColor: infoLoading ? "#5a9fd4" : "#1976D2", cursor: infoLoading ? "not-allowed" : "pointer" }}
+                  onMouseEnter={(e) => { if (!infoLoading) e.currentTarget.style.backgroundColor = darkMode ? "#1565C0" : "#2196F3"; }}
+                  onMouseLeave={(e) => { if (!infoLoading) e.currentTarget.style.backgroundColor = "#1976D2"; }}
                 >
-                  Save Changes
+                  {infoLoading && (
+                    <svg className="animate-spin w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+                    </svg>
+                  )}
+                  {infoLoading ? "Saving…" : "Save Changes"}
                 </button>
               </div>
             </div>
@@ -522,10 +557,6 @@ function EditModal({ user, setUser, onClose, darkMode }) {
 
           {tab === "password" && (
             <div className="flex flex-col gap-4">
-              <p className="text-xs" style={{ color: mutedCol }}>
-                Password must be at least 8 characters with a mix of letters and numbers.
-              </p>
-
               <PwField
                 label="Current Password"
                 fieldId="pw-current"
@@ -540,19 +571,55 @@ function EditModal({ user, setUser, onClose, darkMode }) {
                 labelCol={labelCol}
               />
 
-              <PwField
-                label="New Password"
-                fieldId="pw-new"
-                value={newPw}
-                onChange={(e) => setNewPw(e.target.value)}
-                showKey="new"
-                placeholder="Enter new password"
-                show={show}
-                setShow={setShow}
-                inputStyle={inputStyle}
-                iconCol={iconCol}
-                labelCol={labelCol}
-              />
+              <div className="flex flex-col gap-1.5">
+                <PwField
+                  label="New Password"
+                  fieldId="pw-new"
+                  value={newPw}
+                  onChange={(e) => setNewPw(e.target.value)}
+                  showKey="new"
+                  placeholder="Enter new password"
+                  show={show}
+                  setShow={setShow}
+                  inputStyle={inputStyle}
+                  iconCol={iconCol}
+                  labelCol={labelCol}
+                />
+
+                {newPw.length > 0 && (
+                  <div className="flex flex-col gap-2 mt-0.5">
+                    <div className="flex items-center gap-2" aria-live="polite">
+                      <div className="flex gap-1 flex-1">
+                        {[1, 2, 3, 4, 5].map((n) => (
+                          <div
+                            key={n}
+                            className="h-1 flex-1 rounded-full transition-colors duration-300"
+                            style={{ backgroundColor: n <= pwScore ? pwStrengthColor : (darkMode ? "#1a3a6b" : "#e5e7eb") }}
+                          />
+                        ))}
+                      </div>
+                      {pwStrengthLabel && (
+                        <span className="text-xs font-semibold shrink-0" style={{ color: pwStrengthColor, minWidth: "68px", textAlign: "right" }}>
+                          {pwStrengthLabel}
+                        </span>
+                      )}
+                    </div>
+                    <ul className="flex flex-col gap-0.5 list-none p-0 m-0">
+                      {PASSWORD_RULES.map((rule) => {
+                        const ok = rule.test(newPw);
+                        return (
+                          <li key={rule.label} className="flex items-center gap-1.5 text-xs" style={{ color: ok ? "#22c55e" : mutedCol }}>
+                            {ok
+                              ? <CheckCircle className="w-3 h-3 shrink-0" aria-hidden="true" />
+                              : <span className="w-3 h-3 shrink-0 rounded-full border inline-block" style={{ borderColor: mutedCol }} />}
+                            {rule.label}
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                )}
+              </div>
 
               <PwField
                 label="Confirm New Password"
@@ -596,12 +663,19 @@ function EditModal({ user, setUser, onClose, darkMode }) {
                 </button>
                 <button
                   onClick={handlePasswordSave}
-                  className="flex-1 rounded-xl py-2.5 text-sm font-semibold text-white transition"
-                  style={{ backgroundColor: "#1976D2" }}
-                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = darkMode ? "#1565C0" : "#2196F3")}
-                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#1976D2")}
+                  disabled={pwLoading}
+                  className="flex-1 rounded-xl py-2.5 text-sm font-semibold text-white transition flex items-center justify-center gap-2"
+                  style={{ backgroundColor: pwLoading ? "#5a9fd4" : "#1976D2", cursor: pwLoading ? "not-allowed" : "pointer" }}
+                  onMouseEnter={(e) => { if (!pwLoading) e.currentTarget.style.backgroundColor = darkMode ? "#1565C0" : "#2196F3"; }}
+                  onMouseLeave={(e) => { if (!pwLoading) e.currentTarget.style.backgroundColor = "#1976D2"; }}
                 >
-                  Update Password
+                  {pwLoading && (
+                    <svg className="animate-spin w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+                    </svg>
+                  )}
+                  {pwLoading ? "Updating…" : "Update Password"}
                 </button>
               </div>
             </div>

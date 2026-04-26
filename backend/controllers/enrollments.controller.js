@@ -70,23 +70,19 @@ export const enroll = async (req, res) => {
       return res.status(403).json({ message: 'Instructors cannot enroll in courses' })
     }
 
-    const existing = await pool.query(
-      'SELECT id FROM enrollments WHERE user_id = $1 AND course_id = $2',
-      [req.user.id, courseId]
-    )
-
-    if (existing.rows.length > 0) {
-      return res.status(409).json({ message: 'Already enrolled in this course' })
-    }
-
+    // ON CONFLICT DO NOTHING makes the duplicate check atomic — no race condition
     const result = await pool.query(
       `INSERT INTO enrollments (user_id, course_id, progress)
        VALUES ($1, $2, 0)
+       ON CONFLICT (user_id, course_id) DO NOTHING
        RETURNING *`,
       [req.user.id, courseId]
     )
 
-    // Increment the course's student counter so the displayed count stays accurate
+    if (result.rowCount === 0) {
+      return res.status(409).json({ message: 'Already enrolled in this course' })
+    }
+
     await pool.query(
       `UPDATE courses SET students_count = students_count + 1 WHERE id = $1`,
       [courseId]
@@ -112,6 +108,11 @@ export const unenroll = async (req, res) => {
     if (result.rowCount === 0) {
       return res.status(404).json({ message: 'Enrollment not found.' })
     }
+
+    await pool.query(
+      `UPDATE courses SET students_count = GREATEST(students_count - 1, 0) WHERE id = $1`,
+      [courseId]
+    )
 
     res.status(204).send()
   } catch (error) {

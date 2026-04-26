@@ -1,61 +1,19 @@
 import { useState, useEffect, useRef } from "react";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { Sun, Moon, UserPlus, LogOut, BookOpen } from "lucide-react";
-import { authFetch } from "../api";
+import { useAuth } from "../pages/AuthContext";
 import Button from "./Button";
 
-function decodeToken(token) {
-  try {
-    const payload = token.split(".")[1];
-    const json = atob(payload.replace(/-/g, "+").replace(/_/g, "/"));
-    return JSON.parse(json);
-  } catch {
-    return null;
-  }
-}
-
 export default function Navbar({ darkMode = false, toggleTheme = () => {} }) {
-  const [name, setName] = useState(() => localStorage.getItem("user_name") ?? null);
-  const [token, setToken] = useState(() => localStorage.getItem("token"));
+  const { currentUser, userName, logout: authLogout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const menuRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
 
-  const decoded = token ? decodeToken(token) : null;
-  const isLoggedIn = !!decoded;
-  const role = decoded?.role;
-
-  // Fetch name from /api/users/me once per token value.
-  // Re-runs whenever the token string changes (login → new token, logout → null).
-  useEffect(() => {
-    if (!token) {
-      setName(null);
-      return;
-    }
-    let ignore = false;
-    authFetch("/api/users/me")
-      .then((res) => {
-        if (!res.ok) {
-          localStorage.removeItem("token");
-          return null;
-        }
-        return res.json();
-      })
-      .then((data) => {
-        if (data && !ignore) {
-          setName(data.name);
-          localStorage.setItem("user_name", data.name);
-        }
-      })
-      .catch(() => {
-        if (!ignore) setName(null);
-      });
-    return () => {
-      ignore = true;
-    };
-  }, [token]);
+  const isLoggedIn = !!currentUser;
+  const role = currentUser?.role;
 
   const navLinks = [
     { name: "Home", path: "/" },
@@ -106,10 +64,7 @@ export default function Navbar({ darkMode = false, toggleTheme = () => {} }) {
   useEffect(() => setMenuOpen(false), [location.pathname]);
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user_name");
-    setToken(null);
-    setName(null);
+    authLogout();
     navigate("/");
   };
 
@@ -196,7 +151,7 @@ export default function Navbar({ darkMode = false, toggleTheme = () => {} }) {
               {/* User chip */}
               <div
                 role="status"
-                aria-label={`Logged in as ${name ?? "Account"}, ${role}`}
+                aria-label={`Logged in as ${userName ?? "Account"}, ${role}`}
                 className="flex items-center gap-2 h-9 px-3 rounded-[10px] shrink-0"
                 style={{
                   border: `1px solid ${darkMode ? "#374151" : "#e5e7eb"}`,
@@ -204,10 +159,10 @@ export default function Navbar({ darkMode = false, toggleTheme = () => {} }) {
                 }}
               >
                 <div className="w-[22px] h-[22px] rounded-full bg-[#1976D2] flex items-center justify-center text-white text-[11px] font-bold shrink-0">
-                  {name?.[0]?.toUpperCase() ?? (role === "instructor" ? "I" : "S")}
+                  {userName?.[0]?.toUpperCase() ?? (role === "instructor" ? "I" : "S")}
                 </div>
                 <span className={`text-sm font-semibold max-w-[100px] overflow-hidden text-ellipsis whitespace-nowrap ${darkMode ? "text-gray-100" : "text-gray-800"}`}>
-                  {name ?? "Account"}
+                  {userName ?? "Account"}
                 </span>
               </div>
 
@@ -325,11 +280,11 @@ export default function Navbar({ darkMode = false, toggleTheme = () => {} }) {
             <div className="flex flex-col gap-2.5">
               <div className="flex items-center gap-2.5 px-1 py-0.5">
                 <div className="w-[38px] h-[38px] rounded-full bg-[#1976D2] flex items-center justify-center text-white text-[15px] font-bold shrink-0">
-                  {name?.[0]?.toUpperCase() ?? (role === "instructor" ? "I" : "S")}
+                  {userName?.[0]?.toUpperCase() ?? (role === "instructor" ? "I" : "S")}
                 </div>
                 <div>
                   <p className={`m-0 text-sm font-semibold ${darkMode ? "text-gray-100" : "text-gray-800"}`}>
-                    {name ?? "Account"}
+                    {userName ?? "Account"}
                   </p>
                   <p className="m-0 text-xs font-medium capitalize" style={{ color: role === "instructor" ? "#9333ea" : "#3b82f6" }}>
                     {role}
