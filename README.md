@@ -162,6 +162,15 @@ We developed a Course Tutorial Management System to help manage tutorials, cours
 ### Delete Lesson Confirmation
 ![Delete Lesson Confirmation](./screenshots/Delete%20Lesson%20Confirmation.png)
 
+### Filter By Duration
+![Filter By Duration](./screenshots/Filter%20by%20duration.png)
+
+### Video Lesson
+![Video Lesson](./screenshots/Video%20Lesson.png)
+
+### Course Modules
+![Course Modules](./screenshots/Course%20Modules.png)
+
 ## Team Member Contributions
 
 ### Member 1: Lea Ouslati
