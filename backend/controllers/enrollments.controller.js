@@ -1,5 +1,7 @@
 import pool from '../config/db.js'
 
+// Convert a snake_case DB row into the camelCase shape the frontend expects,
+// including the progress field that comes from the enrollments join
 const normalizeCourse = (row) => ({
   id: row.id,
   title: row.title,
@@ -17,7 +19,7 @@ const normalizeCourse = (row) => ({
   progress: row.progress ?? 0,
 })
 
-// GET /api/enrollments — all courses the logged-in student is enrolled in
+// Return all courses the authenticated student is enrolled in, with their progress
 export const getMyEnrollments = async (req, res) => {
   try {
     const result = await pool.query(
@@ -38,7 +40,7 @@ export const getMyEnrollments = async (req, res) => {
   }
 }
 
-// GET /api/enrollments/:courseId/status — check if current user is enrolled
+// Return { enrolled: true/false } — used by CourseDetails to show the correct button on load
 export const getEnrollmentStatus = async (req, res) => {
   try {
     const { courseId } = req.params
@@ -55,7 +57,7 @@ export const getEnrollmentStatus = async (req, res) => {
   }
 }
 
-// POST /api/enrollments — enroll the logged-in student in a course
+// Enroll the authenticated student in a course; only students (not instructors) may enroll
 export const enroll = async (req, res) => {
   try {
     const { courseId } = req.body
@@ -84,6 +86,12 @@ export const enroll = async (req, res) => {
       [req.user.id, courseId]
     )
 
+    // Increment the course's student counter so the displayed count stays accurate
+    await pool.query(
+      `UPDATE courses SET students_count = students_count + 1 WHERE id = $1`,
+      [courseId]
+    )
+
     res.status(201).json(result.rows[0])
   } catch (error) {
     console.error('enroll error:', error)
@@ -91,7 +99,7 @@ export const enroll = async (req, res) => {
   }
 }
 
-// DELETE /api/enrollments/:courseId — unenroll from a course
+// Remove the authenticated student's enrollment from a course
 export const unenroll = async (req, res) => {
   try {
     const { courseId } = req.params
@@ -112,7 +120,7 @@ export const unenroll = async (req, res) => {
   }
 }
 
-// PUT /api/enrollments/:courseId/progress — update lesson progress (0–100)
+// Update the student's progress percentage (0–100) for an enrolled course
 export const updateProgress = async (req, res) => {
   try {
     const { courseId } = req.params

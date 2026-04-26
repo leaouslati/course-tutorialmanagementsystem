@@ -50,6 +50,7 @@ function ForgotPasswordModal({ onClose, darkMode }) {
     </button>
   );
 
+  // Step 1 of the forgot-password flow: verify the email exists before showing the reset form
   const handleEmailSubmit = async () => {
     if (!email.trim()) { setEmailError("Email is required."); return; }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setEmailError("Enter a valid email address."); return; }
@@ -75,6 +76,7 @@ function ForgotPasswordModal({ onClose, darkMode }) {
     }
   };
 
+  // Step 2: validate the new password and submit the reset request to the API
   const handleReset = async () => {
     const e = {};
     if (!newPw) {
@@ -335,17 +337,20 @@ export default function Login({ darkMode = false }) {
     </button>
   );
 
+  // Pre-fill email and check "remember me" if the user chose that option last time
   useEffect(() => {
     const saved = localStorage.getItem("rememberedEmail");
     if (saved) { setForm(prev => ({ ...prev, email: saved })); setRememberMe(true); }
   }, []);
 
+  // Update a single form field and clear both its field error and the global auth error
   const update = (field, value) => {
     setForm(prev => ({ ...prev, [field]: value }));
     setErrors(prev => ({ ...prev, [field]: "" }));
     setAuthError("");
   };
 
+  // Client-side validation before the login request is sent
   const validate = () => {
     const e = {};
     if (!form.email.trim()) e.email = "Email is required.";
@@ -355,6 +360,7 @@ export default function Login({ darkMode = false }) {
     return e;
   };
 
+  // Submit credentials, save the "remember me" email if checked, store the token, then redirect
   const handleSubmit = async (e) => {
     e.preventDefault();
     const errs = validate();

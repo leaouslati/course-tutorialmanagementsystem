@@ -21,12 +21,13 @@ export function AuthProvider({ children }) {
     return token ? decodeToken(token) : null;
   });
 
-  // Call with the JWT string returned from the API
+  // Store the token in localStorage and decode it into currentUser state
   const login = (token) => {
     localStorage.setItem("token", token);
     setCurrentUser(decodeToken(token));
   };
 
+  // Clear the token from localStorage and reset user state
   const logout = () => {
     localStorage.removeItem("token");
     setCurrentUser(null);
@@ -73,6 +74,7 @@ export function AuthProvider({ children }) {
   );
 }
 
+// Convenience hook — throw a descriptive error if used outside <AuthProvider>
 export function useAuth() {
   return useContext(AuthContext);
 }

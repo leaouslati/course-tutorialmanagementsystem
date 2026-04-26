@@ -33,6 +33,7 @@ export default function Register({ darkMode = false }) {
     ? "linear-gradient(135deg, #020b18 0%, #041530 25%, #0a2550 50%, #0d3272 65%, #1048a0 85%, #1565C0 100%)"
     : "linear-gradient(135deg, #0D47A1 0%, #1565C0 50%, #1976D2 100%)";
 
+  // Update a single form field and clear its validation error at the same time
   const update = (field, value) => {
     setForm(prev => ({ ...prev, [field]: value }));
     setErrors(prev => ({ ...prev, [field]: "" }));
@@ -57,6 +58,7 @@ export default function Register({ darkMode = false }) {
     : passwordScore === 4 ? "#22c55e"
     : "#16a34a";
 
+  // Run all client-side checks before submitting; returns an object of field → error message
   const validate = () => {
     const e = {};
     if (!form.name.trim()) e.name = "Full name is required.";
@@ -75,6 +77,7 @@ export default function Register({ darkMode = false }) {
     return e;
   };
 
+  // Validate the form, call the register API, store the token, then redirect to home
   const handleSubmit = async (e) => {
     e.preventDefault();
     const errs = validate();
@@ -109,6 +112,7 @@ export default function Register({ darkMode = false }) {
     }
   };
 
+  // Returns an inline style object for an input; highlights red when that field has an error
   const inputStyle = (field) => ({
     width: "100%",
     padding: "0.625rem 1rem 0.625rem 2.5rem",
@@ -123,6 +127,7 @@ export default function Register({ darkMode = false }) {
     transition: "border-color 0.2s",
   });
 
+  // Toggle button that switches a password field between visible and hidden
   const EyeBtn = ({ show, onToggle }) => (
     <button
       type="button"

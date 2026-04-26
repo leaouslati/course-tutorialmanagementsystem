@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { Clock, Users, Star } from "lucide-react";
 
+// Card component for a single course; shows thumbnail, metadata, and a "View Details" link
 function CourseCard({ course, darkMode = false }) {
   const instructorName = course.instructorName ?? "Unknown Instructor";
   const isNew = new Date() - new Date(course.createdAt) < 1000 * 60 * 60 * 24 * 90;

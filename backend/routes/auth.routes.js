@@ -1,13 +1,21 @@
 import express from 'express'
 import { register, login, forgotPassword, checkEmail, resetPassword } from '../controllers/auth.controller.js'
+
 const router = express.Router()
 
+// POST /api/auth/register — create a new account and return a JWT  [no auth]
 router.post('/register', register)
+
+// POST /api/auth/login — verify credentials and return a JWT  [no auth]
 router.post('/login', login)
-router.post('/forgot-password', forgotPassword)
+
+// POST /api/auth/check-email — confirm an email exists before allowing reset  [no auth]
 router.post('/check-email', checkEmail)
 
-// NEW RESET PASSWORD ROUTE
+// POST /api/auth/forgot-password — reset password directly (no email token)  [no auth]
+router.post('/forgot-password', forgotPassword)
+
+// POST /api/auth/reset-password — update password using email + new password  [no auth]
 router.post('/reset-password', resetPassword)
 
 export default router

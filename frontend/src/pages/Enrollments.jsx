@@ -39,6 +39,7 @@ function Enrollments({ darkMode = false }) {
   }, []);
 
   // ── Unenroll ────────────────────────────────────────────────────────────────
+  // Delete the enrollment for courseId, then remove it from local state so the card disappears
   const handleUnenroll = async (courseId) => {
     try {
       const res = await authFetch(`${API_URL}/enrollments/${courseId}`, { method: "DELETE" });

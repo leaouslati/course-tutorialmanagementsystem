@@ -1,6 +1,8 @@
 import express from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
+import swaggerUi from 'swagger-ui-express'
+import swaggerSpec from './swagger.js'
 import { errorMiddleware } from './middleware/error.middleware.js'
 import { loggerMiddleware } from './middleware/logger.middleware.js'
 import authRoutes from './routes/auth.routes.js'
@@ -27,6 +29,10 @@ app.use(express.json())
 app.use(loggerMiddleware)
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }))
+
+// Interactive API docs — visit http://localhost:3000/api/docs
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
+
 app.use('/api/auth', authRoutes)
 app.use('/api/courses', courseRoutes)
 app.use('/api/enrollments', enrollmentRoutes)

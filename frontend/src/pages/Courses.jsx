@@ -38,6 +38,7 @@ function Courses({ darkMode = false }) {
   }, [searchParams]);
 
   // Fetch courses whenever filters change
+  // Build query params from active filters, sync them to the URL, then fetch matching courses from the API
   const fetchCourses = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -74,6 +75,7 @@ function Courses({ darkMode = false }) {
     fetchCourses();
   }, [fetchCourses]);
 
+  // Clear every active filter and reset the URL back to /courses
   const resetAll = () => {
     setSearch("");
     setSortRating("");

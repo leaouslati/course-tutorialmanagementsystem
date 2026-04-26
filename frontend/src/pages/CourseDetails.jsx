@@ -48,6 +48,7 @@ export default function CourseDetails({ darkMode = false }) {
   const [showPopup, setShowPopup] = useState(false);
   const [enrollError, setEnrollError] = useState("");
 
+  // Fetch the full course data (including modules and lessons) whenever the id param changes
   useEffect(() => {
     const fetchCourse = async () => {
       try {
@@ -79,6 +80,7 @@ export default function CourseDetails({ darkMode = false }) {
     fetchCourse();
   }, [id]);
 
+  // Check whether the current user is already enrolled in this course
   useEffect(() => {
     const checkEnrollment = async () => {
       if (!currentUser || !id) {
@@ -180,6 +182,7 @@ export default function CourseDetails({ darkMode = false }) {
     course.instructorName ||
     "Unknown Instructor";
 
+  // Enroll the current user in this course; redirects to login if unauthenticated
   const handleEnroll = async () => {
     if (!currentUser) {
       navigate("/login", { state: { from: `/courses/${id}` } });

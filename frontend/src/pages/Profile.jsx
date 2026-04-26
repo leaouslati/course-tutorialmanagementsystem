@@ -24,8 +24,10 @@ const INSTRUCTOR_LEVELS = [
   { min: 0, label: "New Instructor", colorClass: "text-green-600", bgClass: "bg-green-50", hex: "#22c55e" },
 ];
 
+// Returns the first level entry whose min threshold is met by val
 const getLevel = (arr, val) => arr.find((l) => val >= l.min);
 
+// Returns the full badge list for a student with earned flags based on their stats
 const mkStudentBadges = (fin, enr, avg) => [
   { icon: <BookOpen className="w-6 h-6 text-[#1976D2]" />, bg: "bg-blue-50", border: "border-blue-200", title: "First Enrollment", desc: "Enrolled in your first course", earned: enr >= 1 },
   { icon: <Award className="w-6 h-6 text-amber-500" />, bg: "bg-amber-50", border: "border-amber-200", title: "Course Completer", desc: "Finished at least one course", earned: fin >= 1 },
@@ -35,6 +37,7 @@ const mkStudentBadges = (fin, enr, avg) => [
   { icon: <Star className="w-6 h-6 text-rose-500" />, bg: "bg-rose-50", border: "border-rose-200", title: "Top Student", desc: "Average progress above 80%", earned: avg >= 80 },
 ];
 
+// Returns the full badge list for an instructor with earned flags based on their stats
 const mkInstructorBadges = (cre, les) => [
   { icon: <PlusCircle className="w-6 h-6 text-[#1976D2]" />, bg: "bg-blue-50", border: "border-blue-200", title: "Course Creator", desc: "Published your first course", earned: cre >= 1 },
   { icon: <Layers className="w-6 h-6 text-purple-500" />, bg: "bg-purple-50", border: "border-purple-200", title: "Dedicated Teacher", desc: "Created 3+ courses", earned: cre >= 3 },
@@ -42,6 +45,7 @@ const mkInstructorBadges = (cre, les) => [
   { icon: <Star className="w-6 h-6 text-amber-500" />, bg: "bg-amber-50", border: "border-amber-200", title: "Expert Instructor", desc: "Created 5+ courses", earned: cre >= 5 },
 ];
 
+// Traps keyboard focus inside the returned ref's element while active is true
 function useFocusTrap(active) {
   const ref = useRef(null);
 
@@ -71,6 +75,7 @@ function useFocusTrap(active) {
   return ref;
 }
 
+// Calls fn whenever the Escape key is pressed (used to close modals)
 function useEscapeKey(fn) {
   useEffect(() => {
     const handler = (e) => {
@@ -81,6 +86,7 @@ function useEscapeKey(fn) {
   }, [fn]);
 }
 
+// Single labeled stat row used inside the stats panel cards
 function StatRow({ icon, label, value, valueClass, small = false, darkMode }) {
   const size = small ? "text-sm" : "text-base";
 
@@ -98,6 +104,7 @@ function StatRow({ icon, label, value, valueClass, small = false, darkMode }) {
   );
 }
 
+// Password input with a lock icon on the left and a show/hide toggle on the right
 function PwField({
   label,
   fieldId,
@@ -151,6 +158,7 @@ function PwField({
   );
 }
 
+// Modal that renders a styled digital ID card for the current user (student or instructor)
 function IDCardModal({ user, subtitle, idPrefix, badge, stats, onClose, darkMode }) {
   const trapRef = useFocusTrap(true);
   useEscapeKey(onClose);
@@ -262,6 +270,7 @@ function IDCardModal({ user, subtitle, idPrefix, badge, stats, onClose, darkMode
   );
 }
 
+// Modal with two tabs — "Profile Info" (name/email) and "Change Password"
 function EditModal({ user, setUser, onClose, darkMode }) {
   const [tab, setTab] = useState("info");
   const [name, setName] = useState(user.name || "");
@@ -299,6 +308,7 @@ function EditModal({ user, setUser, onClose, darkMode }) {
     outline: "none",
   };
 
+  // PATCH the user's name and email then close the modal on success
   const handleInfoSave = async () => {
     try {
       setInfoError("");
@@ -334,6 +344,7 @@ function EditModal({ user, setUser, onClose, darkMode }) {
     }
   };
 
+  // Validate password fields then send a change-password request; closes modal on success
   const handlePasswordSave = async () => {
     setPwError("");
     setPwSuccess(false);
@@ -601,6 +612,7 @@ function EditModal({ user, setUser, onClose, darkMode }) {
   );
 }
 
+// Achievement badge tile — greyed out and grayscale when not yet earned
 function BadgeCard({ icon, title, desc, earned, bg, border, darkMode }) {
   return (
     <div
@@ -643,6 +655,7 @@ function BadgeCard({ icon, title, desc, earned, bg, border, darkMode }) {
   );
 }
 
+// Navigation tile that renders as a <Link> when `to` is provided, otherwise as a <button>
 function QuickAction({ to, icon, label, sub, onClick, darkMode }) {
   const style = {
     backgroundColor: darkMode ? "#0f1f3d" : "#ffffff",
@@ -725,6 +738,7 @@ export default function Profile({ darkMode = false }) {
   const [createdCourses, setCreatedCourses] = useState([]);
   const [createdCourseDetails, setCreatedCourseDetails] = useState([]);
 
+  // Load the logged-in user's profile, their enrollments, and (for instructors) their created courses with full details
   useEffect(() => {
     const fetchProfile = async () => {
       try {
