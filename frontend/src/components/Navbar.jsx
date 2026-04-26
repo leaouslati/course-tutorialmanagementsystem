@@ -16,16 +16,13 @@ function decodeToken(token) {
 
 export default function Navbar({ darkMode = false, toggleTheme = () => {} }) {
   const [name, setName] = useState(() => localStorage.getItem("user_name") ?? null);
+  const [token, setToken] = useState(() => localStorage.getItem("token"));
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const menuRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Read token at render time — Navbar re-renders on every route change (via
-  // useLocation), so token and decoded stay fresh after login/logout without
-  // needing an API call for role.
-  const token = localStorage.getItem("token");
   const decoded = token ? decodeToken(token) : null;
   const isLoggedIn = !!decoded;
   const role = decoded?.role;
@@ -111,6 +108,7 @@ export default function Navbar({ darkMode = false, toggleTheme = () => {} }) {
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user_name");
+    setToken(null);
     setName(null);
     navigate("/");
   };
