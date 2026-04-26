@@ -33,6 +33,7 @@ const FLOAT_ICONS = [
   { Icon: Star, right: "4%", bottom: "72%", size: 42, duration: "13s", delay: "2s" },
 ];
 
+// Reusable section heading with an optional subtitle, used across all home page sections
 function SectionHeader({ id, title, subtitle, darkMode }) {
   return (
     <header className="text-center mb-8 sm:mb-10 md:mb-14">
@@ -55,6 +56,8 @@ function SectionHeader({ id, title, subtitle, darkMode }) {
   );
 }
 
+// Flip card that shows a feature summary on the front and a bullet list on the back.
+// On desktop it flips on hover; on mobile it flips on tap.
 function FeatureCard({ feature, darkMode }) {
   const [flipped, setFlipped] = useState(false);
   const toggle = () => setFlipped((f) => !f);
@@ -190,6 +193,7 @@ export default function Home({ darkMode = false }) {
   const [statsData, setStatsData] = useState({ courseCount: 0, totalStudents: 0, avgRating: 0 });
   const [loading, setLoading] = useState(true);
 
+  // Load all courses and live stats on mount; derive top-4 by rating for the featured section
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -221,6 +225,7 @@ export default function Home({ darkMode = false }) {
   const statsRef = useRef(null);
   const [startCount, setStartCount] = useState(false);
 
+  // Fire the CountUp animations only when the stats section scrolls into view
   useEffect(() => {
     if (loading) return;
     const observer = new IntersectionObserver(
@@ -237,6 +242,7 @@ export default function Home({ darkMode = false }) {
     { label: "Average Rating", value: statsData.avgRating, color: "text-yellow-500", suffix: "", decimals: 2 },
   ];
 
+  // Format a stat value for the static (pre-animation) display: abbreviate thousands as "k"
   const formatStat = (stat) => {
     const { value, decimals, suffix, label } = stat;
     const safe = isFinite(value) ? value : 0;

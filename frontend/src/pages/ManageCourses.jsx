@@ -34,6 +34,7 @@ const emptyForm = {
 };
 
 
+// Labelled form field wrapper that renders an optional validation error below its children
 function Field({ label, error, children, htmlFor, labelCol }) {
   return (
     <div className="space-y-1.5">
@@ -61,6 +62,7 @@ function Field({ label, error, children, htmlFor, labelCol }) {
   );
 }
 
+// Modal form for creating or editing a course; validates required fields before calling onSave
 function CourseModal({ open, onClose, onSave, initial, isEditing, darkMode, saving }) {
   const [form, setForm] = useState(initial || emptyForm);
   const [errors, setErrors] = useState({});
@@ -255,6 +257,8 @@ function CourseModal({ open, onClose, onSave, initial, isEditing, darkMode, savi
   );
 }
 
+// Reusable delete-confirmation modal; heading, description and confirmLabel are customizable
+// so it can serve for course, module, and lesson deletion without duplication
 function DeleteModal({
   open, onClose, onConfirm, title, darkMode, deleting,
   heading = "Delete Course?",
@@ -326,8 +330,9 @@ function DeleteModal({
 }
 
 /* ─── Module Form Modal ─────────────────────────────────────────────────── */
-function ModuleModal({ open, onClose, onSave, courseId, darkMode, saving }) {
-  const [title, setTitle] = useState("");
+// Modal form for adding a new module to a course, or editing an existing one when isEditing is true
+function ModuleModal({ open, onClose, onSave, courseId, darkMode, saving, initial = null, isEditing = false }) {
+  const [title, setTitle] = useState(initial?.title || "");
   const [error, setError] = useState("");
   const titleId = "module-modal-title";
 
@@ -338,9 +343,9 @@ function ModuleModal({ open, onClose, onSave, courseId, darkMode, saving }) {
   const labelCol = darkMode ? "#94a3b8" : "#111827";
 
   useEffect(() => {
-    setTitle("");
+    setTitle(initial?.title || "");
     setError("");
-  }, [open]);
+  }, [open, initial]);
 
   useEffect(() => {
     if (!open) return;
@@ -358,7 +363,11 @@ function ModuleModal({ open, onClose, onSave, courseId, darkMode, saving }) {
       setError("Module title is required.");
       return;
     }
-    onSave({ courseId, title });
+    if (isEditing) {
+      onSave({ moduleId: initial.id, title });
+    } else {
+      onSave({ courseId, title });
+    }
   };
 
   const inputStyle = (hasErr) => ({
@@ -390,10 +399,10 @@ function ModuleModal({ open, onClose, onSave, courseId, darkMode, saving }) {
         >
           <div>
             <h2 id={titleId} className="text-lg font-extrabold text-white tracking-tight">
-              Add Module
+              {isEditing ? "Edit Module" : "Add Module"}
             </h2>
             <p style={{ fontSize: 12, color: "#bfdbfe", marginTop: 2 }}>
-              Add a new module to this course.
+              {isEditing ? "Update the module title below." : "Add a new module to this course."}
             </p>
           </div>
           <button
@@ -432,11 +441,11 @@ function ModuleModal({ open, onClose, onSave, courseId, darkMode, saving }) {
               icon={
                 saving
                   ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white inline-block" />
-                  : <PlusCircle className="h-4 w-4" />
+                  : isEditing ? <Edit className="h-4 w-4" /> : <PlusCircle className="h-4 w-4" />
               }
               className="flex-1 shadow"
             >
-              {saving ? "Creating…" : "Add Module"}
+              {saving ? (isEditing ? "Saving…" : "Creating…") : isEditing ? "Save Changes" : "Add Module"}
             </Button>
             <Button variant="secondary" size="md" darkMode={darkMode} onClick={onClose} disabled={saving} className="flex-1">
               Cancel
@@ -449,8 +458,17 @@ function ModuleModal({ open, onClose, onSave, courseId, darkMode, saving }) {
 }
 
 /* ─── Lesson Form Modal ─────────────────────────────────────────────────── */
-function LessonModal({ open, onClose, onSave, moduleId, darkMode, saving }) {
-  const [form, setForm] = useState({ title: "", content: "", duration: "", videoUrl: "" });
+// Modal form for adding a new lesson to a module, or editing an existing one when isEditing is true
+function LessonModal({ open, onClose, onSave, moduleId, darkMode, saving, initial = null, isEditing = false }) {
+  const blankForm = { title: "", content: "", duration: "", videoUrl: "" };
+  const fromInitial = (src) => ({
+    title: src?.title || "",
+    content: src?.content || "",
+    duration: src?.duration != null ? String(src.duration) : "",
+    videoUrl: src?.videoUrl || "",
+  });
+
+  const [form, setForm] = useState(initial ? fromInitial(initial) : blankForm);
   const [errors, setErrors] = useState({});
   const titleId = "lesson-modal-title";
 
@@ -461,9 +479,9 @@ function LessonModal({ open, onClose, onSave, moduleId, darkMode, saving }) {
   const labelCol = darkMode ? "#94a3b8" : "#111827";
 
   useEffect(() => {
-    setForm({ title: "", content: "", duration: "", videoUrl: "" });
+    setForm(initial ? fromInitial(initial) : blankForm);
     setErrors({});
-  }, [open]);
+  }, [open, initial]);
 
   useEffect(() => {
     if (!open) return;
@@ -483,7 +501,11 @@ function LessonModal({ open, onClose, onSave, moduleId, darkMode, saving }) {
     if (!form.title.trim()) e.title = "Lesson title is required.";
     setErrors(e);
     if (Object.keys(e).length) return;
-    onSave({ moduleId, ...form, duration: Number(form.duration) });
+    if (isEditing) {
+      onSave({ lessonId: initial.id, moduleId, ...form, duration: form.duration ? Number(form.duration) : null });
+    } else {
+      onSave({ moduleId, ...form, duration: Number(form.duration) });
+    }
   };
 
   const inputStyle = (hasErr) => ({
@@ -515,10 +537,10 @@ function LessonModal({ open, onClose, onSave, moduleId, darkMode, saving }) {
         >
           <div>
             <h2 id={titleId} className="text-lg font-extrabold text-white tracking-tight">
-              Add Lesson
+              {isEditing ? "Edit Lesson" : "Add Lesson"}
             </h2>
             <p style={{ fontSize: 12, color: "#bfdbfe", marginTop: 2 }}>
-              Add a new lesson to this module.
+              {isEditing ? "Update the lesson details below." : "Add a new lesson to this module."}
             </p>
           </div>
           <button
@@ -595,11 +617,11 @@ function LessonModal({ open, onClose, onSave, moduleId, darkMode, saving }) {
               icon={
                 saving
                   ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white inline-block" />
-                  : <PlusCircle className="h-4 w-4" />
+                  : isEditing ? <Edit className="h-4 w-4" /> : <PlusCircle className="h-4 w-4" />
               }
               className="flex-1 shadow"
             >
-              {saving ? "Creating…" : "Add Lesson"}
+              {saving ? (isEditing ? "Saving…" : "Creating…") : isEditing ? "Save Changes" : "Add Lesson"}
             </Button>
             <Button variant="secondary" size="md" darkMode={darkMode} onClick={onClose} disabled={saving} className="flex-1">
               Cancel
@@ -612,6 +634,8 @@ function LessonModal({ open, onClose, onSave, moduleId, darkMode, saving }) {
 }
 
 /* ─── Modules Panel Modal ───────────────────────────────────────────────── */
+// Panel modal that lists all modules and their lessons for one course;
+// provides buttons to add/delete modules, add/delete lessons, and delete the course itself
 function ModulesModal({
   open,
   onClose,
@@ -620,6 +644,8 @@ function ModulesModal({
   lessons,
   onAddModuleClick,
   onAddLessonClick,
+  onEditModuleClick,
+  onEditLessonClick,
   onDeleteModuleClick,
   onDeleteLessonClick,
   onDeleteCourseClick,
@@ -708,72 +734,89 @@ function ModulesModal({
                   >
                     {/* Module header row */}
                     <div
-                      className="flex items-center gap-3 px-4 py-3"
+                      className="px-4 pt-3 pb-2"
                       style={{ backgroundColor: rowBg }}
                     >
-                      {/* Clickable area — toggles lessons */}
-                      <button
-                        onClick={() => toggleModule(mod.id)}
-                        className="flex-1 text-left min-w-0"
-                        style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}
-                        aria-expanded={isExpanded}
-                      >
-                        <p className="text-xs font-bold uppercase tracking-wide mb-0.5" style={{ color: mutedCol }}>
-                          Module {idx + 1}
-                        </p>
-                        <p className="text-sm font-semibold leading-snug truncate" style={{ color: headingCol }}>
-                          {mod.title}
-                        </p>
-                        <p className="text-xs mt-0.5" style={{ color: mutedCol }}>
-                          {modLessons.length > 0
-                            ? `${modLessons.length} lesson${modLessons.length !== 1 ? "s" : ""} — click to ${isExpanded ? "hide" : "view"}`
-                            : "No lessons yet"}
-                        </p>
-                      </button>
+                      {/* Top: title + chevron */}
+                      <div className="flex items-start gap-2">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-bold uppercase tracking-wide mb-0.5" style={{ color: mutedCol }}>
+                            Module {idx + 1}
+                          </p>
+                          <p className="text-sm font-semibold leading-snug" style={{ color: headingCol }}>
+                            {mod.title}
+                          </p>
+                        </div>
+                        <button
+                          onClick={() => toggleModule(mod.id)}
+                          aria-label={isExpanded ? "Collapse lessons" : "Expand lessons"}
+                          aria-expanded={isExpanded}
+                          style={{ background: "none", border: "none", cursor: "pointer", padding: 4, color: mutedCol, display: "flex", flexShrink: 0, marginTop: 2 }}
+                        >
+                          <ChevronDown
+                            className="h-4 w-4 transition-transform duration-200"
+                            style={{ transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)" }}
+                            aria-hidden="true"
+                          />
+                        </button>
+                      </div>
 
-                      {/* Chevron toggle */}
-                      <button
-                        onClick={() => toggleModule(mod.id)}
-                        aria-label={isExpanded ? "Collapse lessons" : "Expand lessons"}
-                        style={{ background: "none", border: "none", cursor: "pointer", padding: 4, color: mutedCol, display: "flex", flexShrink: 0 }}
-                      >
-                        <ChevronDown
-                          className="h-4 w-4 transition-transform duration-200"
-                          style={{ transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)" }}
-                          aria-hidden="true"
-                        />
-                      </button>
-
-                      {/* Add lesson button */}
-                      <div className="shrink-0 flex items-center gap-2">
-  <button
-    onClick={() => onAddLessonClick(mod.id)}
-    className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-lg"
-    style={{
-      backgroundColor: darkMode ? "rgba(25,118,210,0.15)" : "#dbeafe",
-      color: darkMode ? "#60a5fa" : "#1d4ed8",
-      border: "none",
-      cursor: "pointer",
-    }}
-  >
-    <PlusCircle className="h-3.5 w-3.5" aria-hidden="true" />
-    Lesson
-  </button>
-
-  <button
-    onClick={() => onDeleteModuleClick(mod.id)}
-    className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-lg"
-    style={{
-      backgroundColor: darkMode ? "rgba(239,68,68,0.15)" : "#fee2e2",
-      color: "#dc2626",
-      border: "none",
-      cursor: "pointer",
-    }}
-  >
-    <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
-    Delete
-  </button>
-</div>
+                      {/* Bottom: lesson count hint + action buttons */}
+                      <div className="flex items-center justify-between mt-2 gap-2">
+                        <button
+                          onClick={() => toggleModule(mod.id)}
+                          style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}
+                        >
+                          <p className="text-xs" style={{ color: mutedCol }}>
+                            {modLessons.length > 0
+                              ? `${modLessons.length} lesson${modLessons.length !== 1 ? "s" : ""} — click to ${isExpanded ? "hide" : "view"}`
+                              : "No lessons yet"}
+                          </p>
+                        </button>
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          <button
+                            onClick={() => onAddLessonClick(mod.id)}
+                            className="flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-lg"
+                            style={{
+                              backgroundColor: darkMode ? "rgba(25,118,210,0.15)" : "#dbeafe",
+                              color: darkMode ? "#60a5fa" : "#1d4ed8",
+                              border: "none",
+                              cursor: "pointer",
+                            }}
+                          >
+                            <PlusCircle className="h-3.5 w-3.5" aria-hidden="true" />
+                            Lesson
+                          </button>
+                          <button
+                            onClick={() => onEditModuleClick(mod)}
+                            aria-label={`Edit module: ${mod.title}`}
+                            className="flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-lg"
+                            style={{
+                              backgroundColor: darkMode ? "rgba(245,158,11,0.15)" : "#fef3c7",
+                              color: darkMode ? "#fbbf24" : "#b45309",
+                              border: "none",
+                              cursor: "pointer",
+                            }}
+                          >
+                            <Edit className="h-3.5 w-3.5" aria-hidden="true" />
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => onDeleteModuleClick(mod.id)}
+                            aria-label={`Delete module: ${mod.title}`}
+                            className="flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-lg"
+                            style={{
+                              backgroundColor: darkMode ? "rgba(239,68,68,0.15)" : "#fee2e2",
+                              color: "#dc2626",
+                              border: "none",
+                              cursor: "pointer",
+                            }}
+                          >
+                            <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
+                            Delete
+                          </button>
+                        </div>
+                      </div>
                     </div>
 
                     {/* Lessons dropdown */}
@@ -811,19 +854,36 @@ function ModulesModal({
     </div>
   </div>
 
-  <button
-    onClick={() => onDeleteLessonClick(mod.id, lesson.id)}
-    className="shrink-0 flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-lg"
-    style={{
-      backgroundColor: darkMode ? "rgba(239,68,68,0.15)" : "#fee2e2",
-      color: "#dc2626",
-      border: "none",
-      cursor: "pointer",
-    }}
-  >
-    <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
-    Delete
-  </button>
+  <div className="shrink-0 flex items-center gap-1.5">
+    <button
+      onClick={() => onEditLessonClick(mod.id, lesson)}
+      aria-label={`Edit lesson: ${lesson.title}`}
+      className="flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-lg"
+      style={{
+        backgroundColor: darkMode ? "rgba(245,158,11,0.15)" : "#fef3c7",
+        color: darkMode ? "#fbbf24" : "#b45309",
+        border: "none",
+        cursor: "pointer",
+      }}
+    >
+      <Edit className="h-3.5 w-3.5" aria-hidden="true" />
+      Edit
+    </button>
+    <button
+      onClick={() => onDeleteLessonClick(mod.id, lesson.id)}
+      aria-label={`Delete lesson: ${lesson.title}`}
+      className="flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-lg"
+      style={{
+        backgroundColor: darkMode ? "rgba(239,68,68,0.15)" : "#fee2e2",
+        color: "#dc2626",
+        border: "none",
+        cursor: "pointer",
+      }}
+    >
+      <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
+      Delete
+    </button>
+  </div>
 </li>
                             ))}
                           </ul>
@@ -893,6 +953,10 @@ export default function ManageCourses({ darkMode = false }) {
   const [deleteLessonTarget, setDeleteLessonTarget] = useState(null);
   const [moduleDeleting, setModuleDeleting] = useState(false);
   const [lessonDeleting, setLessonDeleting] = useState(false);
+  const [editModuleTarget, setEditModuleTarget] = useState(null);
+  const [editLessonTarget, setEditLessonTarget] = useState(null);
+  const [moduleEditing, setModuleEditing] = useState(false);
+  const [lessonEditing, setLessonEditing] = useState(false);
 
   const pageBg = darkMode ? "#060f1e" : "#F4F8FD";
   const cardBg = darkMode ? "#0f1f3d" : "#ffffff";
@@ -967,6 +1031,7 @@ export default function ManageCourses({ darkMode = false }) {
 
   const closeModal = () => setModalOpen(false);
 
+  // Create or update a course depending on whether editingCourse is set, then refresh the list
   const saveCourse = async (form) => {
     setSaving(true);
     try {
@@ -997,6 +1062,7 @@ export default function ManageCourses({ darkMode = false }) {
     }
   };
 
+  // Delete the course targeted by deleteTarget and remove it from local state
   const confirmDelete = async () => {
     setDeleting(true);
     try {
@@ -1011,6 +1077,7 @@ export default function ManageCourses({ darkMode = false }) {
     }
   };
 
+  // POST a new module for the given course and append it to local state
   const handleAddModule = async ({ courseId, title }) => {
     setModuleSaving(true);
     try {
@@ -1030,6 +1097,7 @@ export default function ManageCourses({ darkMode = false }) {
     }
   };
 
+  // POST a new lesson for the given module and append it to local state
   const handleAddLesson = async ({ moduleId, title, content, duration, videoUrl }) => {
     setLessonSaving(true);
     try {
@@ -1048,11 +1116,13 @@ export default function ManageCourses({ darkMode = false }) {
       setLessonSaving(false);
     }
   };
+  // Set the module delete target so the confirmation modal appears
   const handleDeleteModule = (courseId, moduleId) => {
     const mod = (modules[courseId] || []).find((m) => m.id === moduleId);
     setDeleteModuleTarget({ courseId, moduleId, title: mod?.title || "This module" });
   };
 
+  // DELETE the module from the API and remove it (and its lessons) from local state
   const confirmDeleteModule = async () => {
     if (!deleteModuleTarget) return;
     const { courseId, moduleId } = deleteModuleTarget;
@@ -1078,11 +1148,13 @@ export default function ManageCourses({ darkMode = false }) {
     }
   };
 
+  // Set the lesson delete target so the confirmation modal appears
   const handleDeleteLesson = (moduleId, lessonId) => {
     const lesson = (lessons[moduleId] || []).find((l) => l.id === lessonId);
     setDeleteLessonTarget({ moduleId, lessonId, title: lesson?.title || "This lesson" });
   };
 
+  // DELETE the lesson from the API and remove it from local state
   const confirmDeleteLesson = async () => {
     if (!deleteLessonTarget) return;
     const { moduleId, lessonId } = deleteLessonTarget;
@@ -1107,6 +1179,57 @@ export default function ManageCourses({ darkMode = false }) {
     }
   };
   
+  // PUT /api/modules/:id — save the edited module title and update local state
+  const handleEditModuleSave = async ({ moduleId, title }) => {
+    setModuleEditing(true);
+    try {
+      const res = await authFetch(`/api/modules/${moduleId}`, {
+        method: "PUT",
+        body: JSON.stringify({ title }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || data.message || "Failed to update module");
+      const { courseId } = editModuleTarget;
+      setModules((prev) => ({
+        ...prev,
+        [courseId]: (prev[courseId] || []).map((m) =>
+          m.id === moduleId ? { ...m, title: data.title } : m
+        ),
+      }));
+      setEditModuleTarget(null);
+      notify("Module updated.");
+    } catch (err) {
+      notify(err.message || "Failed to update module", "error");
+    } finally {
+      setModuleEditing(false);
+    }
+  };
+
+  // PUT /api/lessons/:id — save the edited lesson fields and update local state
+  const handleEditLessonSave = async ({ lessonId, moduleId, title, content, duration, videoUrl }) => {
+    setLessonEditing(true);
+    try {
+      const res = await authFetch(`/api/lessons/${lessonId}`, {
+        method: "PUT",
+        body: JSON.stringify({ title, content, duration, videoUrl }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || data.message || "Failed to update lesson");
+      setLessons((prev) => ({
+        ...prev,
+        [moduleId]: (prev[moduleId] || []).map((l) =>
+          l.id === lessonId ? { ...l, title: data.title, content: data.content, duration: data.duration, videoUrl: data.videoUrl } : l
+        ),
+      }));
+      setEditLessonTarget(null);
+      notify("Lesson updated.");
+    } catch (err) {
+      notify(err.message || "Failed to update lesson", "error");
+    } finally {
+      setLessonEditing(false);
+    }
+  };
+
   if (loading) return <LoadingSpinner darkMode={darkMode} message="Loading courses…" fullPage />;
 
   return (
@@ -1368,17 +1491,19 @@ export default function ManageCourses({ darkMode = false }) {
 
       {/* Modules panel — opens from the card's "Manage Content" button */}
       <ModulesModal
-         open={!!contentPanelCourse}
-  onClose={() => setContentPanelCourse(null)}
-  course={contentPanelCourse}
-  modules={modules[contentPanelCourse?.id] || []}
-  lessons={lessons}
-  onAddModuleClick={() => setModuleModalCourseId(contentPanelCourse?.id)}
-  onAddLessonClick={(moduleId) => setLessonModalModuleId(moduleId)}
-  onDeleteModuleClick={(moduleId) => handleDeleteModule(contentPanelCourse?.id, moduleId)}
-  onDeleteLessonClick={(moduleId, lessonId) => handleDeleteLesson(moduleId, lessonId)}
-  onDeleteCourseClick={() => setDeleteTarget({ id: contentPanelCourse?.id, title: contentPanelCourse?.title })}
-  darkMode={darkMode}
+        open={!!contentPanelCourse}
+        onClose={() => setContentPanelCourse(null)}
+        course={contentPanelCourse}
+        modules={modules[contentPanelCourse?.id] || []}
+        lessons={lessons}
+        onAddModuleClick={() => setModuleModalCourseId(contentPanelCourse?.id)}
+        onAddLessonClick={(moduleId) => setLessonModalModuleId(moduleId)}
+        onEditModuleClick={(mod) => setEditModuleTarget({ courseId: contentPanelCourse?.id, module: mod })}
+        onEditLessonClick={(moduleId, lesson) => setEditLessonTarget({ moduleId, lesson })}
+        onDeleteModuleClick={(moduleId) => handleDeleteModule(contentPanelCourse?.id, moduleId)}
+        onDeleteLessonClick={(moduleId, lessonId) => handleDeleteLesson(moduleId, lessonId)}
+        onDeleteCourseClick={() => setDeleteTarget({ id: contentPanelCourse?.id, title: contentPanelCourse?.title })}
+        darkMode={darkMode}
       />
 
       <ModuleModal
@@ -1397,6 +1522,28 @@ export default function ManageCourses({ darkMode = false }) {
         moduleId={lessonModalModuleId}
         darkMode={darkMode}
         saving={lessonSaving}
+      />
+
+      <ModuleModal
+        open={!!editModuleTarget}
+        onClose={() => { if (!moduleEditing) setEditModuleTarget(null); }}
+        onSave={handleEditModuleSave}
+        courseId={editModuleTarget?.courseId}
+        darkMode={darkMode}
+        saving={moduleEditing}
+        initial={editModuleTarget?.module}
+        isEditing={true}
+      />
+
+      <LessonModal
+        open={!!editLessonTarget}
+        onClose={() => { if (!lessonEditing) setEditLessonTarget(null); }}
+        onSave={handleEditLessonSave}
+        moduleId={editLessonTarget?.moduleId}
+        darkMode={darkMode}
+        saving={lessonEditing}
+        initial={editLessonTarget?.lesson}
+        isEditing={true}
       />
     </div>
   );

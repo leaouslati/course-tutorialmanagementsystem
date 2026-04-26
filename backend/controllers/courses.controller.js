@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken'
 import pool from '../config/db.js'
 
+// Convert a snake_case DB row into the camelCase shape the frontend expects
 const normalize = (row) => ({
   id: row.id,
   title: row.title,
@@ -17,6 +18,8 @@ const normalize = (row) => ({
   createdAt: row.created_at,
 })
 
+// Return all courses, filtered and sorted by any combination of
+// ?category, ?difficulty, ?search, ?instructorId, ?sortRating, ?sortTime
 export const getCourses = async (req, res) => {
   try {
     const { category, difficulty, instructorId, search, sortRating, sortTime } = req.query
@@ -37,6 +40,7 @@ export const getCourses = async (req, res) => {
     if (instructorId) {
       let resolvedId = instructorId
 
+      // "me" is a special alias — resolve it to the authenticated user's id
       if (instructorId === 'me') {
         const header = req.headers.authorization
         if (!header || !header.startsWith('Bearer ')) {
@@ -90,8 +94,7 @@ export const getCourses = async (req, res) => {
   }
 }
 
-
-// GET /api/courses/:id — single course with modules + lessons
+// Return a single course by id, including its modules and lessons in order
 export const getCourseById = async (req, res) => {
   try {
     const { id } = req.params
@@ -124,6 +127,7 @@ export const getCourseById = async (req, res) => {
         [moduleIds]
       )
 
+      // Group lessons by their parent module id for efficient lookup
       const lessonsByModule = {}
 
       for (const lesson of lessonsResult.rows) {
@@ -156,7 +160,7 @@ export const getCourseById = async (req, res) => {
   }
 }
 
-// POST /api/courses — instructor only
+// Create a new course owned by the authenticated instructor
 export const createCourse = async (req, res) => {
   try {
     if (req.user.role !== 'instructor') {
@@ -185,12 +189,11 @@ export const createCourse = async (req, res) => {
   }
 }
 
-// PUT /api/courses/:id — instructor owner only
+// Update one or more fields on an existing course; only the owning instructor may do this
 export const updateCourse = async (req, res) => {
   try {
     const { id } = req.params
 
-    // Require at least one field in the body
     const { title, shortDescription, description, category, difficulty, duration, image } = req.body
     const hasField = [title, shortDescription, description, category, difficulty, duration, image]
       .some((v) => v !== undefined)
@@ -230,7 +233,7 @@ export const updateCourse = async (req, res) => {
   }
 }
 
-// DELETE /api/courses/:id — instructor owner only
+// Delete a course; only the owning instructor may do this
 export const deleteCourse = async (req, res) => {
   try {
     const { id } = req.params
@@ -253,22 +256,22 @@ export const deleteCourse = async (req, res) => {
   }
 }
 
-// GET /api/stats — aggregate stats for the home page
+// Return aggregate stats used by the home page (total courses, students, average rating)
 export const getStats = async (req, res) => {
   try {
     const [coursesRes, studentsRes, ratingRes] = await Promise.all([
       pool.query('SELECT COUNT(*) FROM courses'),
       pool.query('SELECT SUM(students_count) FROM courses'),
       pool.query('SELECT AVG(rating) FROM courses'),
-    ]);
+    ])
 
     res.json({
       totalCourses: parseInt(coursesRes.rows[0].count, 10),
       totalStudents: parseInt(studentsRes.rows[0].sum ?? 0, 10),
       averageRating: parseFloat(ratingRes.rows[0].avg ?? 0).toFixed(2),
-    });
+    })
   } catch (error) {
-    console.error('getStats error:', error);
-    res.status(500).json({ error: 'Server error' });
+    console.error('getStats error:', error)
+    res.status(500).json({ error: 'Server error' })
   }
-};
+}

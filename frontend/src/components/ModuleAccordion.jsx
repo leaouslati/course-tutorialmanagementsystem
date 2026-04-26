@@ -3,6 +3,7 @@ import { ChevronDown, Lock } from "lucide-react";
 import { useAuth } from "../pages/AuthContext";
 import { authFetch, API_URL } from '../api';
 
+// Full-screen lesson modal: embeds the video, traps focus, and closes on Escape or backdrop click
 const LessonModal = ({ lesson, moduleName, onClose, darkMode }) => {
   const embedUrl = lesson.url || lesson.videoUrl?.replace("watch?v=", "embed/");
   const modalRef = useRef(null);
@@ -118,6 +119,7 @@ const LessonModal = ({ lesson, moduleName, onClose, darkMode }) => {
   );
 };
 
+// Small circle indicator: green with a checkmark when completed, grey when locked, blue outline otherwise
 const StatusCircle = ({ completed, locked, darkMode }) => (
   <span
     role="img"
@@ -146,6 +148,7 @@ const StatusCircle = ({ completed, locked, darkMode }) => (
   </span>
 );
 
+// Accordion list of course modules; lessons are sequentially unlocked and progress is persisted to the API
 const ModuleAccordion = ({ modules = [], enrolled = false, courseId, darkMode = false }) => {
   const { updateProgress } = useAuth();
 
@@ -155,15 +158,20 @@ const ModuleAccordion = ({ modules = [], enrolled = false, courseId, darkMode = 
   const [completed, setCompleted] = useState({});
 
   const totalLessons = modules.reduce((sum, m) => sum + (m.lessons?.length ?? 0), 0);
+  // Returns true if the lesson has been marked complete in local state
   const isCompleted = (lessonId) => !!completed[lessonId];
+  // A lesson is unlocked if it's the first in the module or the previous one is done
   const isUnlocked = (lessons, index) => index === 0 || isCompleted(lessons[index - 1].id);
+  // Toggles open/close for the given module accordion panel
   const toggleModule = (id) => setOpenModule((prev) => (prev === id ? null : id));
 
+  // Opens the lesson modal for the selected lesson
   const openLesson = (lesson, moduleName) => {
     setActiveLesson(lesson);
     setActiveModName(moduleName);
   };
 
+ // Marks the active lesson complete, updates progress in local state and persists it to the API
  const closeLesson = async () => {
     if (activeLesson) {
       const updatedCompleted = { ...completed, [activeLesson.id]: true };

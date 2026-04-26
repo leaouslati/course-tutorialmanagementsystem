@@ -1,9 +1,10 @@
 import bcrypt from 'bcryptjs'
 import db from '../config/db.js'
 
+// Reusable regex test — rejects strings that aren't valid email addresses
 const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
 
-// GET /api/users/me — return the logged-in user's profile
+// Return the profile of the currently authenticated user
 export const getMe = async (req, res) => {
   try {
     const result = await db.query(
@@ -24,19 +25,18 @@ export const getMe = async (req, res) => {
   }
 }
 
-// PUT /api/users/me — update name, email, or password
+// Update the authenticated user's name, email, and/or password
+// Password change requires currentPassword for verification before hashing the new one
 export const updateMe = async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body
     const name = req.body.name?.trim()
     const email = req.body.email?.trim().toLowerCase()
 
-    // Validate email format if a new email is provided
     if (email !== undefined && !isValidEmail(email)) {
       return res.status(400).json({ error: 'Invalid email format' })
     }
 
-    // If changing password, currentPassword must be provided
     if (newPassword && !currentPassword) {
       return res.status(400).json({ error: 'currentPassword is required when setting a new password' })
     }
@@ -56,6 +56,7 @@ export const updateMe = async (req, res) => {
 
     const user = userResult.rows[0]
 
+    // Fall back to existing values if the fields were not sent
     const updatedName = name || user.name
     const updatedEmail = email || user.email
     let updatedPasswordHash = user.password_hash

@@ -2,10 +2,10 @@ import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import pool from '../config/db.js'
 
-// Simple email format check
+// Reusable regex test — rejects strings that aren't valid email addresses
 const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
 
-// REGISTER
+// Create a new user account, hash the password, and return a signed JWT
 export const register = async (req, res) => {
   try {
     const name = req.body.name?.trim()
@@ -38,6 +38,7 @@ export const register = async (req, res) => {
       return res.status(409).json({ message: 'Email already taken' })
     }
 
+    // bcrypt cost factor 10 is the standard balance of security vs. speed
     const passwordHash = await bcrypt.hash(password, 10)
 
     const result = await pool.query(
@@ -60,7 +61,54 @@ export const register = async (req, res) => {
   }
 }
 
-// CHECK EMAIL (used by forgot-password flow)
+// Verify credentials and return a signed JWT on success
+export const login = async (req, res) => {
+  try {
+    const email = req.body.email?.trim().toLowerCase()
+    const password = req.body.password?.trim()
+
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email and password are required' })
+    }
+
+    if (!isValidEmail(email)) {
+      return res.status(400).json({ error: 'Invalid email format' })
+    }
+
+    const result = await pool.query(
+      'SELECT id, name, email, password_hash, role FROM users WHERE email = $1',
+      [email]
+    )
+
+    if (result.rows.length === 0) {
+      // Use a generic message to avoid leaking whether the email exists
+      return res.status(401).json({ message: 'Invalid credentials' })
+    }
+
+    const user = result.rows[0]
+    const isMatch = await bcrypt.compare(password, user.password_hash)
+
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Invalid credentials' })
+    }
+
+    const token = jwt.sign(
+      { id: user.id, email: user.email, role: user.role },
+      process.env.JWT_SECRET || 'secret',
+      { expiresIn: '7d' }
+    )
+
+    return res.status(200).json({
+      token,
+      user: { id: user.id, name: user.name, email: user.email, role: user.role },
+    })
+  } catch (error) {
+    console.error('Login error:', error)
+    return res.status(500).json({ message: 'Internal server error' })
+  }
+}
+
+// Check whether an email address belongs to an existing account (used before the reset step)
 export const checkEmail = async (req, res) => {
   try {
     const email = req.body.email?.trim().toLowerCase()
@@ -84,90 +132,7 @@ export const checkEmail = async (req, res) => {
   }
 }
 
-// LOGIN
-export const login = async (req, res) => {
-  try {
-    const email = req.body.email?.trim().toLowerCase()
-    const password = req.body.password?.trim()
-
-    if (!email || !password) {
-      return res.status(400).json({ error: 'Email and password are required' })
-    }
-
-    if (!isValidEmail(email)) {
-      return res.status(400).json({ error: 'Invalid email format' })
-    }
-
-    const result = await pool.query(
-      'SELECT id, name, email, password_hash, role FROM users WHERE email = $1',
-      [email]
-    )
-
-    if (result.rows.length === 0) {
-      return res.status(401).json({ message: 'Invalid credentials' })
-    }
-
-    const user = result.rows[0]
-
-    const isMatch = await bcrypt.compare(password, user.password_hash)
-
-    if (!isMatch) {
-      return res.status(401).json({ message: 'Invalid credentials' })
-    }
-
-    const token = jwt.sign(
-      { id: user.id, email: user.email, role: user.role },
-      process.env.JWT_SECRET || 'secret',
-      { expiresIn: '7d' }
-    )
-
-    return res.status(200).json({
-      token,
-      user: { id: user.id, name: user.name, email: user.email, role: user.role }
-    })
-  } catch (error) {
-    console.error('Login error:', error)
-    return res.status(500).json({ message: 'Internal server error' })
-  }
-}
-
-// RESET PASSWORD
-export const resetPassword = async (req, res) => {
-  try {
-    const { email, newPassword } = req.body
-
-    if (!email || !newPassword) {
-      return res.status(400).json({ message: 'Email and new password are required' })
-    }
-
-    const userResult = await pool.query(
-      'SELECT id FROM users WHERE email = $1',
-      [email]
-    )
-
-    if (userResult.rows.length === 0) {
-      return res.status(404).json({ message: 'No account found with this email' })
-    }
-
-    if (newPassword.length < 8) {
-      return res.status(400).json({ message: 'Password must be at least 8 characters long' })
-    }
-
-    const hashedPassword = await bcrypt.hash(newPassword, 10)
-
-    await pool.query(
-      'UPDATE users SET password_hash = $1 WHERE email = $2',
-      [hashedPassword, email]
-    )
-
-    return res.status(200).json({ message: 'Password updated successfully' })
-  } catch (error) {
-    console.error('Reset password error:', error)
-    return res.status(500).json({ message: 'Internal server error' })
-  }
-}
-
-// FORGOT PASSWORD
+// Update a user's password directly using their email (no token link required)
 export const forgotPassword = async (req, res) => {
   try {
     const email = req.body.email?.trim().toLowerCase()
@@ -204,6 +169,42 @@ export const forgotPassword = async (req, res) => {
     return res.status(200).json({ message: 'Password updated successfully' })
   } catch (error) {
     console.error('Forgot password error:', error)
+    return res.status(500).json({ message: 'Internal server error' })
+  }
+}
+
+// Reset password using email + new password (called from the reset modal after checkEmail passes)
+export const resetPassword = async (req, res) => {
+  try {
+    const { email, newPassword } = req.body
+
+    if (!email || !newPassword) {
+      return res.status(400).json({ message: 'Email and new password are required' })
+    }
+
+    const userResult = await pool.query(
+      'SELECT id FROM users WHERE email = $1',
+      [email]
+    )
+
+    if (userResult.rows.length === 0) {
+      return res.status(404).json({ message: 'No account found with this email' })
+    }
+
+    if (newPassword.length < 8) {
+      return res.status(400).json({ message: 'Password must be at least 8 characters long' })
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10)
+
+    await pool.query(
+      'UPDATE users SET password_hash = $1 WHERE email = $2',
+      [hashedPassword, email]
+    )
+
+    return res.status(200).json({ message: 'Password updated successfully' })
+  } catch (error) {
+    console.error('Reset password error:', error)
     return res.status(500).json({ message: 'Internal server error' })
   }
 }
