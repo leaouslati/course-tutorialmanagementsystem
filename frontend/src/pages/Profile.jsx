@@ -1,4 +1,4 @@
-﻿import { Link } from "react-router-dom";
+﻿import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "../pages/AuthContext";
 import { authFetch } from "../api";
@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import LoadingSpinner from "../components/LoadingSpinner";
 import ErrorMessage from "../components/ErrorMessage";
+import Button from "../components/Button";
 
 const LEVELS = [
   { min: 80, label: "Expert", colorClass: "text-rose-500", bgClass: "bg-rose-50", hex: "#f43f5e" },
@@ -801,6 +802,7 @@ function QuickAction({ to, icon, label, sub, onClick, darkMode }) {
 
 export default function Profile({ darkMode = false }) {
   const { currentUser } = useAuth();
+  const navigate = useNavigate();
 
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -1172,32 +1174,35 @@ export default function Profile({ darkMode = false }) {
         {!isInstructor && enrolledCourses.length === 0 && (
           <section className="w-full max-w-5xl">
             <div
-              className="flex flex-col items-center justify-center py-16 text-center gap-4 rounded-2xl"
+              className="flex flex-col items-center justify-center py-14 text-center gap-5 rounded-2xl"
               style={{ backgroundColor: cardBg, border: `1px solid ${cardBorder}` }}
             >
-              <BookOpen className="w-10 h-10 opacity-40" style={{ color: mutedCol }} />
+              {/* Icon tile */}
+              <div
+                className="w-16 h-16 rounded-2xl flex items-center justify-center"
+                style={{ backgroundColor: darkMode ? "rgba(25,118,210,0.15)" : "#EBF4FD" }}
+              >
+                <BookOpen className="w-8 h-8" style={{ color: "#1976D2" }} />
+              </div>
 
-              <h2 className="text-lg font-semibold" style={{ color: headingCol }}>
-                Start learning
-              </h2>
+              <div className="flex flex-col gap-2">
+                <h2 className="text-xl font-bold" style={{ color: headingCol }}>
+                  Start your learning journey
+                </h2>
+                <p className="text-sm max-w-xs mx-auto leading-relaxed" style={{ color: subCol }}>
+                  You haven’t enrolled in any courses yet. Explore our catalog and find something you love.
+                </p>
+              </div>
 
-              <p className="text-sm" style={{ color: subCol }}>
-                You haven’t enrolled in any courses yet. Explore courses and begin your journey.
-              </p>
-
-              <Link
-                to="/courses"
-                className="px-6 py-3 rounded-xl font-semibold text-white transition"
-                style={{ backgroundColor: "#1976D2" }}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.backgroundColor = darkMode ? "#1565C0" : "#2196F3")
-                }
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.backgroundColor = "#1976D2")
-                }
+              <Button
+                variant="primary"
+                size="lg"
+                darkMode={darkMode}
+                onClick={() => navigate("/courses")}
+                iconRight={<ArrowRight className="w-4 h-4" />}
               >
                 Browse Courses
-              </Link>
+              </Button>
             </div>
           </section>
         )}

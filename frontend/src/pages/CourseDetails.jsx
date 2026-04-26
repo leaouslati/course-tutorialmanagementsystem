@@ -249,7 +249,7 @@ export default function CourseDetails({ darkMode = false }) {
             <span>Back to Courses</span>
           </Link>
 
-          {currentUser && (
+          {currentUser && !isInstructor && (
             <button
               onClick={() => toggleBookmark(course.id)}
               aria-label={saved ? "Remove bookmark" : "Bookmark this course"}
