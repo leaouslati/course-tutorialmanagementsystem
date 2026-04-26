@@ -48,7 +48,7 @@ export const getCourses = async (req, res) => {
         }
 
         try {
-          const decoded = jwt.verify(header.split(' ')[1], process.env.JWT_SECRET || 'secret')
+          const decoded = jwt.verify(header.split(' ')[1], process.env.JWT_SECRET)
           resolvedId = decoded.id
         } catch {
           return res.status(401).json({ message: 'Invalid or expired token' })
