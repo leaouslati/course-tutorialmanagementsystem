@@ -123,6 +123,13 @@ We developed a Course Tutorial Management System to help manage tutorials, cours
 ### Course Details Page
 ![Course Details page](./screenshots/CourseDetails-page.png)
 
+### Bookmark Filtering (Enrollments Page)
+![Bookmark Filtering (Enrollments Page)](./screenshots/Bookmarks-Enrollment-page.png)
+
+### Unenroll Confirmation
+![Unenroll Confirmation](./screenshots/Unenroll-Confirmation-page.png)
+
+
 
 ## Team Member Contributions
 
