@@ -399,6 +399,12 @@ We developed a Course Tutorial Management System to help manage tutorials, cours
 
 ---
 
+## Application Flow Overview
+
+Users register or log in to receive a JWT, which grants access based on their role (student or instructor). Students browse and enroll in courses, track progress, and manage their profile. Instructors create and manage courses, modules, and lessons through a dedicated interface.
+
+---
+
 ## Technical Challenges (Phase 2)
 
 ### 1. Ownership Verification for Nested Resources
@@ -410,3 +416,9 @@ The entire frontend was originally built on static mockdata with hardcoded IDs l
 
 ### 3. JWT Authentication Across Frontend and Backend
 Implementing a stateless authentication system required careful coordination between the frontend and backend. The backend signs a JWT on login containing the user's ID and role, while the frontend stores it in localStorage and attaches it to every protected request via the authFetch helper. Handling edge cases such as expired tokens, missing tokens on protected pages, and role-based access restrictions required updates across the AuthContext, ProtectedRoute, RoleRoute, and every page that makes authenticated API calls.
+
+---
+
+## License
+
+This project was developed for CSC 443 at the Lebanese American University and is intended for academic use only.
