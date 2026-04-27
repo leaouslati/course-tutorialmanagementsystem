@@ -12,6 +12,7 @@ const options = {
         'Protected endpoints require a Bearer JWT in the Authorization header.',
     },
     servers: [
+      { url: 'https://course-tutorialmanagementsystem.onrender.com', description: 'Production (Render)' },
       { url: 'http://localhost:3000', description: 'Local development' },
     ],
     components: {
